@@ -16,3 +16,5 @@ function __mi_setup__execute()
 }
 
 __mi_setup__execute "${packages_def}"
+
+unset here

@@ -1,0 +1,21 @@
+[core]
+	editor = "vim"
+
+[diff]
+	tool = "nvr"
+
+[difftool "nvr"]
+	cmd = "nvr -s -d $LOCAL $REMOTE"
+
+[init]
+	defaultBranch = "main"
+
+[merge]
+	tool = "nvr"
+
+[mergetool "nvr"]
+	cmd = "nvr -s -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd J | wincmd ='"
+
+[user]
+	email = "924277+mtwtkman@users.noreply.github.com"
+	name = "mtwtkman"

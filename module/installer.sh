@@ -37,3 +37,10 @@ function __mi_setup__iter_install()
     __mi_setup__install "${p}"
   done
 }
+
+function __mi_setup__do_install_extra()
+{
+  package_name=$1
+  installer="__mi_setup__install_extra_${package_name}"
+  eval "$(${installer})"
+}
