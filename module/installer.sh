@@ -2,13 +2,16 @@ source $__me_setup__module_dir_location/internal/main.sh
 
 function __mi_setup__detect_install_command()
 {
-  if [ $(__mi_setup__is_archlinux) = $(__mi_setup__true) ]; then
-    if [ $(__mi_setup__is_sudo_permitted) = $(__mi_setup__true) ]; then
-      echo "yes | sudo pacman -Sy"
-    else
-      echo "yes | pacman -Sy"
-    fi
-  fi
+  case __mi_setup__fetch_osname in
+    "arch")
+      if [ $(__mi_setup__is_archlinux) = $(__mi_setup__true) ]; then
+        __mi_setup__distro_arch_install_command
+      fi
+    ;;
+    *)
+      echo "unknown"
+      exit 1
+  esac
 }
 
 function __mi_setup__do_install()

@@ -14,12 +14,6 @@ function __mi_setup__fetch_osname()
   echo -n $osname
 }
 
-function __mi_setup__is_archlinux()
-{
-  osname=$(__mi_setup__fetch_osname)
-  __mi_setup__string_includes "${osname}" "arch"
-}
-
 function __mi_setup__is_sudo_permitted()
 {
   if [ $(__mi_setup__has_command "sudo") = $(__mi_setup__true) ]; then
