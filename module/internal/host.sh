@@ -1,17 +1,17 @@
-source $__mi_setup__module_internal_dir_location/bool.sh
-source $__mi_setup__module_internal_dir_location/prompt.sh
-source $__mi_setup__module_internal_dir_location/string.sh
+source "${__mi_setup__module_internal_dir_location}/bool.sh"
+source "${__mi_setup__module_internal_dir_location}/prompt.sh"
+source "${__mi_setup__module_internal_dir_location}/string.sh"
 
 function __mi_setup__fetch_osname()
 {
   IFS="=" read -ra value <<< $(grep '^NAME' /etc/os-release | tr "[:upper:]" "[:lower:]")
-  osname=${value[1]}
+  osname="${value[1]}"
 
   if [ -z "${osname}" ]; then
     __mi_setup__prompt_red "ABORT: Cannot detected OS name"
     exit 1
   fi
-  echo -n $osname
+  echo -n "${osname}"
 }
 
 function __mi_setup__is_sudo_permitted()

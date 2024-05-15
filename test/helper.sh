@@ -1,4 +1,5 @@
-__me_setup__test=./${dirname -- "${BASH_SOURCE[0]}"}
+__me_setup__test=./$(dirname -- "${BASH_SOURCE[0]}")
+
 
 function __me_setup__test_failed_message()
 {
@@ -12,6 +13,7 @@ function __me_setup__test_passed_message()
 
 function __me_setup__test_run_case()
 {
+  source "${1}"
 }
-
+__me_setup__test_run_case
 unset __me_setup__test

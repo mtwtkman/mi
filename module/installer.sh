@@ -1,4 +1,4 @@
-source $__me_setup__module_dir_location/internal/main.sh
+source "${__me_setup__module_dir_location}/internal/main.sh"
 
 function __mi_setup__detect_install_command()
 {

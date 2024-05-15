@@ -2,7 +2,7 @@
 
 here=./$(dirname -- "${BASH_SOURCE[0]}")
 packages_def="${here}/packages"
-source $here/module/main.sh
+source "${here}/module/main.sh"
 
 function __mi_setup__config()
 {
