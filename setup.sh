@@ -1,20 +1,12 @@
-#!/bin/sh
+here=./$(dirname "${BASH_SOURCE[0]}")
 
-here=./$(dirname -- "${BASH_SOURCE[0]}")
-packages_def="${here}/packages"
-source "${here}/module/main.sh"
+package_list="${here}/packages"
+commands="${here}/commands"
+packages="${commands}/packages"
+config="${commands}/config"
 
-function __mi_setup__config()
-{
-  echo 'todo'
-}
-
-function __mi_setup__execute()
-{
-  __mi_setup__iter_install "${1}"
-  __mi_setup__config
-}
-
-__mi_setup__execute "${packages_def}"
-
-unset here
+echo "==== Start setup. ===="
+sh "${commands}/installer/iter_install.sh" "${packages}"
+sh "${commands}/config/prepare.sh"
+sh "${commands}/config/iter_deploy.sh" "${packages}"
+echo "==== Finish setup. ===="
