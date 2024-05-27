@@ -7,7 +7,7 @@ true=$(sh "${helper}/bool/true.sh")
 osname="$(sh "${helper}/host/fetch_osname.sh")"
 
 if [ $(sh "${is_included}" "${osname}" "arch") = "${true}" ]; then
-  sh "${helper}/distro/arch/update_package.sh"
+  sh "${here}/../distro/arch/update_package.sh"
 else
   sh "${prompt}/red.sh" "ABORT: unknown"
   exit 1

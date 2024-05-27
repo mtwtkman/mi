@@ -2,7 +2,7 @@ here="$(dirname ${BASH_SOURCE[0]})"
 
 package_list="${here}/packages"
 commands="${here}/commands"
-package="${commands}/package"
+package="${here}/packages"
 config="${commands}/config"
 
 echo "==== Start setup. ===="

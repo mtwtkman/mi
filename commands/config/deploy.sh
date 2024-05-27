@@ -1,6 +1,6 @@
 here="$(dirname ${BASH_SOURCE[0]})"
 
-package_name="$1"
+package_name="${1}"
 package_setting_dir="${here}/../../pakcage/${package_name}"
 
 if [ ! -d "${package_name}" ]; then
