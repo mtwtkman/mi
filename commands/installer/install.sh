@@ -1,4 +1,5 @@
 here="$(dirname ${BASH_SOURCE[0]})"
+
 helper="${here}../helper"
 prompt="${helper}/prompt"
 blue="${prompt}/blue.sh"
@@ -11,6 +12,7 @@ if [ $(sh "${helper}/host/has_command" "${package_name}") = $(sh "${helper}/bool
   sh "${yello}" "SKIP: ${package_name} has been installed"
   exit 0
 fi
+
 sh "${blue}" "INSTALL: ${package_name}"
 eval "${install_command} ${package_name}"
 sh "${green}" "INSTALLED: ${package_name}"
