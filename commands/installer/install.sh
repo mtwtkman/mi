@@ -6,7 +6,7 @@ blue="${prompt}/blue.sh"
 green="${prompt}/green.sh"
 yellow="${prompt}/yellow.sh"
 install_command=$(sh "${here}/detect_install_command.sh")
-package_name=$1
+package_name="${1}"
 
 if [ $(sh "${helper}/host/has_command.sh" "${package_name}") = $(sh "${helper}/bool/true.sh") ]; then
   sh "${yello}" "SKIP: ${package_name} has been installed"

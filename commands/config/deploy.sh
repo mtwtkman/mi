@@ -9,4 +9,4 @@ fi
 
 sh "${here}../helper/prompt/blue.sh" "DEPLOY: ${package_name}"
 sh "${here}/../../package/${package_name}/deploy.sh"
-sh "${here}../helper/prompt/blue.sh" "DEPLOY DONE: ${package_name}"
+sh "${here}../helper/prompt/green.sh" "DEPLOIED: ${package_name}"

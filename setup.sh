@@ -2,11 +2,9 @@ here="$(dirname ${BASH_SOURCE[0]})"
 
 package_list="${here}/packages"
 commands="${here}/commands"
-package="${here}/packages"
 config="${commands}/config"
 
 echo "==== Start setup. ===="
-sh "${commands}/installer/iter_install.sh" "${package}"
 sh "${commands}/config/prepare.sh"
-sh "${commands}/config/iter_deploy.sh" "${packages}"
+sh "${commands}/helper/file/iter_active_rows.sh" ${package_list} "${commands}/entrypoint.sh"
 echo "==== Finish setup. ===="
