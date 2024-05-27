@@ -1,4 +1,4 @@
-here=./$(dirname "${BASH_SOURCE[0]}")
+here="$(dirname ${BASH_SOURCE[0]})"
 
 package_list="${here}/packages"
 commands="${here}/commands"
