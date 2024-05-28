@@ -1,13 +1,13 @@
-# gcc
-# docker
+gcc
+docker
 tmux
-# git
-# ripgrep
-# tree-sitter
-# neovim
-# fd
-# bat
-# fzf
-# direnv
-# jaq
-# lua-language-server
+git
+ripgrep
+tree-sitter
+neovim
+fd
+bat
+fzf
+direnv
+jaq
+lua-language-server
