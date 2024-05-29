@@ -270,12 +270,6 @@ local opts = {
   },
 }
 
-if vim.fn.has_key(vim.fn.environ(), "LAZY_NVIM_CONFIG_DIR") == 1 then
-  local config_dir = vim.env["LAZY_NVIM_CONFIG_DIR"]
-  vim.opt.runtimepath:append(config_dir)
-  opts.lockfile = config_dir .. "/plugin/lazy-lock.json"
-end
-
 lazy.setup(plugins, opts)
 
 vim.api.nvim_create_user_command("LazySync", lazy.sync, {})

@@ -25,6 +25,7 @@ export GIT_PS1_SHOWCOLORHINTS=true
 
 # NVIM
 export SNIPPET_PATH="${HOME}/.config/nvim/snippets"
+export EDITOR="nvim"
 
 # DIRENV
 eval "$(direnv hook bash)"
