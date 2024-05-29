@@ -6,20 +6,6 @@ if [[ $(uname -r) == *"WSL2"* ]]; then
   export LIBGL_ALWAYS_INDIRECT=0
 fi
 
-update()
-{
-  osname=$(sudo hostnamectl --json=pretty | jaq .OperatingSystemPrettyName)
-  if [[ "$osname" == *Ubuntu* ]]; then
-    cmd="sudo apt update && sudo apt upgrade -y && sudo apt autoremove"
-  elif [[ "$osname" ==  *Arch* ]]; then
-    cmd="sudo pacman -Syu"
-  else
-    echo "unknown $osname"
-  fi
-
-  eval $cmd
-}
-
 # GIT
 export GIT_PS1_SHOWCOLORHINTS=true
 
