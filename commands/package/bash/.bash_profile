@@ -1,6 +1,0 @@
-source /usr/share/git/completion/git-completion.bash
-source /usr/share/git/completion/git-prompt.sh
-
-if [ -f ~/.bashrc ]; then
-  . ~/.bashrc
-fi
