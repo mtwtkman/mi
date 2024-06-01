@@ -8,4 +8,4 @@ if [ $(sh "${helper}/host/has_command.sh" "${package_name}") = $(sh "${helper}/b
   exit 0
 fi
 
-sh "${helper}/host/skip_known_command_installation.sh" "${pacakge_name}" "${here}/do_install.sh"
+sh "${helper}/host/skip_known_command_installation.sh" "${package_name}" "${here}/do_install.sh"
