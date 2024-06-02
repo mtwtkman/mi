@@ -1,7 +1,7 @@
 here="$(dirname ${BASH_SOURCE[0]})"
 
 package_name="${1}"
-package_setting_dir="${here}/../package/${package_name}"
+package_setting_dir="${here}/../../packages/${package_name}"
 prompt="${here}/../helper/prompt"
 
 if [ ! -d "${package_setting_dir}" ]; then
