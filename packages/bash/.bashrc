@@ -4,6 +4,8 @@ source /usr/share/git/completion/git-prompt.sh
 source /usr/share/fzf/key-bindings.bash
 source /usr/share/fzf/completion.bash
 
+PATH="${HOME}/.local/bin:${PATH}"
+
 PS1='\e[1;34m\w\e[0m$(__git_ps1 " (%s)")\n\$ '
 export XDG_CONFIG_HOME="${HOME}/.config"
 
