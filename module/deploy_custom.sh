@@ -1,12 +1,12 @@
 abshere="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
 
-pushd "${abshere}/../packages" 1> /dev/null
+pushd "${abshere}/../packages-custom" 1> /dev/null
 
-prompt="${abshere}//helper/prompt/"
+prompt="${here}//helper/prompt/"
 
 for package in *
 do
-  deploy_sh="${here}/../packages/${package}/deploy.sh"
+  deploy_sh="${package}/deploy.sh"
   if [ -f "${deploy_sh}" ]; then
     sh "${prompt}/blue.sh" "DEPLOY: ${package}"
     sh "${deploy_sh}"
