@@ -15,17 +15,17 @@ mkdir "${dest}"
 sh "${prompt}/green.sh" "created \`${dest}\`"
 
 cat <<EOF > "${dest}/install.sh"
-here="\${dirname \${BASH_SOURCE[0]}}"
+here="\$(dirname \${BASH_SOURCE[0]})"
 
 sh "\${here}/../module/installer.sh" "${package_name}"
 EOF
 
-i [ "${with_config}" != "y" ]; then
+if [ "${with_config}" != "y" ]; then
   exit 0
 fi
 
 cat <<EOF > "${dest}/deploy.sh"
-here="\${dirname \${BASH_SOURCE[0]}}"
+here="\$(dirname \${BASH_SOURCE[0]})"
 
 sh "\${here}/../module/deploy.sh" "${package_name}"
 EOF

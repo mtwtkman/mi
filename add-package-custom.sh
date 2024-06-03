@@ -15,7 +15,7 @@ mkdir "${dest}"
 sh "${prompt}/green.sh" "created \`${dest}\`"
 
 cat <<EOF > "${dest}/install.sh"
-here="\${dirname \${BASH_SOURCE[0]}}"
+here="\$(dirname \${BASH_SOURCE[0]})"
 EOF
 
 if [ "${with_config}" != "y" ]; then
@@ -23,5 +23,5 @@ if [ "${with_config}" != "y" ]; then
 fi
 
 cat <<EOF > "${dest}/deploy.sh"
-here="\${dirname \${BASH_SOURCE[0]}}"
+here="\$(dirname \${BASH_SOURCE[0]})"
 EOF
