@@ -6,7 +6,7 @@ prompt="${here}/module/helper/prompt"
 package="${1}"
 package_path="${here}/packages/${pacakge}"
 
-if [ ! -d "${package_path" ]; then
+if [ ! -d "${package_path}" ]; then
   sh "${prompt}/red.sh" "Cannot find ${pacakge}."
   exit 0
 fi
