@@ -1,8 +1,10 @@
-here="$(dirname ${BASH_SOURCE[0]})"
+abshere="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
 
-declare -a packages="$(ls ${here}/../packages)"
+pushd "${abshere}/../packages" 1> /dev/null
 
-for package in "${packages[0]}"
+for package in *
 do
-  sh "${here}/installer/install.sh" "${package}"
+  sh "${abshere}/installer/install.sh" "${package}"
 done
+
+popd 1> /dev/null

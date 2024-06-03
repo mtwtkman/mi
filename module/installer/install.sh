@@ -4,7 +4,7 @@ helper="${here}/../helper"
 package_name="${1}"
 
 if [ $(sh "${helper}/host/has_command.sh" "${package_name}") = $(sh "${helper}/bool/true.sh") ]; then
-  sh "${yello}" "SKIP: ${package_name} has been installed"
+  sh "${here}/../helper/prompt/yellow.sh" "SKIP: ${package_name} has been installed"
   exit 0
 fi
 
