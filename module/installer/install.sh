@@ -2,8 +2,10 @@ here="$(dirname ${BASH_SOURCE[0]})"
 
 helper="${here}/../helper"
 package_name="${1}"
+checker=$(sh "${here}/detect_installed_checker.sh")
+t="$(sh ${helper}/bool/true.sh)"
 
-if [ $(sh "${helper}/host/has_command.sh" "${package_name}") = $(sh "${helper}/bool/true.sh") ]; then
+if [ $(sh "${helper}/host/has_command.sh" "${package_name}") = "${t}" ] || [ $(sh "${checker}" "${package_name}") = "${t}" ]; then
   sh "${here}/../helper/prompt/yellow.sh" "SKIP: ${package_name} has been installed"
   exit 0
 fi
