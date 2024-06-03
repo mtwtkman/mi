@@ -1,35 +1,35 @@
 # Initial setup
-`curl https://raw.githubusercontent.com/mtwtkman/mi/setup.sh | sh -s`
+`curl https://raw.githubusercontent.com/mtwtkman/mi/setup | sh -s`
 
 # Add package installation
 
 ## via distro repository
-`./add-package.sh <package>`
+`./add-package <package>`
 
 ## by manually
-`./add-package-custom.sh <package>`
+`./add-package-custom <package>`
 
 # Install isolatedly
 
 ## via distro repository
-`./force-install.sh <package>`
+`./force-install <package>`
 
 ## by manually
-`./force-install-custom.sh <package>`
+`./force-install-custom <package>`
 
 # Configure configuration isolatedly
 
 ## when the package has been installed via distro repository
-`./force-deploy.sh <package>`
+`./force-deploy <package>`
 
 ## when the package has been installed by manually
-`./force-deploy-custom.sh <package>`
+`./force-deploy-custom <package>`
 
 
 #  Update isolated
 
 ## when the package has been installed via distro repository
-`./update.sh <package>`
+`./update <package>`
 
 ## when the package has been installed by manually
-`./update-custom.sh <package>`
+`./update-custom <package>`
