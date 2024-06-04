@@ -4,10 +4,10 @@ here="$(dirname ${BASH_SOURCE[0]})"
 prompt="${here}/module/helper/prompt"
 
 package="${1}"
-package_path="${here}/packages/${pacakge}"
+package_path="${here}/packages/${package}"
 
 if [ ! -d "${package_path}" ]; then
-  sh "${prompt}/red.sh" "Cannot find ${pacakge}."
+  sh "${prompt}/red.sh" "Cannot find ${package}."
   exit 0
 fi
 

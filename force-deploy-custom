@@ -14,7 +14,7 @@ fi
 deploy_sh="${package_dir}/deploy.sh"
 
 if [ ! -f "${deploy_sh}" ]; then
-  sh "${prompt}/red.sh" "Cannot find a `deploy.sh` at ${package_dir}."
+  sh "${prompt}/red.sh" "Cannot find a \`deploy.sh\` at ${package_dir}."
   exit 0
 fi
 
