@@ -1,4 +1,9 @@
 #!/bin/sh
+if [ ! command -v "unzip" &> /dev/null ]; then
+  echo "Mi requires \`unzip\`. Please install it."
+  exit 0
+fi
+
 local_dir="${HOME}/.local"
 
 if [ ! -d "${local_dir}" ]; then
