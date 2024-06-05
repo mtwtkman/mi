@@ -1,35 +1,43 @@
-# Initial setup
-`curl https://raw.githubusercontent.com/mtwtkman/mi/setup | sh -s`
+# Mi
+`mi` is a environemnt setup script for personal use.
 
-# Add package installation
+This script depends on ArchLinux heavily.
 
-## via distro repository
+At first, all you need is `curl https://raw.githubusercontent.com/mtwtkman/mi/init | sh -s`.
+
+# Usage
+
+## Setup all dependencies
+`./setup`
+
+## Add package installation
+
+### via distro repository
 `./add-package <package>`
 
-## by manually
+### by manually
 `./add-package-custom <package>`
 
-# Install isolatedly
+## Install isolatedly
 
-## via distro repository
+### via distro repository
 `./force-install <package>`
 
-## by manually
+### by manually
 `./force-install-custom <package>`
 
-# Configure configuration isolatedly
+## Configure configuration isolatedly
 
-## when the package has been installed via distro repository
+### when the package has been installed via distro repository
 `./force-deploy <package>`
 
-## when the package has been installed by manually
+### when the package has been installed by manually
 `./force-deploy-custom <package>`
 
+##  Update isolated
 
-#  Update isolated
-
-## when the package has been installed via distro repository
+### when the package has been installed via distro repository
 `./update <package>`
 
-## when the package has been installed by manually
+### when the package has been installed by manually
 `./update-custom <package>`
