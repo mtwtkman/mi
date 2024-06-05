@@ -6,6 +6,11 @@ prompt="${module}/helper/prompt"
 config="${module}/config"
 bootstrap="${here}/bootstrap"
 
+user_config_dir="${HOME}/.config"
+if [ ! -d "${user_config_dir}" ]; then
+  mkdir "${user_config_dir}"
+fi
+
 sh "${prompt}/blue.sh" "==== Start setup. ===="
 sh "${module}/install.sh"
 sh "${module}/deploy.sh"

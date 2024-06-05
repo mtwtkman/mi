@@ -6,11 +6,11 @@ prompt="${abshere}//helper/prompt/"
 
 for package in *
 do
-  deploy_sh="${here}/../packages/${package}/deploy.sh"
+  deploy_sh="${package}/deploy.sh"
   if [ -f "${deploy_sh}" ]; then
     sh "${prompt}/blue.sh" "DEPLOY: ${package}"
     sh "${deploy_sh}"
-    sh "${prompt}/blue.sh" "DEPLOIED: ${package}"
+    sh "${prompt}/green.sh" "DEPLOIED: ${package}"
   fi
 done
 

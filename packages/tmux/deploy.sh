@@ -1,14 +1,10 @@
 here="$(dirname ${BASH_SOURCE[0]})"
+abshere="$(readlink -m ${here})"
 
-dest="${XDG_CONFIG_HOME}/tmux"
+file_helper="${here}/../../module/helper/file"
 
-sh "${here}/../../module/helper/file/create_directory_if_necessary.sh" "${dest}"
-cp "${here}/tmux.conf" "${dest}"
+dest="${HOME}/.config/tmux"
+sh "${file_helper}/create_directory_if_necessary.sh" "${dest}"
 
-
-plugins="${dest}/plugins"
-if [ -d "${plugins}" ]; then
-  exit 0
-fi
-
-mkdir "${plugins}"
+sh "${file_helper}/refresh_link.sh" "${abshere}/tmux.conf" "${dest}"
+sh "${file_helper}/create_directory_if_necessary.sh" "${dest}/plugins"

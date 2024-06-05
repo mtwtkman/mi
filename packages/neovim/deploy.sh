@@ -1,6 +1,4 @@
 here="$(dirname ${BASH_SOURCE[0]})"
+abshere="$(readlink -m ${here})"
 
-dest="${XDG_CONFIG_HOME}/nvim"
-
-sh "${here}/../module/helper/file/create_directory_if_necessary.sh" "${dest}"
-cp -a "${here}/config" "${dest}"
+sh "${here}/../../module/helper/file/refresh_link.sh" "${abshere}/config" "${HOME}/.config/nvim"
