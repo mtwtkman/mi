@@ -3,7 +3,7 @@
 
 This script depends on ArchLinux heavily.
 
-At first, all you need is `curl https://raw.githubusercontent.com/mtwtkman/mi/init | sh -s`.
+At first, all you need is `curl https://raw.githubusercontent.com/mtwtkman/mi/main/init | sh -s`.
 
 # Usage
 

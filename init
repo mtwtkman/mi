@@ -1,5 +1,4 @@
 #!/bin/sh
-
 local_dir="${HOME}/.local"
 
 if [ ! -d "${local_dir}" ]; then
