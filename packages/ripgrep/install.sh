@@ -1,3 +1,3 @@
 here="$(dirname ${BASH_SOURCE[0]})"
 
-sh "${here}/../module/installer.sh" "ripgrep"
+sh "${here}/../../module/installer/install.sh" "ripgrep"

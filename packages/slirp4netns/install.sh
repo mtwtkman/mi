@@ -1,3 +1,3 @@
 here="$(dirname ${BASH_SOURCE[0]})"
 
-sh "${here}/../module/installer.sh" "slirp4netns"
+sh "${here}/../../module/installer/install.sh" "slirp4netns"

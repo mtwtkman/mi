@@ -12,9 +12,9 @@ if [ ! -d "${user_config_dir}" ]; then
 fi
 
 sh "${prompt}/blue.sh" "==== Start setup. ===="
-sh "${module}/install.sh"
-sh "${module}/deploy.sh"
-sh "${module}/install_custom.sh"
-sh "${module}/deploy_custom.sh"
+sh "${module}/install_batch.sh"
+sh "${module}/deploy_batch.sh"
+sh "${module}/install_custom_batch.sh"
+sh "${module}/deploy_custom_batch.sh"
 sh "${module}/user-bin/update.sh"
 sh "${prompt}/blue.sh" "==== Finish setup. ===="

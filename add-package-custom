@@ -1,3 +1,4 @@
+#!/bin/sh
 read -r -p "with config? [y/n]: " with_config
 prompt="./module/helper/prompt"
 

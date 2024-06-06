@@ -1,3 +1,3 @@
 here="$(dirname ${BASH_SOURCE[0]})"
 
-sh "${here}/../module/installer.sh" "tree-sitter"
+sh "${here}/../../module/installer/install.sh" "tree-sitter"

@@ -18,7 +18,7 @@ sh "${prompt}/green.sh" "created \`${dest}\`"
 cat <<EOF > "${dest}/install.sh"
 here="\$(dirname \${BASH_SOURCE[0]})"
 
-sh "\${here}/../module/installer.sh" "${package_name}"
+sh "\${here}/../../module/installer/install.sh" "${package_name}"
 EOF
 
 if [ "${with_config}" != "y" ]; then
@@ -28,5 +28,5 @@ fi
 cat <<EOF > "${dest}/deploy.sh"
 here="\$(dirname \${BASH_SOURCE[0]})"
 
-sh "\${here}/../module/deploy.sh" "${package_name}"
+sh "\${here}/../../module/installer/deploy.sh" "${package_name}"
 EOF
