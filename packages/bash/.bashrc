@@ -70,3 +70,7 @@ alias vr='nvr -c '\''set number'\'''
 alias vrh='vr -cc split --remote-wait'
 alias vrv='vr -cc vsplit --remote-wait'
 alias vt='vim +terminal'
+
+# ASDF
+source "${HOME}/.asdf/asdf.sh"
+source "${HOME}/.asdf/completions/asdf.bash"
