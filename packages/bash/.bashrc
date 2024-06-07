@@ -4,6 +4,7 @@ source /usr/share/git/completion/git-prompt.sh
 source /usr/share/fzf/key-bindings.bash
 source /usr/share/fzf/completion.bash
 
+MI_HOME="${HOME}/.local/mi"
 PATH="${HOME}/.local/bin:${PATH}"
 
 PS1='\e[1;34m\w\e[0m$(__git_ps1 " (%s)")\n\$ '
@@ -70,6 +71,7 @@ alias vr='nvr -c '\''set number'\'''
 alias vrh='vr -cc split --remote-wait'
 alias vrv='vr -cc vsplit --remote-wait'
 alias vt='vim +terminal'
+alias edit:mi="vim ${MI_HOME}"
 
 # ASDF
 source "${HOME}/.asdf/asdf.sh"
