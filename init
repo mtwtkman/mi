@@ -1,4 +1,3 @@
-set -x
 #!/bin/sh
 if ! command -v "unzip" &> /dev/null; then
   echo "Mi requires \`unzip\`. Please install it."
@@ -20,10 +19,10 @@ if [ -d "${dest}" ]; then
 fi
 
 mkdir "${dest}"
-pushd "${local_dir}"
+pushd "${local_dir}" &> /dev/null
 curl https://github.com/mtwtkman/mi/archive/refs/heads/main.zip -L -o ./mi.zip
 tmpdir="${local_dir}/mi-main-$(date +%s)"
 unzip ./mi.zip -d "${tempdir}"
 mv "${tempdir}/mi-main/" "${dest}"
 rm -rf "${tempdir}"
-popd &> 1
+popd &> /dev/null
