@@ -170,16 +170,6 @@ local plugins = {
     "mfussenegger/nvim-jdtls",
   },
   {
-    "utilyre/barbecue.nvim",
-    dependencies = {
-      "SmiteshP/nvim-navic",
-      "nvim-tree/nvim-web-devicons",
-    },
-    config = function()
-      require("plugins.barbecue")
-    end,
-  },
-  {
     "akinsho/toggleterm.nvim",
     config = function()
       require("plugins.toggleterm")
@@ -261,6 +251,15 @@ local plugins = {
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
     },
+  },
+  {
+    "Bekaboo/dropbar.nvim",
+    dependencies = {
+      "nvim-telescope/telescope-fzf-native.nvim",
+    },
+    config = function ()
+      require("plugins.dropbar")
+    end,
   },
 }
 
