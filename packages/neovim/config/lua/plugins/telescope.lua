@@ -1,6 +1,7 @@
 local utils = require("utils")
 local nmap = utils.nmap
 local telescope = require("telescope")
+local builtin = require("telescope.builtin")
 
 telescope.setup({
   defaults = {
@@ -22,11 +23,23 @@ telescope.setup({
   },
 })
 
-local builtin = require("telescope.builtin")
 nmap("<leader>o", builtin.find_files, { silent = true })
 nmap("<leader>fg", builtin.live_grep, { silent = true })
 nmap("<leader>fw", builtin.grep_string, { silent = true })
-nmap("<leader>b", builtin.buffers, { silent = true })
+nmap("<leader>b", function()
+  builtin.buffers({
+    attach_mappings = function(prompt_bufnr, map)
+      local delete_buf = function()
+        local current_picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
+        current_picker:delete_selection(function(selection)
+          vim.api.nvim_buf_delete(selection.bufnr, { force = true })
+        end)
+      end
+      map("n", "<C-d>", delete_buf)
+      return true
+    end,
+  })
+end, { silent = true })
 nmap("<leader>hh", builtin.oldfiles, { silent = true })
 nmap("<leader>h:", builtin.command_history, { silent = true })
 nmap("<leader>h/", builtin.search_history, { silent = true })
