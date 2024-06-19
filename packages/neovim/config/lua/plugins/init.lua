@@ -257,8 +257,14 @@ local plugins = {
     dependencies = {
       "nvim-telescope/telescope-fzf-native.nvim",
     },
-    config = function ()
+    config = function()
       require("plugins.dropbar")
+    end,
+  },
+  {
+    "folke/zen-mode.nvim",
+    config = function()
+      require("plugins.zen-mode");
     end,
   },
 }
