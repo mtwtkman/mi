@@ -10,7 +10,11 @@ require("lualine").setup({
     theme = catppuccin_theme,
   },
   sections = {
-    lualine_b = { "grapple" },
+    lualine_b = {
+      "grapple",
+      "branch",
+      "diagnostics",
+    },
     lualine_c = {
       {
         "filename",
