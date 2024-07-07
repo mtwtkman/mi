@@ -1,5 +1,5 @@
 # Mi
-`mi` is a environemnt setup script for personal use.
+`mi` is a environment setup script for very personal use.
 
 This script depends on ArchLinux heavily.
 
@@ -26,7 +26,7 @@ At first, all you need is `curl https://raw.githubusercontent.com/mtwtkman/mi/ma
 ### by manually
 `./force-install-custom <package>`
 
-## Configure configuration isolatedly
+## Configure isolatedly
 
 ### when the package has been installed via distro repository
 `./force-deploy <package>`
