@@ -17,6 +17,11 @@ fi
 # GIT
 export GIT_PS1_SHOWCOLORHINTS=true
 
+function git:po()
+{
+  git push origin "$(git branch --show-current)"
+}
+
 # NVIM
 export NVIM_LUASNIP_SNIPPETS_PATH="${HOME}/.config/nvim/snippets"
 export EDITOR="nvim"
@@ -74,7 +79,6 @@ alias vt='vim +terminal'
 alias edit:mi="vim ${MI_HOME}"
 alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./setup && popd"
-alias git:po="git push origin $(git branch --show-current)"
 
 # ASDF
 source "${HOME}/.asdf/asdf.sh"
