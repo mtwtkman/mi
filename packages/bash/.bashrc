@@ -73,6 +73,7 @@ alias vrv='vr -cc vsplit --remote-wait'
 alias vt='vim +terminal'
 alias edit:mi="vim ${MI_HOME}"
 alias mi="pushd ${MI_HOME}"
+alias git:po="git push origin $(git branch --show-current)"
 
 # ASDF
 source "${HOME}/.asdf/asdf.sh"
