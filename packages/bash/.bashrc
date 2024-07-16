@@ -76,9 +76,9 @@ alias vr='nvr -c '\''set number'\'''
 alias vrh='vr -cc split --remote-wait'
 alias vrv='vr -cc vsplit --remote-wait'
 alias vt='vim +terminal'
-alias edit:mi="vim ${MI_HOME}"
 alias mi="pushd ${MI_HOME}"
-alias miup="mi && ./setup && popd"
+alias miup="mi && ./setup && popd && vim +LazySync"
+alias miedit="vim ${MI_HOME}"
 
 # ASDF
 source "${HOME}/.asdf/asdf.sh"
