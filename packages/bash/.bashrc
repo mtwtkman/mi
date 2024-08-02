@@ -66,19 +66,20 @@ fcd()
 }
 
 # ALIAS
-alias l='ls -CF'
-alias la='ls -A'
-alias ll='ls -alF'
-alias v='vim'
-alias vim='nvim --listen /tmp/nvimsocket'
-alias vimdiff='nvim -d'
-alias vr='nvr -c '\''set number'\'''
-alias vrh='vr -cc split --remote-wait'
-alias vrv='vr -cc vsplit --remote-wait'
-alias vt='vim +terminal'
+alias l="ls -CF"
+alias la="ls -A"
+alias ll="ls -alF"
+alias v="vim"
+alias vim="nvim --listen /tmp/nvimsocket"
+alias vimdiff="nvim -d"
+alias vrh="vr -cc split --remote-wait"
+alias vrv="vr -cc vsplit --remote-wait"
+alias vt="vim +terminal"
+alias ve="vim ${MI_HOME}/packages/neovim/config"
 alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./setup && popd && vim +LazySync"
 alias miedit="vim ${MI_HOME}"
+alias mie="miedit"
 
 # ASDF
 source "${HOME}/.asdf/asdf.sh"
