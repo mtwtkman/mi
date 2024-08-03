@@ -84,3 +84,6 @@ alias mie="miedit"
 # ASDF
 source "${HOME}/.asdf/asdf.sh"
 source "${HOME}/.asdf/completions/asdf.bash"
+
+# PODMAN
+source <(podman completion bash)

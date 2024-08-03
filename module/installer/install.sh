@@ -11,6 +11,4 @@ if [ $(sh "${helper}/host/has_command.sh" "${package_name}") = "${t}" ] || [ $(s
   exit 0
 fi
 
-sh "${prompt}/blue.sh" "INSTALL: ${package_name}"
 sh "${helper}/host/skip_known_command_installation.sh" "${package_name}" "${here}/do_install.sh"
-sh "${prompt}/green.sh" "INSTALLED: ${package_name}"
