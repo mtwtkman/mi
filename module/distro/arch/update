@@ -1,3 +1,4 @@
 #!/bin/sh
 
+pacman -Qqd | sudo pacman -Rsu -
 sudo pacman -Syu
