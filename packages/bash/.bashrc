@@ -1,4 +1,4 @@
-### BASIC SETTING ###
+### BASIC ###
 # ENVVAR
 MI_HOME="${HOME}/.local/mi"
 PATH="${HOME}/.local/bin:${PATH}"
@@ -6,7 +6,6 @@ export XDG_CONFIG_HOME="${HOME}/.config"
 if [[ $(uname -r) == *"WSL2"* ]]; then
   export LIBGL_ALWAYS_INDIRECT=0
 fi
-PS1='\e[1;34m\w\e[0m\n\$ '
 
 # COMPLETION
 [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && source /usr/share/bash-completion/bash_completion
@@ -18,8 +17,9 @@ alias ll="ls -alF"
 alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./setup && popd"
 alias miedit="${EDITOR} ${MI_HOME}"
+alias mie="miedit"
 
-### TOOL SETTING ###
+### TOOL ###
 # ASDF
 if command -v "asdf" &> /dev/null; then
   source "${HOME}/.asdf/asdf.sh"
@@ -29,6 +29,11 @@ fi
 # DIRENV
 if command -v "direnv" &> /dev/null; then
   eval "$(direnv hook bash)"
+fi
+
+# DISTROBOX
+if [[ "${DISTROBOX_ENTER_PATH}" ]] then
+  ps1_distrobox="\e[1;36m \e[m "
 fi
 
 # FZF
@@ -70,8 +75,8 @@ fi
 
 # GIT
 if command -v "git" &> /dev/null; then
+  ps1_git='$(__git_ps1 " (%s)")'
   export GIT_PS1_SHOWCOLORHINTS=true
-  PS1='\e[1;34m\w\e[0m$(__git_ps1 " (%s)")\n\$ '
 
   function git:po()
   {
@@ -102,3 +107,6 @@ if command -v "podman" &> /dev/null; then
   source <(podman completion bash)
 fi
 
+# PROMPT
+ps1_base="\e[1;34m\w\e[0m"
+export PS1="${ps1_distrobox}${ps1_base}${ps1_git}\n$ "
