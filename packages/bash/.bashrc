@@ -1,9 +1,4 @@
 # HOST
-source /usr/share/git/completion/git-completion.bash
-source /usr/share/git/completion/git-prompt.sh
-source /usr/share/fzf/key-bindings.bash
-source /usr/share/fzf/completion.bash
-
 MI_HOME="${HOME}/.local/mi"
 PATH="${HOME}/.local/bin:${PATH}"
 
@@ -87,3 +82,10 @@ source "${HOME}/.asdf/completions/asdf.bash"
 
 # PODMAN
 source <(podman completion bash)
+
+# COMPLETION
+[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && source /usr/share/bash-completion/bash_completion
+source /usr/share/git/completion/git-completion.bash
+source /usr/share/git/completion/git-prompt.sh
+source /usr/share/fzf/key-bindings.bash
+source /usr/share/fzf/completion.bash
