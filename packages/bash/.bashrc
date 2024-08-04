@@ -33,7 +33,7 @@ fi
 
 # DISTROBOX
 if [[ "${DISTROBOX_ENTER_PATH}" ]] then
-  ps1_distrobox="\e[1;36m \e[m "
+  ps1_distrobox="\e[1;36m${CONTAINER_ID} \e[m "
 fi
 
 # FZF
