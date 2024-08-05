@@ -31,11 +31,6 @@ if command -v "direnv" &> /dev/null; then
   eval "$(direnv hook bash)"
 fi
 
-# DISTROBOX
-if [[ "${DISTROBOX_ENTER_PATH}" ]] then
-  ps1_distrobox="\e[1;36m${CONTAINER_ID} \e[m "
-fi
-
 # FZF
 if command -v "fzf" &> /dev/null; then
   export FZF_DEFAULT_COMMAND="rg --files --no-ignore --hidden --follow -g \"!{.git,node_modules}/*\" 2> /dev/null"
@@ -109,4 +104,4 @@ fi
 
 # PROMPT
 ps1_base="\e[1;34m\w\e[0m"
-export PS1="${ps1_distrobox}${ps1_base}${ps1_git}\n$ "
+export PS1="${ps1_base}${ps1_git}\n$ "
