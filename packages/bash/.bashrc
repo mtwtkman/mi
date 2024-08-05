@@ -68,6 +68,9 @@ if command -v "fzf" &> /dev/null; then
   source /usr/share/fzf/completion.bash
 fi
 
+# GHCUP
+[ -f "${HOME}/.ghcup/env" ] && . "${HOME}/.ghcup/env"
+
 # GIT
 if command -v "git" &> /dev/null; then
   ps1_git='$(__git_ps1 " (%s)")'
