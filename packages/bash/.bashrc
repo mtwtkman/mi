@@ -21,10 +21,8 @@ alias mie="miedit"
 
 ### TOOL ###
 # ASDF
-if command -v "asdf" &> /dev/null; then
-  source "${HOME}/.asdf/asdf.sh"
-  source "${HOME}/.asdf/completions/asdf.bash"
-fi
+source "${HOME}/.asdf/asdf.sh"
+source "${HOME}/.asdf/completions/asdf.bash"
 
 # DIRENV
 if command -v "direnv" &> /dev/null; then

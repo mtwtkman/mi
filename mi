@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+set -o
+here="$(dirname ${BASH_SOURCE[0]})"
+
+source "${here}/modules/message.sh"
+
+IFS="=" read -ra value <<< $(grep '^NAME' /etc/os-release | tr "[:upper:]" "[:lower:]")
+osname="${value[1]}"
+
+if [ -z "${osname}" ]; then
+  red "Cannot detected OS name."
+  exit 1
+fi
+
+cmd=""
+
+case "${osname}" in
+  *arch*) cmd="${here}/distro/archlinux.sh";;
+  *)
+    red "No definition for ${osname}."
+    exit 0
+    ;;
+esac
+
+sh "${cmd}" $@
