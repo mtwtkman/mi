@@ -21,7 +21,7 @@ alias mie="miedit"
 
 ### TOOL ###
 # ASDF
-if command -v "asdf" &> /dev/null; then
+if [ -d "${HOME}/.asdf" ]; then
   source "${HOME}/.asdf/asdf.sh"
   source "${HOME}/.asdf/completions/asdf.bash"
 fi
