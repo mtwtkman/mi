@@ -112,9 +112,6 @@ end
 
 require("nvim-tree").setup({
   on_attach = on_attach,
-  trash = {
-    cmd = "trash-put",
-  },
   diagnostics = {
     enable = true,
   },
