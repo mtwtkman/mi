@@ -4,7 +4,7 @@ if ! command -v "unzip" &> /dev/null; then
   exit 0
 fi
 
-local_dir="${HOME}/.localx"
+local_dir="${HOME}/.local"
 
 if [ ! -d "${local_dir}" ]; then
   mkdir "${local_dir}"
