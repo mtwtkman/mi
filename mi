@@ -1,9 +1,9 @@
 #!/bin/sh
-set -e
-set -o
-here="$(dirname ${BASH_SOURCE[0]})"
+here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
 
 source "${here}/modules/message.sh"
+
+sh "${here}/modules/prepare.sh"
 
 IFS="=" read -ra value <<< $(grep '^NAME' /etc/os-release | tr "[:upper:]" "[:lower:]")
 osname="${value[1]}"

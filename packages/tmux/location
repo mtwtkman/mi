@@ -1,2 +1,2 @@
 #!/bin/sh
-ehco "${HOME}/.config/tmux"
+echo "${HOME}/.config/tmux"

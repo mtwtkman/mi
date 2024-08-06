@@ -1,10 +1,11 @@
-here="$(dirname ${BASH_SOURCE[0]})"
+here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
+common="${here}/_common.sh"
 
 source "${here}/../modules/message.sh"
 
 install_basic_packages()
 {
-  blue "Install packages."
+  blue "Install basic packages."
   sudo pacman -Syu
   sudo pacman -Sy \
     bash \
@@ -24,11 +25,16 @@ install_basic_packages()
     slirp4netns \
     tmux \
     tree-sitter
+  if [ $? != 0 ]; then
+    red "Abort."
+    exit 0
+  fi
 }
 
 install_external_packages()
 {
-  source "${here}/_common.sh"
+  blue "Install basic packages."
+  source "${common}"
   load_asdf
   load_catppuccin_tmux
   install_python3
@@ -38,26 +44,28 @@ install_external_packages()
 
 deploy_settings()
 {
-  blue "Deploy settings."
-  pushd packages &> /dev/null
+  blue "Deploy configs."
+  pushd "${here}/../packages" &> /dev/null
   for target in *
   do
-    yellow "=> Deploy ${target} configs."
-    sh "${here}/modules/deploy.sh" "${target}"
-    yellow "==> Done."
+    yellow "Deploy ${target} configs."
+    sh "${here}/../modules/deploy.sh" "${target}"
+    yellow "Done."
   done
   popd &> /dev/null
   green "Done."
 
   blue "Deploy update script."
-  echo "sudo pacman -Syu" > "${HOME}/.local/bin/update"
+  update_script="${HOME}/.local/bin/update"
+  echo "sudo pacman -Syu" > "${update_script}"
+  yellow "Created ${update_script}"
   green "Done."
 }
 
 update_packages()
 {
-  sudo pacman -Syu
-  source "${here}/_common.sh"
+
+  source "${common}"
   load_asdf
   load_catppuccin_tmux
   upgrade_pip

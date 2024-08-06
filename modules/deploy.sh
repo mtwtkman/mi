@@ -1,4 +1,6 @@
-here="$(dirname ${BASH_SOURCE[0]})"
+here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
+
+source "${here}/message.sh"
 
 target=$1
 pushd "${here}/../packages/${target}" &> /dev/null
@@ -9,6 +11,8 @@ do
   if [ "${f}" = "location" ]; then
     continue;
   fi
-  sh "${here}/make_link.sh" "$(readlink -m ${f})" "${dest}"
+  src="$(readlink -m ${f})"
+  sh "${here}/make_link.sh" "${src}" "${dest}"
+  green "Created symlink of "${src}" to "${dest}""
 done
 popd &> /dev/null
