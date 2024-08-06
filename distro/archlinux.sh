@@ -48,9 +48,9 @@ deploy_settings()
   pushd "${here}/../packages" &> /dev/null
   for target in *
   do
-    yellow "Deploy ${target} configs."
+    blue "Deploy ${target} configs."
     sh "${here}/../modules/deploy.sh" "${target}"
-    yellow "Done."
+    green "Done."
   done
   popd &> /dev/null
   green "Done."
