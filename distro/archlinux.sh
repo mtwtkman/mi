@@ -58,6 +58,7 @@ deploy_settings()
   blue "Deploy update script."
   update_script="${HOME}/.local/bin/update"
   echo "sudo pacman -Syu" > "${update_script}"
+  chmod +x "${update_script}"
   yellow "Created ${update_script}"
   green "Done."
 }

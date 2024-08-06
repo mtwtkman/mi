@@ -1,7 +1,7 @@
 ### BASIC ###
 # ENVVAR
 MI_HOME="${HOME}/.local/mi"
-PATH="${HOME}/.local/bin:${PATH}"
+export PATH="${HOME}/.local/bin:${PATH}"
 export XDG_CONFIG_HOME="${HOME}/.config"
 if [[ $(uname -r) == *"WSL2"* ]]; then
   export LIBGL_ALWAYS_INDIRECT=0
@@ -15,7 +15,7 @@ alias l="ls -CF"
 alias la="ls -A"
 alias ll="ls -alF"
 alias mi="pushd ${MI_HOME}"
-alias miup="mi && ./setup && popd"
+alias miup="mi && ./mi update && popd"
 alias miedit="${EDITOR} ${MI_HOME}"
 alias mie="miedit"
 
@@ -97,7 +97,7 @@ if command -v "nvim" &> /dev/null; then
   alias vrh="vr -cc split --remote-wait"
   alias vrv="vr -cc vsplit --remote-wait"
   alias vt="vim +terminal"
-  alias ve="vim ${MI_HOME}/packages/neovim/config"
+  alias ve="vim ${MI_HOME}/packages/neovim/this"
 fi
 
 # PODMAN
