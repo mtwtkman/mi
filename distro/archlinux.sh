@@ -27,7 +27,7 @@ install_basic_packages()
     tree-sitter
   if [ $? != 0 ]; then
     red "Abort."
-    exit 0
+    exit 1
   fi
 }
 
