@@ -18,6 +18,7 @@ alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./mi update && popd"
 alias miedit="${EDITOR} ${MI_HOME}"
 alias mie="miedit"
+alias allup="update && miup && vim +LazySync"
 
 ### TOOL ###
 # ASDF
