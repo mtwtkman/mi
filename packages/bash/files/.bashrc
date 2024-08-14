@@ -16,8 +16,6 @@ alias la="ls -A"
 alias ll="ls -alF"
 alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./mi update && popd"
-alias miedit="${EDITOR} ${MI_HOME}"
-alias mie="miedit"
 alias allup="update && miup && vim +LazySync"
 
 ### TOOL ###
@@ -98,6 +96,8 @@ if command -v "nvim" &> /dev/null; then
   alias vrv="vr -cc vsplit --remote-wait"
   alias vt="vim +terminal"
   alias ve="vim ${MI_HOME}/packages/neovim/this"
+  alias miedit="${EDITOR} ${MI_HOME}"
+  alias mie="miedit"
   function vim()
   {
     if [ -z ${NVIM} ]; then
