@@ -23,7 +23,7 @@ telescope.setup({
   },
 })
 
-nmap("<leader>o", builtin.find_files, { silent = true })
+nmap("<leader>o", function() builtin.find_files({hidden=true}) end, { silent = true })
 nmap("<leader>fg", builtin.live_grep, { silent = true })
 nmap("<leader>fw", builtin.grep_string, { silent = true })
 nmap("<leader>b", function()
