@@ -75,10 +75,6 @@ if command -v "git" &> /dev/null; then
   ps1_git='$(__git_ps1 " (%s)")'
   export GIT_PS1_SHOWCOLORHINTS=true
 
-  function git:po()
-  {
-    git push origin "$(git branch --show-current)"
-  }
   source /usr/share/git/completion/git-completion.bash
   source /usr/share/git/completion/git-prompt.sh
 fi
