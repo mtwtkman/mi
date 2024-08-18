@@ -114,5 +114,6 @@ if command -v "podman" &> /dev/null; then
 fi
 
 # PROMPT
+ps1_head="${PS1_HEAD:-}"
 ps1_base="\e[1;34m\w\e[0m"
-export PS1="${ps1_base}${ps1_git}\n$ "
+export PS1="${ps1_head}${ps1_base}${ps1_git}\n$ "
