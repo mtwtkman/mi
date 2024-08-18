@@ -6,8 +6,8 @@ source "${here}/../modules/message.sh"
 install_basic_packages()
 {
   blue "Install basic packages."
-  sudo pacman -Syu
-  sudo pacman -Sy \
+  yes | sudo pacman -Syu
+  yes | sudo pacman -Sy \
     bash \
     bash-completion \
     bat \
