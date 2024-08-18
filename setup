@@ -10,12 +10,16 @@ if [ ! -d "${local_dir}" ]; then
   mkdir "${local_dir}"
 fi
 
+force="${FORCE:-}"
 dest="${local_dir}/mi"
 
 if [ -d "${dest}" ]; then
-  pushd "${dest}"
-  echo "Here is your setting collection at ${dest}. bye."
-  exit 0
+  if [ -z "${force}" ]; then
+    pushd "${dest}"
+    echo "Here is your setting collection at ${dest}. bye."
+    exit 0
+  fi
+  rm -rf "${dest}"
 fi
 
 pushd "${local_dir}" &> /dev/null
