@@ -14,7 +14,7 @@ dest="${local_dir}/mi"
 
 if [ -d "${dest}" ]; then
   pushd "${dest}"
-  echo "Here is your setting collection. bye."
+  echo "Here is your setting collection at ${dest}. bye."
   exit 0
 fi
 
