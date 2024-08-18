@@ -5,20 +5,28 @@ source "${here}/modules/message.sh"
 
 sh "${here}/modules/prepare.sh"
 
-IFS="=" read -ra value <<< $(grep '^NAME' /etc/os-release | tr "[:upper:]" "[:lower:]")
-osname="${value[1]}"
+distro="${DISTRO:-autodetect}"
 
-if [ -z "${osname}" ]; then
-  red "Cannot detected OS name."
-  exit 1
+if [ "${distro}" = "autodetect" ]; then
+  if [ ! -e "/etc/os-release" ]; then
+    red "/etc/os-release not found."
+    exit 1
+  fi
+  IFS="=" read -ra value <<< $(grep '^NAME' /etc/os-release | tr "[:upper:]" "[:lower:]")
+  distro="${value[1]}"
+  if [ -z "${distro}" ]; then
+    red "Cannot detected OS name."
+    exit 1
+  fi
 fi
 
 cmd=""
 
-case "${osname}" in
+case "${distro}" in
   *arch*) cmd="${here}/distro/archlinux.sh";;
+  *android*|*termux*) cmd="${here}/distro/android.sh";;
   *)
-    red "No definition for ${osname}."
+    red "No definition for ${distro}."
     exit 0
     ;;
 esac

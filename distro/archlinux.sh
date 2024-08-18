@@ -1,6 +1,6 @@
 here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
-common="${here}/_common.sh"
 
+source "${here}/_common.sh"
 source "${here}/../modules/message.sh"
 
 install_basic_packages()
@@ -32,45 +32,9 @@ install_basic_packages()
   fi
 }
 
-install_external_packages()
+update_basic_packages()
 {
-  blue "Install basic packages."
-  source "${common}"
-  load_asdf
-  load_catppuccin_tmux
-  install_python3
-  install_neovim_remote
-  green "Done."
-}
-
-deploy_settings()
-{
-  blue "Deploy configs."
-  pushd "${here}/../packages" &> /dev/null
-  for target in *
-  do
-    blue "Deploy ${target} configs."
-    sh "${here}/../modules/deploy.sh" "${target}"
-    green "Done."
-  done
-  popd &> /dev/null
-  green "Done."
-
-  blue "Deploy update script."
-  update_script="${HOME}/.local/bin/update"
-  echo "sudo pacman -Syu" > "${update_script}"
-  chmod +x "${update_script}"
-  yellow "Created ${update_script}"
-  green "Done."
-}
-
-update_packages()
-{
-
-  source "${common}"
-  load_asdf
-  load_catppuccin_tmux
-  upgrade_pip
+  yes | sudo pacman -Syu
 }
 
 usage()
@@ -84,10 +48,13 @@ case $cmd in
   install)
     install_basic_packages
     deploy_settings
-    install_external_packages
+    install_common_packages
     ;;
   deploy) deploy_settings;;
-  update) update_packages;;
+  update)
+    update_basic_packages
+    update_common_pacakges
+    ;;
   purge)
     pacman -Qqd | sudo pacman -Rsu -
     ;;

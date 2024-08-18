@@ -16,7 +16,6 @@ alias la="ls -A"
 alias ll="ls -alF"
 alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./mi update && popd"
-alias allup="update && miup && vim +LazySync"
 
 ### TOOL ###
 # ASDF

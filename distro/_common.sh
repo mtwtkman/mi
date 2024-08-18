@@ -76,4 +76,33 @@ upgrade_pip()
   green "Done"
 }
 
+install_common_packages()
+{
+  blue "Install basic packages."
+  load_asdf
+  load_catppuccin_tmux
+  install_python3
+  install_neovim_remote
+  green "Done."
+}
 
+update_common_packages()
+{
+  load_asdf
+  load_catppuccin_tmux
+  upgrade_pip
+}
+
+deploy_settings()
+{
+  blue "Deploy configs."
+  pushd "${here}/../packages" &> /dev/null
+  for target in *
+  do
+    blue "Deploy ${target} configs."
+    sh "${here}/../modules/deploy.sh" "${target}"
+    green "Done."
+  done
+  popd &> /dev/null
+  green "Done."
+}
