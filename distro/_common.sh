@@ -5,6 +5,17 @@ source "${here}/../modules/message.sh"
 asdf_dir="${HOME}/.asdf"
 tmux_plugins_dir="${HOME}/.config/tmux/plugins"
 
+install_basic_packages()
+{
+  install_command="${1}"
+  blue "Install basic packages."
+  eval "${install_command}"
+  if [ $? != 0 ]; then
+    red "Abort."
+    exit 1
+  fi
+}
+
 load_asdf()
 {
   blue "Load asdf"
@@ -105,4 +116,31 @@ deploy_settings()
   done
   popd &> /dev/null
   green "Done."
+}
+
+perform()
+{
+  install_command="${1}"
+  update_command="${2}"
+  purge_command="${3}"
+  target_command="${4}"
+  case "${target_command}" in
+    install)
+      install_basic_packages "${install_command}"
+      deploy_settings
+      install_common_packages
+      ;;
+    deploy) deploy_settings;;
+    update)
+      eval "${update_command}"
+      update_common_packages
+      ;;
+    purge)
+      eval "${purge_command}"
+      ;;
+    *)
+      red "Available commands are: install,deploy,update,purge"
+      exit 1
+      ;;
+  esac
 }
