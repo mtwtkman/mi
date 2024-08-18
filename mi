@@ -31,4 +31,9 @@ case "${distro}" in
     ;;
 esac
 
+if [ -z "${cmd}" ]; then
+  red "Unknown distro ${distro}"
+  exit 1
+fi
+
 sh "${cmd}" $@
