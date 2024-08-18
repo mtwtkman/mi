@@ -53,7 +53,7 @@ case $cmd in
   deploy) deploy_settings;;
   update)
     update_basic_packages
-    update_common_pacakges
+    update_common_packages
     ;;
   purge)
     pacman -Qqd | sudo pacman -Rsu -
