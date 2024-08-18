@@ -11,6 +11,7 @@ install_basic_packages()
     bash \
     bash-completion \
     bat \
+    crun \
     direnv \
     fd \
     fzf \
