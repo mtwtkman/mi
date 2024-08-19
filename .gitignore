@@ -1,2 +1,3 @@
 packages/neovim/this/lazy-lock.json
 packages/tmux/this/plugins/*
+Containerfile
