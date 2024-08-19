@@ -1,3 +1,6 @@
 return {
-  servername = "bashls"
+  servername = "bashls",
+  config = {
+    filetypes = { "sh", "bash" },
+  },
 }
