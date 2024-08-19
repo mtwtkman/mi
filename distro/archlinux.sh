@@ -4,6 +4,7 @@ install_command="
   yes | sudo pacman -Sy \
     bash \
     bash-completion \
+    bash-language-server \
     bat \
     crun \
     direnv \

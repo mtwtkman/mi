@@ -2,20 +2,11 @@ here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
 
 source "${here}/../modules/message.sh"
 
+# EXTERNAL PACKAGES
 asdf_dir="${HOME}/.asdf"
 tmux_plugins_dir="${HOME}/.config/tmux/plugins"
 
-install_basic_packages()
-{
-  install_command="${1}"
-  blue "Install basic packages."
-  eval "${install_command}"
-  if [ $? != 0 ]; then
-    red "Abort."
-    exit 1
-  fi
-}
-
+## ASDF
 load_asdf()
 {
   blue "Load asdf"
@@ -29,6 +20,15 @@ load_asdf()
   green "Done"
 }
 
+depends_on_asdf()
+{
+  if [ ! -d "${asdf_dir}" ]; then
+    load_asdf
+  fi
+  source "${asdf_dir}/asdf.sh"
+}
+
+## TMUX
 load_catppuccin_tmux()
 {
   blue "Load catppuccin-tmux"
@@ -45,14 +45,7 @@ load_catppuccin_tmux()
   green "Done"
 }
 
-depends_on_asdf()
-{
-  if [ ! -d "${asdf_dir}" ]; then
-    load_asdf
-  fi
-  source "${asdf_dir}/asdf.sh"
-}
-
+## PYTHON
 install_python3()
 {
   blue "Install python3"
@@ -63,6 +56,14 @@ install_python3()
   green "Done"
 }
 
+upgrade_pip()
+{
+  blue "Upgrade pip"
+  depends_on_python3
+  pip install --upgrade pip
+  green "Done"
+}
+
 depends_on_python3()
 {
   if ! command -v "python" &> /dev/null; then
@@ -70,6 +71,7 @@ depends_on_python3()
   fi
 }
 
+## NEOVIM
 install_neovim_remote()
 {
   blue "Install neovim-remote"
@@ -79,13 +81,18 @@ install_neovim_remote()
   green "Done"
 }
 
-upgrade_pip()
+# BASIC PACKAGES
+install_basic_packages()
 {
-  blue "Upgrade pip"
-  depends_on_python3
-  pip install --upgrade pip
-  green "Done"
+  install_command="${1}"
+  blue "Install basic packages."
+  eval "${install_command}"
+  if [ $? != 0 ]; then
+    red "Abort."
+    exit 1
+  fi
 }
+
 
 install_common_packages()
 {
@@ -117,6 +124,8 @@ deploy_settings()
   popd &> /dev/null
   green "Done."
 }
+
+# ENTRYPOINT
 
 perform()
 {
