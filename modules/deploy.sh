@@ -1,4 +1,5 @@
-here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
+#!/bin/bash
+here="$(eval "${abspath_getter}" $(dirname ${BASH_SOURCE[0]}))"
 
 source "${here}/message.sh"
 

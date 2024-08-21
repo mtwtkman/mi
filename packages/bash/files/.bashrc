@@ -1,6 +1,7 @@
 ### BASIC ###
 # ENVVAR
 MI_HOME="${HOME}/.local/mi"
+LC_ALL=C
 export PATH="${HOME}/.local/bin:${PATH}"
 export XDG_CONFIG_HOME="${HOME}/.config"
 if [[ $(uname -r) == *"WSL2"* ]]; then

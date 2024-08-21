@@ -1,5 +1,5 @@
-here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
-
+#!/bin/bash
+here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 source "${here}/../modules/message.sh"
 
 # EXTERNAL PACKAGES
@@ -133,6 +133,7 @@ perform()
   update_command="${2}"
   purge_command="${3}"
   target_command="${4}"
+  cmd="${5}"
   case "${target_command}" in
     install)
       install_basic_packages "${install_command}"

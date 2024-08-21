@@ -1,8 +1,8 @@
 #!/bin/bash
-here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
+here="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
 
 install_command="
-  yes | sudo pacman -Sy \
+  brew install \
     bash \
     bash-completion \
     bash-language-server \
@@ -24,8 +24,8 @@ install_command="
     tmux \
     tree-sitter
 "
-update_command="yes | sudo pacman -Syu"
-purge_command="pacman -Qqd | sudo pacman -Rsu -"
+update_command="brew update"
+purge_command="brew autoremove"
 
 source "${here}/_common.sh"
 perform "${install_command}" "${update_command}" "${purge_command}" "${1}"

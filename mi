@@ -1,5 +1,28 @@
 #!/bin/sh
-here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
+# COMPOAT
+ostype="$(uname -o | tr "[:upper:]" "[:lower:]")"
+declare -a candidates=("linux" "darwin")
+for name in "${candidates[@]}"
+do
+  if [[ "${ostype}" =~ "${name}" ]]; then
+    osname="${name}"
+    break
+  fi
+done
+
+case "${osname}" in
+  linux)
+    export MI_ABSPATH_GETTER="readlink -m"
+    ;;
+  darwin)
+    export MI_ABSPATH_GETTER="readlink -f"
+    ;;
+  *)
+    echo "Cannot detect os type"
+    exit 1
+esac
+
+here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 
 source "${here}/modules/message.sh"
 
@@ -7,13 +30,18 @@ sh "${here}/modules/prepare.sh"
 
 distro="${DISTRO:-autodetect}"
 
-if [ "${distro}" = "autodetect" ]; then
-  if [ ! -e "/etc/os-release" ]; then
-    red "/etc/os-release not found."
-    exit 1
-  fi
+function fetch_os_name_from_os_release()
+{
   IFS="=" read -ra value <<< $(grep '^NAME' /etc/os-release | tr "[:upper:]" "[:lower:]")
-  distro="${value[1]}"
+  echo "${value[1]}"
+}
+
+if [ "${distro}" = "autodetect" ]; then
+  if [ -e "/etc/os-release" ]; then
+    distro="$(fetch_os_name_from_os_release)"
+  elif [ command -v sw_vers > /dev/null ]; then
+    distro="macos"
+  fi
   if [ -z "${distro}" ]; then
     red "Cannot detected OS name."
     exit 1
@@ -24,7 +52,7 @@ cmd=""
 
 case "${distro}" in
   *arch*) cmd="${here}/distro/archlinux.sh";;
-  *android*|*termux*) cmd="${here}/distro/android.sh";;
+  *macos*) cmd="${here/distro/macos.sh}"
   *)
     red "No definition for ${distro}."
     exit 0
