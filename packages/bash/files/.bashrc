@@ -34,7 +34,6 @@ alias la="ls -A"
 alias ll="ls -alF"
 alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./mi update && popd"
-alias mii="mi && ./mi install"
 
 ### TOOL ###
 # ASDF
