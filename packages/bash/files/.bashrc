@@ -21,7 +21,7 @@ done
 # COMPLETION
 case "${ostype}" in
   linux) [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && source /usr/share/bash-completion/bash_completion;;
-  darwin) [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh";;
+  darwin) [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh";;
 esac
 
 # ALIAS
@@ -83,8 +83,8 @@ if command -v "fzf" &> /dev/null; then
       source /usr/share/fzf/completion.bash
       ;;
     darwin)
-      source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.bash"
-      source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.bash"
+      source "/opt/homebrew/opt/fzf/shell/key-bindings.bash"
+      source "/opt/homebrew/opt/fzf/shell/completion.bash"
       ;;
   esac
 fi
@@ -103,8 +103,8 @@ if command -v "git" &> /dev/null; then
       source /usr/share/git/completion/git-prompt.sh
       ;;
     darwin)
-      source "${HOMEBREW_PREFIX}/opt/git/etc/bash_completion.d/git-completion.bash"
-      source "${HOMEBREW_PREFIX}/opt/git/etc/bash_completion.d/git-prompt.sh"
+      source "/opt/homebrew/opt/git/etc/bash_completion.d/git-completion.bash"
+      source "/opt/homebrew/opt/git/etc/bash_completion.d/git-prompt.sh"
       ;;
   esac
 fi
@@ -113,8 +113,8 @@ fi
 export GPG_TTY=$(tty)
 
 # HOMEBREW
-if [ "${ostype}" = "darwin" ]; then
-  eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
+if [ -e "/opt/homebrew" ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
 # NVIM

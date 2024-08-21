@@ -1,15 +1,13 @@
 #!/bin/bash
 here="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
 
-
 install_command="
   /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"
-  brew install \
+  /opt/homebrew/bin/brew install \
     bash \
     bash-completion \
     bash-language-server \
     bat \
-    crun \
     direnv \
     fd \
     fzf \
@@ -22,7 +20,6 @@ install_command="
     openssh \
     podman \
     ripgrep \
-    slirp4netns \
     tmux \
     tree-sitter
 "
