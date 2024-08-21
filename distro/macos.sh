@@ -3,7 +3,7 @@ here="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
 
 
 install_command="
-  /bin/bash -c "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"
   brew install \
     bash \
     bash-completion \
