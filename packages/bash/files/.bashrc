@@ -1,4 +1,8 @@
 ### BASIC ###
+if [ -e "/opt/homebrew" ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 # ENVVAR
 MI_HOME="${HOME}/.local/mi"
 LC_ALL=C
@@ -111,11 +115,6 @@ fi
 
 # GPG
 export GPG_TTY=$(tty)
-
-# HOMEBREW
-if [ -e "/opt/homebrew" ]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
 
 # NVIM
 if command -v "nvim" &> /dev/null; then
