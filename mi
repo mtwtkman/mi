@@ -39,7 +39,7 @@ function fetch_os_name_from_os_release()
 if [ "${distro}" = "autodetect" ]; then
   if [ -e "/etc/os-release" ]; then
     distro="$(fetch_os_name_from_os_release)"
-  elif [ command -v sw_vers > /dev/null ]; then
+  elif [ $(command -v sw_vers) > /dev/null ]; then
     distro="macos"
   fi
   if [ -z "${distro}" ]; then
