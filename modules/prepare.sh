@@ -1,5 +1,5 @@
 #!/bin/bash
-here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
+here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 
 source "${here}/message.sh"
 
