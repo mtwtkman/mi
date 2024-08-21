@@ -1,16 +1,16 @@
 #!/bin/sh
 # COMPOAT
-ostype="$(uname -o | tr "[:upper:]" "[:lower:]")"
+osname="$(uname -o | tr "[:upper:]" "[:lower:]")"
 declare -a candidates=("linux" "darwin")
-for name in "${candidates[@]}"
+for o in "${candidates[@]}"
 do
-  if [[ "${ostype}" =~ "${name}" ]]; then
-    osname="${name}"
+  if [[ "${osname}" =~ "${o}" ]]; then
+    ostype="${o}"
     break
   fi
 done
 
-case "${osname}" in
+case "${ostype}" in
   linux)
     export MI_ABSPATH_GETTER="readlink -m"
     ;;
@@ -65,3 +65,4 @@ if [ -z "${cmd}" ]; then
 fi
 
 sh "${cmd}" $@
+unset MI_ABSPATH_GETTER

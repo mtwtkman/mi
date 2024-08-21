@@ -8,8 +8,21 @@ if [[ $(uname -r) == *"WSL2"* ]]; then
   export LIBGL_ALWAYS_INDIRECT=0
 fi
 
+osname="$(uname -o | tr "[:upper:]" "[:lower:]")"
+declare -a candidates=("linux" "darwin")
+for o in "${candidates[@]}"
+do
+  if [[ "${osname}" =~ "${o}" ]]; then
+    ostype="${o}"
+    break
+  fi
+done
+
 # COMPLETION
-[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && source /usr/share/bash-completion/bash_completion
+case "${ostype}" in
+  linux) [[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && source /usr/share/bash-completion/bash_completion;;
+  darwin) [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]] && . "/opt/homebrew/etc/profile.d/bash_completion.sh";;
+esac
 
 # ALIAS
 alias l="ls -CF"
@@ -64,8 +77,16 @@ if command -v "fzf" &> /dev/null; then
   {
     command pushd $(fd . $@ -t d | fzf)
   }
-  source /usr/share/fzf/key-bindings.bash
-  source /usr/share/fzf/completion.bash
+  case "${ostype}" in
+    linux)
+      source /usr/share/fzf/key-bindings.bash
+      source /usr/share/fzf/completion.bash
+      ;;
+    darwin)
+      source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.bash"
+      source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.bash"
+      ;;
+  esac
 fi
 
 # GHCUP
@@ -76,8 +97,16 @@ if command -v "git" &> /dev/null; then
   ps1_git='$(__git_ps1 " (%s)")'
   export GIT_PS1_SHOWCOLORHINTS=true
 
-  source /usr/share/git/completion/git-completion.bash
-  source /usr/share/git/completion/git-prompt.sh
+  case "${ostype}" in
+    linux)
+      source /usr/share/git/completion/git-completion.bash
+      source /usr/share/git/completion/git-prompt.sh
+      ;;
+    darwin)
+      source "${HOMEBREW_PREFIX}/opt/git/etc/bash_completion.d/git-completion.bash"
+      source "${HOMEBREW_PREFIX}/opt/git/etc/bash_completion.d/git-prompt.sh"
+      ;;
+  esac
 fi
 
 # GPG
