@@ -18,13 +18,11 @@ install_command="
     man-db \
     neovim \
     openssh \
-    podman \
-    podman-compose \
+    docker \
+    docker-compose \
     ripgrep \
     tmux \
     tree-sitter
-  podman machine init
-  podman machine start
 "
 update_command="brew update"
 purge_command="brew autoremove"
