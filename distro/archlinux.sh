@@ -19,6 +19,7 @@ install_command="
     neovim \
     openssh \
     podman \
+    podman-compose \
     ripgrep \
     slirp4netns \
     tmux \
