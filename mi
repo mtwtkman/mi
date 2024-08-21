@@ -52,7 +52,7 @@ cmd=""
 
 case "${distro}" in
   *arch*) cmd="${here}/distro/archlinux.sh";;
-  *macos*) cmd="${here}/distro/darwin.sh}";;
+  *macos*) cmd="${here}/distro/darwin.sh";;
   *)
     red "No definition for ${distro}."
     exit 0
