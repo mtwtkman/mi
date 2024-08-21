@@ -112,6 +112,11 @@ fi
 # GPG
 export GPG_TTY=$(tty)
 
+# HOMEBREW
+if [ "${ostype}" = "darwin" ]; then
+  eval "$(${HOMEBREW_PREFIX}/bin/brew shellenv)"
+fi
+
 # NVIM
 if command -v "nvim" &> /dev/null; then
   export NVIM_LUASNIP_SNIPPETS_PATH="${HOME}/.config/nvim/snippets"
