@@ -1,7 +1,7 @@
 #!/bin/bash
 show()
 {
-  echo -e "\033[0;${1}\033[0m"
+  eval "${MI_ECHO_ASCII_CHARA} \"\\033[0;\${1}\\033[0m\""
 }
 
 red()

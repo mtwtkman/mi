@@ -13,9 +13,11 @@ done
 case "${ostype}" in
   linux)
     export MI_ABSPATH_GETTER="readlink -m"
+    export MI_ECHO_ASCII_CHARA="echo -e"
     ;;
   darwin)
     export MI_ABSPATH_GETTER="readlink -f"
+    export MI_ECHO_ASCII_CHARA="echo"
     ;;
   *)
     echo "Cannot detect os type"
@@ -66,3 +68,4 @@ fi
 
 sh "${cmd}" $@
 unset MI_ABSPATH_GETTER
+unset MI_ECHO_ASCII_CHARA
