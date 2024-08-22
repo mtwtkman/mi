@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # COMPOAT
 osname="$(uname -o | tr "[:upper:]" "[:lower:]")"
 declare -a candidates=("linux" "darwin")
@@ -55,7 +55,7 @@ cmd=""
 case "${distro}" in
   *arch*) cmd="${here}/distro/arch.sh";;
   *macos*) cmd="${here}/distro/macos.sh";;
-  *debian*|*ubuntu*) cmd="${here}/destro/debian.sh"
+  *debian*|*ubuntu*) cmd="${here}/destro/debian.sh";;
   *)
     red "No definition for ${distro}."
     exit 0
