@@ -80,11 +80,9 @@ if command -v "fzf" &> /dev/null; then
   {
     command pushd $(fd . $@ -t d | fzf)
   }
+
   case "${ostype}" in
-    linux)
-      source /usr/share/fzf/key-bindings.bash
-      source /usr/share/fzf/completion.bash
-      ;;
+    linux) eval "$(fzf --bash)";;
     darwin)
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/key-bindings.bash"
       source "${HOMEBREW_PREFIX}/opt/fzf/shell/completion.bash"
@@ -102,8 +100,9 @@ if command -v "git" &> /dev/null; then
 
   case "${ostype}" in
     linux)
-      source /usr/share/git/completion/git-completion.bash
-      source /usr/share/git/completion/git-prompt.sh
+      [[ -f "/usr/share/bash-completion/completions/git" ]] && source /usr/share/bash-completion/completions/git
+      [[ -f "/usr/share/git/completion/git-completion.bash" ]] && source /usr/share/git/completion/git-completion.bash
+      [[ -f "/usr/share/git/completion/git-prompt.sh" ]] && source /usr/share/git/completion/git-prompt.sh
       ;;
     darwin)
       source "${HOMEBREW_PREFIX}/opt/git/etc/bash_completion.d/git-completion.bash"

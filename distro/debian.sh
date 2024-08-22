@@ -6,7 +6,6 @@ install_command="
     bash \
     bash-completion \
     bat \
-    crun \
     direnv \
     fd-find \
     fzf \
