@@ -9,21 +9,17 @@ install_command="
     bat \
     crun \
     direnv \
-    fd \
+    fd-find \
     fzf \
     gcc \
     git \
-    jaq \
+    jq \
     make \
     man-db \
     neovim \
-    openssh \
-    podman \
-    podman-compose \
     ripgrep \
-    slirp4netns \
     tmux \
-    tree-sitter
+    libtree-sitter-dev
 "
 update_command="yes | sudo apt-get update"
 purge_command="sudo apt autoclean && sudo apt autopuge"
