@@ -28,7 +28,7 @@ here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 
 source "${here}/modules/message.sh"
 
-sh "${here}/modules/prepare.sh"
+bash "${here}/modules/prepare.sh"
 
 distro="${DISTRO:-autodetect}"
 
@@ -55,7 +55,7 @@ cmd=""
 case "${distro}" in
   *arch*) cmd="${here}/distro/arch.sh";;
   *macos*) cmd="${here}/distro/macos.sh";;
-  *debian*|*ubuntu*) cmd="${here}/destro/debian.sh";;
+  *debian*|*ubuntu*) cmd="${here}/distro/debian.sh";;
   *)
     red "No definition for ${distro}."
     exit 0
