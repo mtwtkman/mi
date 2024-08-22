@@ -1,3 +1,3 @@
 return {
-  servername = "ruby_lsp",
+  servername = "solargraph",
 }
