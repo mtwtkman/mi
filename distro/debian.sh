@@ -5,7 +5,6 @@ install_command="
   yes | sudo apt install \
     bash \
     bash-completion \
-    bash-language-server \
     bat \
     crun \
     direnv \
