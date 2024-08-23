@@ -22,6 +22,7 @@ install_command="
     docker-compose \
     ripgrep \
     tmux \
+    trash \
     tree-sitter
 "
 update_command="brew update"
