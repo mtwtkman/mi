@@ -2,6 +2,7 @@ local set = vim.opt
 local utils = require("utils")
 local nmap = utils.nmap
 
+set.shell = "sh -l"
 set.hidden = true
 set.undofile = true
 set.encoding = "UTF-8"
