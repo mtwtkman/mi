@@ -260,6 +260,7 @@ local plugins = {
     config = function()
       require("plugins.dropbar")
     end,
+    commit = "d26bf92161cd70e049dc138b44ffa0246dbf7178",
   },
   {
     "folke/zen-mode.nvim",
