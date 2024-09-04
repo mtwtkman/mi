@@ -86,3 +86,5 @@ nmap("gx", gx_command(), { silent = true })
 vim.api.nvim_create_user_command("EditConfig", function()
   vim.fn.execute("e $MYVIMRC")
 end, {})
+
+nmap("<leader><c-t>", ":tabe %<cr>", { silent = true })
