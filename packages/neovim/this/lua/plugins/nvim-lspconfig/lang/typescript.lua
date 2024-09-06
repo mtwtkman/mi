@@ -1,3 +1,3 @@
 return {
-  servername = "tsserver",
+  servername = "ts_ls",
 }
