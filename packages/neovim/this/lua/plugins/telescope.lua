@@ -1,5 +1,6 @@
 local utils = require("utils")
 local nmap = utils.nmap
+local imap = utils.imap
 local telescope = require("telescope")
 local builtin = require("telescope.builtin")
 
@@ -36,6 +37,7 @@ nmap("<leader>b", function()
         end)
       end
       map("n", "<C-d>", delete_buf)
+      map("i", "<C-d>", delete_buf)
       return true
     end,
   })

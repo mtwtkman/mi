@@ -21,6 +21,10 @@ function M.nmap(lhs, rhs, value, options)
   M.create_map("n", lhs, rhs, value, options)
 end
 
+function M.imap(lhs, rhs, value, options)
+  M.create_map("i", lhs, rhs, value, options)
+end
+
 function M.vmap(lhs, rhs, value, options)
   M.create_map("v", lhs, rhs, value, options)
 end
