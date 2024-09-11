@@ -19,3 +19,6 @@
 [user]
 	email = "924277+mtwtkman@users.noreply.github.com"
 	name = "mtwtkman"
+
+[alias]
+  adog = log --all --decorate --oneline --graph
