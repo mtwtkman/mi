@@ -1,6 +1,5 @@
 local utils = require("utils")
 local nmap = utils.nmap
-local imap = utils.imap
 local telescope = require("telescope")
 local builtin = require("telescope.builtin")
 
@@ -24,7 +23,7 @@ telescope.setup({
   },
 })
 
-nmap("<leader>o", function() builtin.find_files({hidden=true}) end, { silent = true })
+nmap("<leader>o", function() builtin.find_files({ hidden = true }) end, { silent = true })
 nmap("<leader>fg", builtin.live_grep, { silent = true })
 nmap("<leader>fw", builtin.grep_string, { silent = true })
 nmap("<leader>b", function()
