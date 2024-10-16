@@ -28,23 +28,6 @@ depends_on_asdf()
   source "${asdf_dir}/asdf.sh"
 }
 
-## TMUX
-load_catppuccin_tmux()
-{
-  blue "Load catppuccin-tmux"
-  dest="${tmux_plugins_dir}/catppuccin"
-  if [ ! -d ${dest} ]; then
-    mkdir -p "${dest}"
-    git clone https://github.com/catppuccin/tmux "${dest}"
-  fi
-
-  pushd "${dest}" &> /dev/null
-  git fetch
-  git reset --hard origin/HEAD
-  popd &> /dev/null
-  green "Done"
-}
-
 ## PYTHON
 install_python3()
 {
