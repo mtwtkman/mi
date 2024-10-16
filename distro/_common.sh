@@ -81,7 +81,6 @@ install_common_packages()
 {
   blue "Install basic packages."
   load_asdf
-  load_catppuccin_tmux
   install_python3
   install_neovim_remote
   green "Done."
@@ -90,7 +89,6 @@ install_common_packages()
 update_common_packages()
 {
   load_asdf
-  load_catppuccin_tmux
   upgrade_pip
 }
 
