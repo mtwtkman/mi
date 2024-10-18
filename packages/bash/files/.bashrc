@@ -124,6 +124,7 @@ if command -v "nvim" &> /dev/null; then
   alias vrv="vr -cc vsplit --remote-wait"
   alias vt="vim +terminal"
   alias ve="vim ${MI_HOME}/packages/neovim/this"
+  alias vup="vim +LazySYnc"
   alias miedit="${EDITOR} ${MI_HOME}"
   alias mie="miedit"
   function vim()
