@@ -144,19 +144,7 @@ if command -v "podman" &> /dev/null; then
   source <(podman completion bash)
 fi
 
-# TMUX
-if command -v "tmux" &> /dev/null; then
-  ps1_tmux='$([[ "${TMUX}" ]] && echo -e "\e[1;32m \033[0m")'
-else
-  ps1_tmux=""
-fi
-
-# RIPGREP
-if command -v "rg" &> /dev/null; then
-  alias grep="rg"
-fi
-
 # PROMPT
 ps1_head="${PS1_HEAD:-}"
 ps1_base="\e[1;34m\w\e[0m"
-export PS1="${ps1_tmux}${ps1_head}${ps1_base}${ps1_git}\n$ "
+export PS1="${ps1_head}${ps1_base}${ps1_git}\n$ "
