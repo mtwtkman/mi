@@ -2,15 +2,6 @@ local lazy = require("lazy")
 
 local plugins = {
   {
-    "catppuccin/nvim",
-    lazy = false,
-    priority = 1000,
-    name = "catppuccin",
-    config = function()
-      require("plugins.catppuccin")
-    end
-  },
-  {
     "nvim-lualine/lualine.nvim",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
