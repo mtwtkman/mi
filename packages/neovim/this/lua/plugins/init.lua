@@ -2,6 +2,14 @@ local lazy = require("lazy")
 
 local plugins = {
   {
+    "slugbyte/lackluster.nvim",
+    lazy = false,
+    priority = 1000,
+    init = function()
+      vim.cmd.colorscheme("lackluster")
+    end,
+  },
+  {
     "nvim-lualine/lualine.nvim",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
