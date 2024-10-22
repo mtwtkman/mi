@@ -1,5 +1,5 @@
 local hl = require("theme").hl
-local pallet = require("theme.mono.color_pallet")
+local pallet = require("theme.mono").pallet()
 
 -- builtin
 hl("Comment", pallet.grey, nil, false)
@@ -11,7 +11,7 @@ hl("Search", pallet.white, pallet.dark_grey, false)
 hl("WarningMsg", pallet.dark_red, nil, false)
 hl("Error", pallet.dark_red, nil, false)
 hl("NvimInternalError", pallet.dark_red, nil, false)
-hl("Special", pallet.dark_blue, nil, false)
+hl("Special", pallet.white, nil, false)
 hl("Function", pallet.white, nil, false)
 hl("Identifier", pallet.white, nil, false)
 
@@ -39,7 +39,7 @@ hl("@diff.delta", pallet.dark_yellow, nil, false)
 -- lsp
 hl("DiagnosticError", pallet.dark_red, nil, false)
 hl("DiagnosticWarn", pallet.dark_yellow, nil, false)
-hl("DiagnosticInfo", pallet.dark_blue, nil, false)
+hl("DiagnosticInfo", pallet.white, nil, false)
 hl("Directory", pallet.white, nil, false)
 hl("DiagnosticUnnecessary", pallet.dark_grey, nil, false)
 hl("DiagnosticVirtualTextError", pallet.dark_red, nil, false)

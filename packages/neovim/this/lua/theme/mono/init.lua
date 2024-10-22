@@ -1,7 +1,7 @@
 M = {}
 
 function M.pallet()
-  require("theme.mono.color_pallet")
+  return require("theme.mono.color_pallet")
 end
 
 function M.scheme()
