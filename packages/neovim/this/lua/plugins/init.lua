@@ -8,6 +8,7 @@ local plugins = {
     init = function()
       vim.cmd.colorscheme("lackluster")
     end,
+    enabled = false,
   },
   {
     "nvim-lualine/lualine.nvim",

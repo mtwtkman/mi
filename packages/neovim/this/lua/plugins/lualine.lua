@@ -1,7 +1,4 @@
 require("lualine").setup({
-  options = {
-    theme = "lackluster",
-  },
   sections = {
     lualine_b = {
       "grapple",
