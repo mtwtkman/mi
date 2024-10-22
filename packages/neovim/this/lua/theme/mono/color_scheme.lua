@@ -45,6 +45,8 @@ hl("@function.method", pallet.white, nil, false)
 hl("@diff.plus", pallet.dark_green, nil, false)
 hl("@diff.minus", pallet.dark_red, nil, false)
 hl("@diff.delta", pallet.dark_yellow, nil, false)
+hl("Constant", pallet.white, nil, false)
+hl("Type", pallet.white, nil, false)
 
 -- lsp
 hl("DiagnosticError", pallet.dark_red, nil, false)
