@@ -6,6 +6,8 @@ M = {
   dark_red = "#914343",
   dark_yellow = "#757440",
   dark_green = "#45663B",
+  dark_blue = "#276E82",
+  light_blue = "#6E95A0",
 }
 
 return M

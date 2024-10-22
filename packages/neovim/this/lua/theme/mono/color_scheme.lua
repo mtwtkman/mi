@@ -14,6 +14,16 @@ hl("NvimInternalError", pallet.dark_red, nil, false)
 hl("Special", pallet.white, nil, false)
 hl("Function", pallet.white, nil, false)
 hl("Identifier", pallet.white, nil, false)
+hl("Question", pallet.dark_blue, nil, false)
+hl("QuickfixLine", pallet.dark_blue, nil, false)
+hl("ModeMsg", pallet.dark_green, nil, false)
+hl("MoreMsg", pallet.dark_blue, nil, false)
+hl("String", pallet.dark_green, nil, false)
+hl("StatusLine", pallet.black, pallet.white, false)
+hl("TermCursor", pallet.black, pallet.white, false)
+hl("WildMenu", pallet.black, pallet.white, false)
+hl("PMenuSel", pallet.black, pallet.white, false)
+hl("Cursor", pallet.black, pallet.white, false)
 
 -- treesitter
 hl("@comment", pallet.grey, nil, false)
@@ -40,6 +50,7 @@ hl("@diff.delta", pallet.dark_yellow, nil, false)
 hl("DiagnosticError", pallet.dark_red, nil, false)
 hl("DiagnosticWarn", pallet.dark_yellow, nil, false)
 hl("DiagnosticInfo", pallet.white, nil, false)
+hl("DiagnosticOk", pallet.dark_green, nil, false)
 hl("Directory", pallet.white, nil, false)
 hl("DiagnosticUnnecessary", pallet.dark_grey, nil, false)
 hl("DiagnosticVirtualTextError", pallet.dark_red, nil, false)
@@ -47,3 +58,14 @@ hl("DiagnosticSignError", pallet.dark_red, nil, false)
 
 -- telescope
 hl("TelescopeMatching", pallet.grey, nil, false)
+
+-- neogit
+hl("NeogitDiffAdd", pallet.white, pallet.dark_green, false)
+hl("NeogitDiffAddHighlight", pallet.white, pallet.dark_green, false)
+hl("NeogitDiffDeleteHighlight", pallet.white, pallet.dark_red, false)
+hl("NeogitGraphGreen", pallet.dark_green, pallet.dark_red, false)
+hl("NeogitGraphRed", pallet.dark_red, pallet.dark_red, false)
+
+-- diffview
+hl("DiffText", pallet.white, pallet.dark_yellow, false)
+hl("DiffViewDiffText", pallet.white, pallet.dark_yellow, false)
