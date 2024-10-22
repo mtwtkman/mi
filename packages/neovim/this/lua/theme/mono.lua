@@ -41,6 +41,8 @@ hl("@boolean", white, nil, false)
 hl("@function", white, nil, false)
 hl("@function.method", white, nil, false)
 hl("@diff.plus", dark_green, nil, false)
+hl("@diff.minus", dark_red, nil, false)
+hl("@diff.delta", dark_yellow, nil, false)
 
 -- lsp
 hl("DiagnosticError", dark_red, nil, false)
