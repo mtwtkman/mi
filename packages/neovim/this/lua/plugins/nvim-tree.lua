@@ -5,9 +5,6 @@ local nvim_tree_api = require("nvim-tree.api")
 
 nmap("<leader>n", ":NvimTreeFindFileToggle<CR>", { silent = true })
 nmap("<C-w>n", ":NvimTreeFindFile<CR>", { silent = true })
-nmap("<leader>mn", nvim_tree_api.marks.navigate.next, { silent = true })
-nmap("<leader>mp", nvim_tree_api.marks.navigate.prev, { silent = true })
-nmap("<leader>ms", nvim_tree_api.marks.navigate.select, { silent = true })
 
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
