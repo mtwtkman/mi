@@ -8,16 +8,20 @@ vim.g.termguicolors = true
 hl("String", c.white, nil, false)
 hl("Special", c.white, nil, false)
 hl("StatusLine", c.black, c.white, false)
-hl("Changed", c.light_blue, nil, false)
+hl("Changed", c.light_yellow, nil, false)
+hl("LineNr", c.light_grey3, nil, false)
+hl("QuickFixLine", c.light_blue, nil, false)
 
 -- diff
-hl("DiffAdd", c.white, c.green, false)
-hl("DiffDelete", c.red, nil, false)
-hl("DiffText", c.white, c.yellow, false)
+hl("DiffAdd", c.white, c.dark_green, false)
+hl("DiffDelete", c.dark_red, nil, false)
+hl("DiffText", c.white, c.dark_yellow, false)
 
 -- search
-hl("Search", c.black, c.light_grey, false)
-hl("IncSearch", c.black, c.light_grey, false)
+hl("Search", c.light_grey2, c.dark_grey4, false)
+hl("IncSearch", c.black, c.light_grey1, false)
+hl("Cursor", c.white, c.white, false)
+hl("CurSearch", c.black, c.light_grey2, false)
 
 -- nvim-tree
 hl("Directory", c.white, nil, false)
@@ -30,24 +34,18 @@ hl("CmpItemAbbrMatchDefault", c.white, nil, false)
 -- treesitter
 hl("Function", c.white, nil, false)
 hl("Identifier", c.white, nil, false)
-hl("Comment", c.light_grey, nil, false)
+hl("Comment", c.light_grey4, nil, false)
 hl("Constant", c.white, nil, false)
 hl("@variable", c.white, nil, false)
 
 -- neogit
-hl("NeogitDiffAdd", c.white, c.green, false)
-hl("NeogitDiffDelete", c.white, c.red, false)
+hl("NeogitDiffAdd", c.white, c.dark_green, false)
+hl("NeogitDiffDelete", c.white, c.dark_red, false)
+hl("NeogitGraphAuthor", c.white, nil, false)
+hl("NeogitRemote", c.light_green, nil, false)
 
 --dropbar
-hl("DropbarIconUIPickPivot", c.white, c.grey, false)
+hl("DropbarIconUIPickPivot", c.white, c.light_grey1, false)
 
--- devicon
-hl("DevIconLua", c.whte, nil, false)
-hl("DevIconGitIgnore", c.white, nil, false)
-hl("DevIconText", c.white, nil, false)
-hl("DevIconBash", c.white, nil, false)
-hl("DevIconBashrc", c.white, nil, false)
-hl("DevIconBashProfile", c.white, nil, false)
-hl("DevIconRb", c.white, nil, false)
-hl("DevIconPy", c.white, nil, false)
-hl("DevIconHs", c.white, nil, false)
+-- telescope
+hl("TelescopeMatching", c.white, c.light_grey4, false)
