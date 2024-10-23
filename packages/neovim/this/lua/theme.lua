@@ -60,7 +60,7 @@ hl("NeogitGraphAuthor", c.white, nil, false)
 hl("NeogitRemote", c.light_green, nil, false)
 
 --dropbar
-hl("DropbarIconUIPickPivot", c.black, c.light_grey4, false)
+hl("DropbarIconUIPickPivot", c.black, c.white, false)
 
 -- telescope
 hl("TelescopeMatching", c.white, c.light_grey4, false)
@@ -73,4 +73,6 @@ hl("DiagnosticOk", c.light_green, nil, false)
 hl("DiagnosticHint", c.light_magenta, nil, false)
 
 -- indent-breakline
+hl("IblIndent", c.dark_grey4, nil, true)
 hl("IblScope", c.white, nil, true)
+hl("IblWhitespace", c.white, nil, true)
