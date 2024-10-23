@@ -50,6 +50,7 @@ nmap("<space>q", builtin.diagnostics, { silent = true })
 nmap("gr", builtin.lsp_references, { silent = true })
 nmap("<leader>M", telescope.extensions.grapple.tags, { silent = true })
 nmap("<leader>re", builtin.resume, { silent = true })
+nmap("<leader>hi", builtin.highlights, { silent = true })
 
 vim.api.nvim_create_user_command("Maps", builtin.keymaps, {})
 vim.api.nvim_create_user_command("GitCommits", builtin.git_commits, {})

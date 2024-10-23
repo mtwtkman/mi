@@ -1,5 +1,4 @@
-local pallet = require("theme.mono").pallet()
-
+local c = require("color")
 require("lualine").setup({
   sections = {
     lualine_b = {
@@ -12,42 +11,50 @@ require("lualine").setup({
         "filename",
         path = 1,
         color = {
-          fg = pallet.black,
-          bg = pallet.white,
+          fg = c.black,
+          bg = c.white
         }
       },
       {
         "lsp_progress",
         color = {
-          fg = pallet.black,
-          bg = pallet.white,
+          fg = c.black,
+          bg = c.white
         }
       },
     },
     lualine_x = {
       {
-        'encoding',
+        "encoding",
         color = {
-          fg = pallet.black,
-          bg = pallet.white,
+          fg = c.black,
+          bg = c.white
         },
       },
       {
-        'fileformat',
-
+        "fileformat",
         color = {
-          fg = pallet.black,
-          bg = pallet.white,
+          fg = c.black,
+          bg = c.white
         },
       },
       {
-        'filetype',
+        "filetype",
         color = {
-          fg = pallet.black,
-          bg = pallet.white,
+          fg = c.black,
+          bg = c.white
+        },
+      },
+    },
+    lualine_z = {
+      {
+        "location",
+        color = {
+          fg = c.black,
+          bg = c.white
         },
       }
-    }
+    },
   },
   inactive_sections = {
     lualine_c = {
@@ -55,9 +62,9 @@ require("lualine").setup({
         "filename",
         path = 1,
         color = {
-          fg = pallet.black,
-          bg = pallet.white,
-        }
+          fg = c.grey,
+          bg = c.white,
+        },
       },
     },
   },
