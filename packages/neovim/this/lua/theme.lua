@@ -71,3 +71,6 @@ hl("DiagnosticWarn", c.light_yellow, nil, false)
 hl("DiagnosticError", c.light_red, nil, false)
 hl("DiagnosticOk", c.light_green, nil, false)
 hl("DiagnosticHint", c.light_magenta, nil, false)
+
+-- indent-breakline
+hl("IblScope", c.white, nil, true)
