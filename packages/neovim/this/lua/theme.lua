@@ -53,3 +53,10 @@ hl("DropbarIconUIPickPivot", c.white, c.light_grey1, false)
 
 -- telescope
 hl("TelescopeMatching", c.white, c.light_grey4, false)
+
+-- lsp
+hl("DiagnosticInfo", c.light_blue, nil, false)
+hl("DiagnosticWarn", c.light_yellow, nil, false)
+hl("DiagnosticError", c.light_red, nil, false)
+hl("DiagnosticOk", c.light_green, nil, false)
+hl("DiagnosticHint", c.light_magenta, nil, false)
