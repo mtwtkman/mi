@@ -20,6 +20,8 @@ hl("LineNrBelow", c.light_grey3, nil, false)
 hl("DiffAdd", c.white, c.dark_green, false)
 hl("DiffDelete", c.dark_red, nil, false)
 hl("DiffText", c.white, c.dark_yellow, false)
+hl("Added", c.light_green, nil, false)
+hl("Removed", c.red, nil, false)
 
 -- search
 hl("Search", c.light_grey2, c.dark_grey4, false)
@@ -40,6 +42,15 @@ hl("Function", c.white, nil, false)
 hl("Identifier", c.white, nil, false)
 hl("Comment", c.light_grey3, nil, false)
 hl("Constant", c.white, nil, false)
+hl("Operator", c.white, nil, false)
+hl("Tag", c.white, nil, false)
+hl("Macro", c.white, nil, false)
+hl("Boolean", c.white, nil, false)
+hl("Label", c.white, nil, false)
+hl("Structure", c.white, nil, false)
+hl("Type", c.white, nil, false)
+hl("Keyword", c.white, nil, false)
+hl("Delimiter", c.white, nil, false)
 hl("@variable", c.white, nil, false)
 
 -- neogit
@@ -49,7 +60,7 @@ hl("NeogitGraphAuthor", c.white, nil, false)
 hl("NeogitRemote", c.light_green, nil, false)
 
 --dropbar
-hl("DropbarIconUIPickPivot", c.white, c.light_grey1, false)
+hl("DropbarIconUIPickPivot", c.black, c.light_grey4, false)
 
 -- telescope
 hl("TelescopeMatching", c.white, c.light_grey4, false)
@@ -57,6 +68,6 @@ hl("TelescopeMatching", c.white, c.light_grey4, false)
 -- lsp
 hl("DiagnosticInfo", c.light_blue, nil, false)
 hl("DiagnosticWarn", c.light_yellow, nil, false)
-hl("DiagnosticError", c.light_red, nil, false)
+hl("DiagnosticError", c.red, nil, false)
 hl("DiagnosticOk", c.light_green, nil, false)
 hl("DiagnosticHint", c.light_magenta, nil, false)

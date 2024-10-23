@@ -21,4 +21,5 @@ return {
   light_magenta = "#ffcaff",
   light_red = "#ffc089",
   light_yellow = "#fce094",
+  red = "#e16a6a",
 }
