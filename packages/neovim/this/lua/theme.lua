@@ -9,10 +9,12 @@ hl("String", c.white, nil, false)
 hl("Special", c.white, nil, false)
 hl("StatusLine", c.black, c.white, false)
 hl("Changed", c.light_yellow, nil, false)
-hl("LineNr", c.light_grey3, nil, false)
 hl("QuickFixLine", c.light_blue, nil, false)
 hl("TabLine", c.white, c.black, false)
 hl("Normal", c.white, c.black, false)
+hl("LineNrAbove", c.light_grey3, nil, false)
+hl("LineNr", c.white, nil, false)
+hl("LineNrBelow", c.light_grey3, nil, false)
 
 -- diff
 hl("DiffAdd", c.white, c.dark_green, false)
@@ -36,7 +38,7 @@ hl("CmpItemAbbrMatchDefault", c.white, nil, false)
 -- treesitter
 hl("Function", c.white, nil, false)
 hl("Identifier", c.white, nil, false)
-hl("Comment", c.light_grey4, nil, false)
+hl("Comment", c.light_grey3, nil, false)
 hl("Constant", c.white, nil, false)
 hl("@variable", c.white, nil, false)
 
