@@ -19,7 +19,8 @@ return {
   light_grey3 = "#c4c6cd",
   light_grey4 = "#8b9ea4",
   light_magenta = "#ffcaff",
-  light_red = "#ffc089",
+  light_orange = "#ffc089",
+  orange = "#ee8f3c",
   light_yellow = "#fce094",
-  red = "#e16a6a",
+  light_red = "#e16a6a",
 }

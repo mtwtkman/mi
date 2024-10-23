@@ -21,7 +21,7 @@ hl("DiffAdd", c.white, c.dark_green, false)
 hl("DiffDelete", c.dark_red, nil, false)
 hl("DiffText", c.white, c.dark_yellow, false)
 hl("Added", c.light_green, nil, false)
-hl("Removed", c.red, nil, false)
+hl("Removed", c.light_red, nil, false)
 
 -- search
 hl("Search", c.light_grey2, c.dark_grey4, false)
@@ -68,6 +68,6 @@ hl("TelescopeMatching", c.white, c.light_grey4, false)
 -- lsp
 hl("DiagnosticInfo", c.light_blue, nil, false)
 hl("DiagnosticWarn", c.light_yellow, nil, false)
-hl("DiagnosticError", c.red, nil, false)
+hl("DiagnosticError", c.light_red, nil, false)
 hl("DiagnosticOk", c.light_green, nil, false)
 hl("DiagnosticHint", c.light_magenta, nil, false)
