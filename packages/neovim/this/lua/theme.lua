@@ -11,6 +11,8 @@ hl("StatusLine", c.black, c.white, false)
 hl("Changed", c.light_yellow, nil, false)
 hl("LineNr", c.light_grey3, nil, false)
 hl("QuickFixLine", c.light_blue, nil, false)
+hl("TabLine", c.white, c.black, false)
+hl("Normal", c.white, c.black, false)
 
 -- diff
 hl("DiffAdd", c.white, c.dark_green, false)
