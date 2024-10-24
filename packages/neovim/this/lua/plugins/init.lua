@@ -1,4 +1,5 @@
 local lazy = require("lazy")
+local c = require("color")
 
 local plugins = {
   {
@@ -13,7 +14,7 @@ local plugins = {
   {
     "nvim-lualine/lualine.nvim",
     dependencies = {
-      "nvim-tree/nvim-web-devicons",
+      { "mtwtkman/nvim-web-devicons", branch = "mono" },
       "arkav/lualine-lsp-progress",
     },
     config = function()
@@ -36,7 +37,16 @@ local plugins = {
   {
     "nvim-tree/nvim-tree.lua",
     dependencies = {
-      "nvim-tree/nvim-web-devicons",
+      {
+        "mtwtkman/nvim-web-devicons",
+        branch = "mono",
+        config = function ()
+	  require("nvim-web-devicons").setup({
+	    variant = "mono",
+	    mono_color = { color = c.white, cterm_color = "15" },
+	  })
+	end
+      },
     },
     config = function()
       require("plugins.nvim-tree")
@@ -120,7 +130,7 @@ local plugins = {
     end,
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
-      "nvim-tree/nvim-web-devicons",
+      "mtwtkman/nvim-web-devicons",
     },
   },
   {
@@ -215,7 +225,7 @@ local plugins = {
       require("plugins.grapple")
     end,
     dependencies = {
-      { "nvim-tree/nvim-web-devicons", lazy = true },
+      { "mtwtkman/nvim-web-devicons", lazy = true },
     },
   },
   {
