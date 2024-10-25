@@ -15,6 +15,8 @@ hl("Normal", c.white, c.black, false)
 hl("LineNrAbove", c.light_grey3, nil, false)
 hl("LineNr", c.white, nil, false)
 hl("LineNrBelow", c.light_grey3, nil, false)
+hl("CursorLineNr", c.white, nil, false)
+hl("CursorLine", nil, nil, false)
 hl("MoreMsg", c.light_blue, nil, false)
 
 -- diff

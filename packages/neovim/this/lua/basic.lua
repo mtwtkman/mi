@@ -70,6 +70,16 @@ nmap("<leader>cf", ":CopyCurrentFileRelativePath<CR>", { silent = true })
 nmap("<leader>cd", ":CopyCurrentFileRelativePath!<CR>", { silent = true })
 nmap("<space>]", ":cd %:h<CR>", { silent = true })
 
+vim.api.nvim_create_user_command("ReloadInitLua", function()
+  vim.cmd[[luafile $MYVIMRC]]
+end, {})
+
+vim.api.nvim_create_user_command("ReloadCurrentLuaFile", function()
+  vim.cmd[[luafile %]]
+end, {})
+
+nmap("<leader><c-r>", ":ReloadCurrentLuaFile<CR>", { silent = true })
+
 local function gx_command()
   local command = (function()
     if vim.fn.has("wsl") then
