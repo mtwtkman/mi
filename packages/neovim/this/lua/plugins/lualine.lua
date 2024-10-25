@@ -40,6 +40,7 @@ require("lualine").setup({
       },
       {
         "filetype",
+        colored = false,
         color = {
           fg = c.black,
           bg = c.white
