@@ -3,18 +3,19 @@ local c = require("color")
 
 local plugins = {
   {
-    "slugbyte/lackluster.nvim",
-    lazy = false,
-    priority = 1000,
-    init = function()
-      vim.cmd.colorscheme("lackluster")
-    end,
-    enabled = false,
+    "mtwtkman/nvim-web-devicons",
+    branch = "mono",
+    config = function()
+      require("nvim-web-devicons").setup({
+        variant = "mono",
+        mono_color = { color = c.white, cterm_color = "15" },
+      })
+    end
   },
   {
     "nvim-lualine/lualine.nvim",
     dependencies = {
-      { "mtwtkman/nvim-web-devicons", branch = "mono" },
+      "mtwtkman/nvim-web-devicons",
       "arkav/lualine-lsp-progress",
     },
     config = function()
@@ -39,13 +40,6 @@ local plugins = {
     dependencies = {
       {
         "mtwtkman/nvim-web-devicons",
-        branch = "mono",
-        config = function ()
-	  require("nvim-web-devicons").setup({
-	    variant = "mono",
-	    mono_color = { color = c.white, cterm_color = "15" },
-	  })
-	end
       },
     },
     config = function()
@@ -225,7 +219,9 @@ local plugins = {
       require("plugins.grapple")
     end,
     dependencies = {
-      { "mtwtkman/nvim-web-devicons", lazy = true },
+      {
+        "mtwtkman/nvim-web-devicons",
+      },
     },
   },
   {

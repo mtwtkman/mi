@@ -79,3 +79,9 @@ hl("DiagnosticHint", c.light_magenta, nil, false)
 hl("IblIndent", c.dark_grey4, nil, true)
 hl("IblScope", c.white, nil, true)
 hl("IblWhitespace", c.white, nil, true)
+
+-- window-picker
+hl("WindowPickerWinBar", c.white, c.light_red, false)
+hl("WindowPickerWinBarNC", c.black, c.light_blue, false)
+hl("WindowPickerStatusLine", c.white, c.light_red, false)
+hl("WindowPickerStatusLineNC", c.black, c.light_blue, false)

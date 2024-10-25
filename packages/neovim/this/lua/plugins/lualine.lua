@@ -62,8 +62,8 @@ require("lualine").setup({
         "filename",
         path = 1,
         color = {
-          fg = c.grey,
-          bg = c.white,
+          fg = c.white,
+          bg = c.black,
         },
       },
     },
