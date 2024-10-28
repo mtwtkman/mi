@@ -18,6 +18,7 @@ hl("LineNrBelow", c.light_grey3, nil, false)
 hl("CursorLineNr", c.white, nil, false)
 hl("CursorLine", nil, nil, false)
 hl("MoreMsg", c.light_blue, nil, false)
+hl("TabLineSel", c.black, c.dark_grey3, true)
 
 -- diff
 hl("DiffAdd", c.white, c.dark_green, false)
