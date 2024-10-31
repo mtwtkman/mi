@@ -112,12 +112,6 @@ local plugins = {
     end,
   },
   {
-    "folke/flash.nvim",
-    config = function()
-      require("plugins.flash")
-    end,
-  },
-  {
     "stevearc/aerial.nvim",
     config = function()
       require("plugins.aerial")
@@ -250,12 +244,6 @@ local plugins = {
     "aznhe21/actions-preview.nvim",
     dependencies = {
       "nvim-telescope/telescope.nvim",
-    },
-  },
-  {
-    "https://codeberg.org/esensar/nvim-dev-container",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
     },
   },
   {
