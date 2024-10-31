@@ -202,12 +202,6 @@ local plugins = {
     },
   },
   {
-    "davidmh/cspell.nvim",
-    dependencies = {
-      "nvimtools/none-ls.nvim",
-    },
-  },
-  {
     "cbochs/grapple.nvim",
     config = function()
       require("plugins.grapple")
