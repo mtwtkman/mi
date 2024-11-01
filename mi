@@ -11,7 +11,7 @@ do
 done
 
 case "${ostype}" in
-  linux)
+  android|linux)
     export MI_ABSPATH_GETTER="readlink -m"
     export MI_ECHO_ASCII_CHARA="echo -e"
     ;;
@@ -43,6 +43,8 @@ if [ "${distro}" = "autodetect" ]; then
     distro="$(fetch_os_name_from_os_release)"
   elif [ $(command -v sw_vers) > /dev/null ]; then
     distro="macos"
+  elif [ "${ostype}" = "Android" ]; then
+    distro="termux"
   fi
   if [ -z "${distro}" ]; then
     red "Cannot detected OS name."
@@ -56,6 +58,7 @@ case "${distro}" in
   *arch*) cmd="${here}/distro/arch.sh";;
   *macos*) cmd="${here}/distro/macos.sh";;
   *debian*|*ubuntu*) cmd="${here}/distro/debian.sh";;
+  *termux*) cmd="${here}/distro/termux.sh";;
   *)
     red "No definition for ${distro}."
     exit 0
