@@ -5,11 +5,11 @@ source "${here}/message.sh"
 
 target=$1
 pushd "${here}/../packages/${target}" &> /dev/null
-dest="$(sh ./location)"
+dest="$(bash ./location)"
 
 create_link()
 {
-  sh "${here}/make_link.sh" "${1}" "${2}"
+  bash "${here}/make_link.sh" "${1}" "${2}"
   green "Created symlink of "${1}" to "${2}""
 }
 

@@ -99,7 +99,7 @@ deploy_settings()
   for target in *
   do
     blue "Deploy ${target} configs."
-    sh "${here}/../modules/deploy.sh" "${target}"
+    bash "${here}/../modules/deploy.sh" "${target}"
     green "Done."
   done
   popd &> /dev/null

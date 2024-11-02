@@ -1,7 +1,7 @@
 #!/bin/bash
 # COMPOAT
 osname="$(uname -o | tr "[:upper:]" "[:lower:]")"
-declare -a candidates=("linux" "darwin")
+declare -a candidates=("linux" "darwin" "android")
 for o in "${candidates[@]}"
 do
   if [[ "${osname}" =~ "${o}" ]]; then
@@ -43,7 +43,7 @@ if [ "${distro}" = "autodetect" ]; then
     distro="$(fetch_os_name_from_os_release)"
   elif [ $(command -v sw_vers) > /dev/null ]; then
     distro="macos"
-  elif [ "${ostype}" = "Android" ]; then
+  elif [ "${ostype}" = "android" ]; then
     distro="termux"
   fi
   if [ -z "${distro}" ]; then
@@ -70,6 +70,6 @@ if [ -z "${cmd}" ]; then
   exit 1
 fi
 
-sh "${cmd}" $@
+bash "${cmd}" $@
 unset MI_ABSPATH_GETTER
 unset MI_ECHO_ASCII_CHARA
