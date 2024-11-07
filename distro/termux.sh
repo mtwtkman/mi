@@ -21,6 +21,7 @@ install_command="
     bash \
     bash-completion \
     bat \
+    clang \
     direnv \
     fd \
     fzf \
