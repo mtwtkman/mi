@@ -37,4 +37,5 @@ purge_command="pkg autoclean"
 
 cmd="${1}"
 
+source "${here}/_common.sh"
 perform "${install_command}" "${update_command}" "${purge_command}" "${cmd}"
