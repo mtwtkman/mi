@@ -150,6 +150,7 @@ if [ -f "${HOME}/.wasmtime/bin/wasmtime" ]; then
   export PATH="$WASMTIME_HOME/bin:$PATH"
 fi
 
+### Finalize User Setting ###
 # PROMPT
 ps1_head="${PS1_HEAD:-}"
 ps1_base="\w"
