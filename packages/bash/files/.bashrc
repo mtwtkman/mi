@@ -145,7 +145,7 @@ if command -v "podman" &> /dev/null; then
 fi
 
 # WASMTIME
-if command -v "wasmtime" &> /dev/null; then
+if [ -f "${HOME}/.wasmtime/bin/wasmtime" ]; then
   export WASMTIME_HOME="$HOME/.wasmtime"
   export PATH="$WASMTIME_HOME/bin:$PATH"
 fi
