@@ -144,6 +144,13 @@ if command -v "podman" &> /dev/null; then
   source <(podman completion bash)
 fi
 
+# TMUX
+if [ "${TMUX}" ]; then
+  tmux_icon=" "
+else
+  tmux_icon=""
+fi
+
 # WASMTIME
 if [ -f "${HOME}/.wasmtime/bin/wasmtime" ]; then
   export WASMTIME_HOME="$HOME/.wasmtime"
@@ -154,4 +161,4 @@ fi
 # PROMPT
 ps1_head="${PS1_HEAD:-}"
 ps1_base="\w"
-export PS1="${ps1_head}${ps1_base}${ps1_git}\n$ "
+export PS1="${tmux_icon}${ps1_head}${ps1_base}${ps1_git}\n$ "
