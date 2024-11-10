@@ -23,7 +23,8 @@ install_command="
     ripgrep \
     slirp4netns \
     tmux \
-    tree-sitter
+    tree-sitter \
+    unzip
 "
 update_command="yes | sudo pacman -Syu"
 purge_command="pacman -Qqd | sudo pacman -Rsu -"
