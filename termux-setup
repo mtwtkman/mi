@@ -62,5 +62,5 @@ echo "added aliases"
 
 echo <<EOF >> ~/.bashrc
 alias x='termux-x11 :0 -xstartup "dbus-launch --exit-with-session xfce4-session"'
-alias arch="proot-distro login archlinux --user $username"
+alias arch="proot-distro login archlinux --user $username --shared-tmp"
 EOF
