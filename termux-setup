@@ -1,24 +1,29 @@
 #!/bin/bash
+# refs:
+#   - https://ivonblog.com/en-us/posts/termux-proot-distro-archlinux/
+#   - https://ivonblog.com/en-us/posts/termux-virglrenderer/
+#   - https://github.com/sabamdarif/termux-desktop/tree/main
 
 # -------------------------
 # install packages
 # -------------------------
 echo "install packages."
-pkg update
-pkg upgrade
-pkg install x11-repo
-pkg install termux-x11-nightly
-pkg install xfce
-pkg install proot-distro
-pkg install neovim
-pkg install openssh
+yes | pkg update
+yes | pkg upgrade
+yes | pkg install x11-repo
+yes | pkg install termux-x11-nightly
+yes | pkg install xfce
+yes | pkg install proot-distro
+yes | pkg install neovim
+yes | pkg install openssh
+yes | pkg install  virglrenderer-android
 
 # -------------------------
 # install archlniux via proot-distro
 # -------------------------
 echo "install archlniux via proot-distro"
 proot-distro install archlinux
-proot-distro login archlinux -- yes | pacman -Syu
+proot-distro login archlinux -- pacman -Syu --noconfirm
 
 # -------------------------
 # create user for archlinux
@@ -29,7 +34,7 @@ userloginpass="hi"
 distro_path="$PREFIX/var/lib/proot-distro/installed-rootfs/archlinux"
 root_bin_path="${distro_path}/root"
 
-cat <<EOF >  "${root_bin_path}/create_user.sh"
+cat <<EOF > "${root_bin_path}/create_user.sh"
 #!/bin/bash
 
 addgroup storage
@@ -51,9 +56,51 @@ touch /etc/sudoers
 chmod u+rw /etc/sudoers
 echo "$username ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers > /dev/null 2>&1
 chmod u-w /etc/sudoers
-yes | pacman -Sy sudo
+pacman -Sy --noconfirm sudo
 rm ${root_bin_path/setup_sudoer.sh
 EOF
+
+eval "sh ${root_bin_path}/setup_sudoer.sh"
+
+# -------------------------
+# install packges in archlinux
+# -------------------------
+echo "install packges in archlinux"
+cat <<EOF > "${root_bin_path}/install_packages.sh"
+#!/bin/bash
+
+sudo pacman -Sy --noconfirm --overwrite '*' firefox pulseaudio
+rm ${root_bin_path}/install_packages.sh
+EOF
+
+eval "sh ${root_bin_path}/install_packages.sh"
+
+# -------------------------
+# install shortcut
+# -------------------------
+if [ ! -d "${HOME}/shortcuts" ]; then
+  mkdir "${HOME}/shortcuts"
+fi
+
+cat <<EOF > "${HOME}/shortcuts/startproot_arch.sh"
+#!/bin/bash
+
+killall -9 termux-x11 pulseaudio virgl_test_server_android termux-wake-lock
+
+am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity
+XDG_RUNTIME_DIR=\${TMPDIR}
+termux-x11 :0 -ac &
+sleep 3
+
+pulseaudio --start --load="module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1" --exit-idle-time=-1
+pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1
+
+virgl_test_server_android &
+
+proot-distro login archlinux --user user --shared-tmp -- bash -c "export DISPLAY=:0 PULSE_SERVER=tcp:127.0.0.1; dbus-launch --exit-with-session startxfce4"
+EOF
+
+chmod +x "${HOME}/shortcuts/startproot_arch.sh"
 
 # -------------------------
 # added aliases
@@ -61,6 +108,9 @@ EOF
 echo "added aliases"
 
 echo <<EOF >> ~/.bashrc
+export DISPLAY=0
 alias x='termux-x11 :0 -xstartup "dbus-launch --exit-with-session xfce4-session"'
 alias arch="proot-distro login archlinux --user $username --shared-tmp"
+alias vsrv="virgl_test_server_android"
+alias xfcd="dbus-launch --exit-with-session startxfce4"
 EOF
