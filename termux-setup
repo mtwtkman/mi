@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# -------------------------
+# install packages
+# -------------------------
+echo "install packages."
+pkg update
+pkg upgrade
+pkg install x11-repo
+pkg install termux-x11-nightly
+pkg install xfce
+pkg install proot-distro
+pkg install neovim
+pkg install openssh
+
+# -------------------------
+# install archlniux via proot-distro
+# -------------------------
+echo "install archlniux via proot-distro"
+proot-distro install archlinux
+proot-distro login archlinux -- yes | pacman -Syu
+
+# -------------------------
+# create user for archlinux
+# -------------------------
+echo "create user for archlinux"
+username="me"
+userloginpass="hi"
+distro_path="$PREFIX/var/lib/proot-distro/installed-rootfs/archlinux"
+root_bin_path="${distro_path}/root"
+
+cat <<EOF >  "${root_bin_path}/create_user.sh"
+#!/bin/bash
+
+addgroup storage
+addgroup wheel
+mkdir -p /home/${username}
+useradd -d /home/${username} -m -s \$(which bash) -G users ${username}
+chown ${username}:users /home/${username}
+
+echo "${username}:${userloginpass}" | chpasswd
+rm ${root_bin_path/create_user.sh
+EOF
+
+eval "sh ${root_bin_path}/create_user.sh"
+
+cat <<EOF > "${root_bin_path}/setup_sudoer.sh"
+#!/bin/bash
+
+touch /etc/sudoers
+chmod u+rw /etc/sudoers
+echo "$username ALL=(ALL) NOPASSWD:ALL" | tee -a /etc/sudoers > /dev/null 2>&1
+chmod u-w /etc/sudoers
+yes | pacman -Sy sudo
+rm ${root_bin_path/setup_sudoer.sh
+EOF
+
+# -------------------------
+# added aliases
+# -------------------------
+echo "added aliases"
+
+echo <<EOF >> ~/.bashrc
+alias x='termux-x11 :0 -xstartup "dbus-launch --exit-with-session xfce4-session"'
+alias arch="proot-distro login archlinux --user $username"
+EOF
