@@ -7,8 +7,8 @@
 # -------------------------
 # install packages
 # -------------------------
-echo "install packages."
-yes | pkg update
+echo "install necessary packages"
+pkg update
 yes | pkg upgrade
 yes | pkg install x11-repo
 yes | pkg install termux-x11-nightly
@@ -114,3 +114,5 @@ alias arch="proot-distro login archlinux --user $username --shared-tmp"
 alias vsrv="virgl_test_server_android"
 alias xfcd="dbus-launch --exit-with-session startxfce4"
 EOF
+
+
