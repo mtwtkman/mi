@@ -91,7 +91,7 @@ alias x='termux-x11 :0 -xstartup "dbus-launch --exit-with-session xfce4-session"
 alias arch="proot-distro login archlinux --user $username --shared-tmp"
 alias vsrv="virgl_test_server_android"
 alias xfcd="dbus-launch --exit-with-session startxfce4"
-alias update="pkg update && pkg upgrade && pkg autoclean"
+alias update="pkg update && yes | pkg upgrade && pkg autoclean"
 alias vim="nvim"
 export PATH="\${HOME}/.local/bin:\${PATH}"
 EOF
