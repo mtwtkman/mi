@@ -14,9 +14,9 @@ yes | pkg install x11-repo
 yes | pkg install termux-x11-nightly
 yes | pkg install xfce
 yes | pkg install proot-distro
+yes | pkg install virglrenderer-android
 yes | pkg install neovim
 yes | pkg install openssh
-yes | pkg install  virglrenderer-android
 
 # -------------------------
 # install archlniux via proot-distro
