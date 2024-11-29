@@ -85,12 +85,14 @@ if [ ! -d ${local_bin_path} ]; then
   mkdir -p "${local_bin_path}"
 fi
 
-echo <<EOF >> ~/.bashrc
+cat <<EOF >> ~/.bashrc
 export DISPLAY=0
 alias x='termux-x11 :0 -xstartup "dbus-launch --exit-with-session xfce4-session"'
 alias arch="proot-distro login archlinux --user $username --shared-tmp"
 alias vsrv="virgl_test_server_android"
 alias xfcd="dbus-launch --exit-with-session startxfce4"
+alias update="pkg update && pkg upgrade && pkg autoclean"
+alias vim="nvim"
 export PATH="\${HOME}/.local/bin:\${PATH}"
 EOF
 
@@ -98,7 +100,7 @@ startarch_script_path="${local_bin_path}/startarch"
 cat <<EOF > "${startarch_script_path}"
 #!/bin/bash
 
-killall -9 termux-x11 pulseaudio virgl_test_server_android termux-wake-lock
+killall -9 termux-x11 pulseaudio virgl_test_server_android termux-wake-lock &> /dev/null
 
 am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity
 XDG_RUNTIME_DIR=\${TMPDIR}
@@ -110,7 +112,7 @@ pacmd load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymou
 
 virgl_test_server_android &
 
-proot-distro login archlinux --user user --shared-tmp -- bash -c "export DISPLAY=:0 PULSE_SERVER=tcp:127.0.0.1; dbus-launch --exit-with-session startxfce4"
+proot-distro login archlinux --user ${username} --shared-tmp -- bash -c "export DISPLAY=:0 PULSE_SERVER=tcp:127.0.0.1; dbus-launch --exit-with-session startxfce4"
 EOF
 
 chmod +x "${startarch_script_path}"
