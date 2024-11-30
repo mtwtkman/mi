@@ -69,7 +69,7 @@ echo "install packges in archlinux"
 cat <<EOF > "${root_bin_path}/install_packages.sh"
 #!/bin/bash
 
-sudo pacman -Sy --noconfirm --overwrite '*' firefox pulseaudio
+sudo pacman -Sy --noconfirm firefox networkmanager xorg xorg-server pulseaudio xfce4 xfce4-goodies
 rm ${root_bin_path}/install_packages.sh
 EOF
 
@@ -84,6 +84,8 @@ local_bin_path="${HOME}/.local/bin"
 if [ ! -d ${local_bin_path} ]; then
   mkdir -p "${local_bin_path}"
 fi
+
+echo "export PULSE_SERVER=127.0.0.1" >> "${distro_path}/etc/profile"
 
 cat <<EOF >> ~/.bashrc
 export DISPLAY=0
