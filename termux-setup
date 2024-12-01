@@ -101,6 +101,8 @@ alias vsrv="virgl_test_server_android"
 alias xfcd="dbus-launch --exit-with-session startxfce4"
 alias update="pkg update && yes | pkg upgrade && pkg autoclean"
 alias vim="nvim"
+alias wake="termux-wake-lock"
+alias host="sshd && wake"
 export PATH="\${HOME}/.local/bin:\${PATH}"
 EOF
 
