@@ -105,8 +105,8 @@ alias host="sshd && wake"
 export PATH="\${HOME}/.local/bin:\${PATH}"
 EOF
 
-echo "create `startarch` shortcut"
-startarch_script_path="${local_bin_path}/startarch"
+echo "create `tx11` shortcut"
+startarch_script_path="${local_bin_path}/tx11"
 cat <<EOF > "${startarch_script_path}"
 #!/bin/bash
 
