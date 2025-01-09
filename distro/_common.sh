@@ -64,6 +64,15 @@ install_neovim_remote()
   green "Done"
 }
 
+## POI
+install_poi()
+{
+  blue "Install poi"
+  curl -L https://github.com/mtwtkman/poi/releases/download/0.0.1/poi -o $HOME/.local/bin/poi
+  chmod +x $HOME/.local/bin/poi
+  green "Done"
+}
+
 # BASIC PACKAGES
 install_basic_packages()
 {
