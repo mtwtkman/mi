@@ -68,7 +68,7 @@ install_neovim_remote()
 install_poi()
 {
   blue "Install poi"
-  curl -L https://github.com/mtwtkman/poi/releases/download/0.0.1/poi -o $HOME/.local/bin/poi
+  curl -ks https://api.github.com/repos/mtwtkman/poi/releases/latest | rg 'browser_download_url' | cut -d : -f 2,3 | tr -d \" | xargs curl -L  -o $HOME/.local/bin/poi
   chmod +x $HOME/.local/bin/poi
   green "Done"
 }
@@ -92,6 +92,7 @@ install_common_packages()
   load_asdf
   install_python3
   install_neovim_remote
+  install_poi
   green "Done."
 }
 
@@ -99,6 +100,7 @@ update_common_packages()
 {
   load_asdf
   upgrade_pip
+  install_poi
 }
 
 deploy_settings()
