@@ -47,6 +47,12 @@ if command -v "direnv" &> /dev/null; then
   eval "$(direnv hook bash)"
 fi
 
+# DOCKER
+if command -v "docker" &> /dev/null; then
+  alias c="docker"
+fi
+
+
 # FZF
 if command -v "fzf" &> /dev/null; then
   export FZF_DEFAULT_COMMAND="rg --files --no-ignore --hidden --follow -g \"!{.git,node_modules}/*\" 2> /dev/null"
@@ -142,6 +148,7 @@ fi
 # PODMAN
 if command -v "podman" &> /dev/null; then
   source <(podman completion bash)
+  alias c="podman"
 fi
 
 # TMUX
