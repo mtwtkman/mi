@@ -47,7 +47,6 @@ local function on_attach(bufnr)
   vim.keymap.set('n', 'C', nvim_tree_api.tree.toggle_git_clean_filter, opts('Toggle Git Clean'))
   vim.keymap.set('n', '[c', nvim_tree_api.node.navigate.git.prev, opts('Prev Git'))
   vim.keymap.set('n', ']c', nvim_tree_api.node.navigate.git.next, opts('Next Git'))
-  vim.keymap.set('n', 'd', nvim_tree_api.fs.remove, opts('Delete'))
   vim.keymap.set('n', 'D', nvim_tree_api.fs.trash, opts('Trash'))
   vim.keymap.set('n', 'E', nvim_tree_api.tree.expand_all, opts('Expand All'))
   vim.keymap.set('n', 'e', nvim_tree_api.fs.rename_basename, opts('Rename: Basename'))
@@ -107,9 +106,17 @@ local function on_attach(bufnr)
   vim.keymap.set('n', 'l', nvim_tree_api.node.open.edit, opts('Open'))
 end
 
+local trash_cmd = "rm"
+if vim.fn.executable("poi") then
+  trash_cmd = "poi toss"
+end
+
 require("nvim-tree").setup({
   on_attach = on_attach,
   diagnostics = {
     enable = true,
+  },
+  trash = {
+    cmd = trash_cmd,
   },
 })

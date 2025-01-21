@@ -151,6 +151,11 @@ if command -v "podman" &> /dev/null; then
   alias c="podman"
 fi
 
+# POI
+if command -v "poi" &> /dev/null; then
+  alias rm="poi toss"
+fi
+
 # TMUX
 if [ "${TMUX}" ]; then
   tmux_icon=" "
