@@ -107,7 +107,7 @@ local function on_attach(bufnr)
 end
 
 local trash_cmd = "rm"
-if vim.fn.executable("poi") then
+if vim.fn.executable("poi") == 1 then
   trash_cmd = "poi toss"
 end
 
