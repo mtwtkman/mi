@@ -2,30 +2,60 @@
 here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 source "${here}/../modules/message.sh"
 
+detect_architecture()
+{
+  case "$(uanme -m)" in
+    "x86_64") echo "amd64";;
+    "aarch64") echo "arm64";;
+  esac
+}
+
+detect_os()
+{
+  case "$(uname -o)" in
+    "GNU/Linux" | "Android") echo "linux";;
+    "Darwin") echo "darwin";;
+  esac
+}
+
 # EXTERNAL PACKAGES
 asdf_dir="${HOME}/.asdf"
 tmux_plugins_dir="${HOME}/.config/tmux/plugins"
 
 ## ASDF
-load_asdf()
+install_asdf()
 {
-  blue "Load asdf"
-  if [ ! -d "${asdf_dir}" ]; then
-    git clone https://github.com/asdf-vm/asdf.git "${asdf_dir}" --branch master
+  dest="asdf.zip"
+  bindir= "${HOME}/.local/bin"
+  pushd "${bindir}" &> /dev/null
+  target="-$(detect_os)-$(detect_architecture)\.tar\.gz$"
+  for candidate in $(curl https://api.github.com/repos/asdf-vm/asdf/releases/latest | jaq '.assets[].browser_download_url')
+  do
+    if [[ $downloaded = 1 ]]; then
+      break
+    fi
+    if [[ "${target}" =~ ${candidate}$ ]]; then
+      blue "Download from ${candidate}."
+      curl -L "${target}" -o "${dest}"
+      blue "Downloaded latest version archive."
+    fi
+  done
+  if [[ ! -f "${dest}" ]]; then
+    red "Cannot detect."
+    return
   fi
-  pushd "${asdf_dir}" &> /dev/null
-  git fetch
-  git reset --hard origin/master
-  popd &> /dev/null
-  green "Done"
+
+  tar -xf "${dest}"
+  /bin/rm -rf "${dest}"
+  blue "Installed asdf"
+  popd
 }
 
 depends_on_asdf()
 {
   if [ ! -d "${asdf_dir}" ]; then
-    load_asdf
+    install_asdf
   fi
-  source "${asdf_dir}/asdf.sh"
 }
 
 ## PYTHON
@@ -35,7 +65,7 @@ install_python3()
   depends_on_asdf
   asdf plugin add python
   asdf install python latest
-  asdf global python latest
+  asdf set -u python latest
   green "Done"
 }
 
