@@ -77,6 +77,8 @@ upgrade_pip()
   blue "Upgrade pip"
   depends_on_python3
   pip install --upgrade pip
+  blue "Upgrade outdated python packages"
+  pip list --outdated | tail -n +3 | cut -d ' ' -f1 | xargs -n1 pip install -U 2> /dev/null
   green "Done"
 }
 
