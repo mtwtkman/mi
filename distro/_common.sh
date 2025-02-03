@@ -1,5 +1,4 @@
 #!/bin/bash
-set -ex
 here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 source "${here}/../modules/message.sh"
 
