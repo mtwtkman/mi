@@ -1,10 +1,11 @@
 #!/bin/bash
+set -ex
 here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 source "${here}/../modules/message.sh"
 
 detect_architecture()
 {
-  case "$(uanme -m)" in
+  case "$(uname -m)" in
     "x86_64") echo "amd64";;
     "aarch64") echo "arm64";;
   esac
@@ -26,22 +27,25 @@ tmux_plugins_dir="${HOME}/.config/tmux/plugins"
 install_asdf()
 {
   dest="asdf.zip"
-  bindir= "${HOME}/.local/bin"
+  bindir="${HOME}/.local/bin"
   pushd "${bindir}" &> /dev/null
-  target="-$(detect_os)-$(detect_architecture)\.tar\.gz$"
+  target="-$(detect_os)-$(detect_architecture).tar.gz$"
   for candidate in $(curl https://api.github.com/repos/asdf-vm/asdf/releases/latest | jaq '.assets[].browser_download_url')
   do
-    if [[ $downloaded = 1 ]]; then
+    src=$(echo "${candidate}" | sed -E 's/^"(.*)"$/\1/g')
+    if [ "${downloaded}" = "true" ]; then
       break
     fi
-    if [[ "${target}" =~ ${candidate}$ ]]; then
-      blue "Download from ${candidate}."
-      curl -L "${target}" -o "${dest}"
+    if [[ $src =~ ${target} ]]; then
+      blue "Download from ${src} to install asdf."
+      curl -L "${src}" -o "${dest}"
       blue "Downloaded latest version archive."
+      downloaded="true"
     fi
   done
-  if [[ ! -f "${dest}" ]]; then
+  if [ ! -f "${dest}" ]; then
     red "Cannot detect."
+    exit 1
     return
   fi
 
@@ -119,7 +123,7 @@ install_basic_packages()
 install_common_packages()
 {
   blue "Install basic packages."
-  load_asdf
+  install_asdf
   install_python3
   install_neovim_remote
   install_poi
@@ -128,7 +132,7 @@ install_common_packages()
 
 update_common_packages()
 {
-  load_asdf
+  install_asdf
   upgrade_pip
   install_poi
 }

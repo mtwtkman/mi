@@ -1,3 +1,3 @@
 return {
-  servername = "pyright",
+  servername = "ruff",
 }

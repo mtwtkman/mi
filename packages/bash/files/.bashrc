@@ -40,8 +40,6 @@ alias miup="mi && ./mi update && popd"
 if [ -d "${HOME}/.asdf" ]; then
   export ASDF_DATA_DIR="${HOME}/.asdf"
   export PATH="${ASDF_DATA_DIR}/shims:${PATH}"
-  source "${HOME}/.asdf/asdf.sh"
-  source "${HOME}/.asdf/internal/completions/asdf.bash"
 fi
 
 # DIRENV
