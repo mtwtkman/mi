@@ -62,8 +62,7 @@ telescope.load_extension("grapple")
 
 local fuzzyFindFiles = function()
   builtin.grep_string({
-    path_display = { "smart" },
-    only_sort_Text = true,
+    only_sort_text = true,
     word_match = "-w",
     search = "",
   })
