@@ -102,9 +102,23 @@ install_neovim_remote()
 ## POI
 install_poi()
 {
+  if  ! (command -v cabal && command -v ghc); then
+    red "Required `cabal`, `ghc` to build poi from source"
+    return
+  fi
   blue "Install poi"
-  curl -ks https://api.github.com/repos/mtwtkman/poi/releases/latest | rg 'browser_download_url' | cut -d : -f 2,3 | tr -d \" | xargs curl -L  -o $HOME/.local/bin/poi
-  chmod +x $HOME/.local/bin/poi
+  workdir="poi-install-dir"
+  if [ -d "${workdir}" ]; then
+    /bin/rm -rf "${workdir}"
+  fi
+  mkdir "${workdir}"
+  pushd "${workdir}" &> /dev/null
+  git clone git@github.com:mtwtkman/poi
+  cd poi
+  ./dev.sh release
+  mv dest/poi "${HOME}/.local/bin"
+  popd
+  /bin/rm -rf "${workdir}"
   green "Done"
 }
 
