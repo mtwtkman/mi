@@ -57,6 +57,7 @@ depends_on_python3()
   if ! command -v "python" &> /dev/null; then
     install_python3
   fi
+  eval "$(mise activate bash)"
 }
 
 ## NEOVIM
@@ -64,7 +65,7 @@ install_neovim_remote()
 {
   blue "Install neovim-remote"
   depends_on_python3
-  pip3 install neovim-remote
+  pip install neovim-remote
   asdf reshim python
   green "Done"
 }

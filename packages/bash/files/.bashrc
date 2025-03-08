@@ -111,6 +111,11 @@ fi
 # GPG
 export GPG_TTY=$(tty)
 
+# MISE
+if command -v "mise" &> /dev/null; then
+  eval "$(${HOME}/.local/bin/mise activate bash)"
+fi
+
 # NVIM
 if command -v "nvim" &> /dev/null; then
   export NVIM_LUASNIP_SNIPPETS_PATH="${HOME}/.config/nvim/snippets"
@@ -163,4 +168,3 @@ fi
 ps1_head="${PS1_HEAD:-}"
 ps1_base="\w"
 export PS1="${tmux_icon}${ps1_head}${ps1_base}${ps1_git}\n$ "
-eval "$(/home/mtwtkman/.local/bin/mise activate bash)"
