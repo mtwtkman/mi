@@ -36,17 +36,6 @@ alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./mi update && popd"
 
 ### TOOL ###
-# ASDF
-if [ -d "${HOME}/.asdf" ]; then
-  export ASDF_DATA_DIR="${HOME}/.asdf"
-  export PATH="${ASDF_DATA_DIR}/shims:${PATH}"
-fi
-
-# DIRENV
-if command -v "direnv" &> /dev/null; then
-  eval "$(direnv hook bash)"
-fi
-
 # DOCKER
 if command -v "docker" &> /dev/null; then
   alias c="docker"
@@ -174,3 +163,4 @@ fi
 ps1_head="${PS1_HEAD:-}"
 ps1_base="\w"
 export PS1="${tmux_icon}${ps1_head}${ps1_base}${ps1_git}\n$ "
+eval "$(/home/mtwtkman/.local/bin/mise activate bash)"

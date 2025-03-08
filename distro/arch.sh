@@ -8,7 +8,6 @@ install_command="
     bash-language-server \
     bat \
     crun \
-    direnv \
     fd \
     fzf \
     gcc \

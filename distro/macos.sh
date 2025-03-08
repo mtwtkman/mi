@@ -8,7 +8,6 @@ install_command="
     bash-completion \
     bash-language-server \
     bat \
-    direnv \
     fd \
     fzf \
     gcc \

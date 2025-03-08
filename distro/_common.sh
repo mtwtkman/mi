@@ -19,45 +19,18 @@ detect_os()
 }
 
 # EXTERNAL PACKAGES
-asdf_dir="${HOME}/.asdf"
 tmux_plugins_dir="${HOME}/.config/tmux/plugins"
 
-## ASDF
-install_asdf()
+# MISE
+function install_mise()
 {
-  dest="asdf.zip"
-  bindir="${HOME}/.local/bin"
-  pushd "${bindir}" &> /dev/null
-  target="-$(detect_os)-$(detect_architecture).tar.gz$"
-  for candidate in $(curl https://api.github.com/repos/asdf-vm/asdf/releases/latest | jaq '.assets[].browser_download_url')
-  do
-    src=$(echo "${candidate}" | sed -E 's/^"(.*)"$/\1/g')
-    if [ "${downloaded}" = "true" ]; then
-      break
-    fi
-    if [[ $src =~ ${target} ]]; then
-      blue "Download from ${src} to install asdf."
-      curl -L "${src}" -o "${dest}"
-      blue "Downloaded latest version archive."
-      downloaded="true"
-    fi
-  done
-  if [ ! -f "${dest}" ]; then
-    red "Cannot detect."
-    exit 1
-    return
-  fi
-
-  tar -xf "${dest}"
-  /bin/rm -rf "${dest}"
-  blue "Installed asdf"
-  popd
+  curl https://mise.run | sh
 }
 
-depends_on_asdf()
+function depends_on_mise()
 {
-  if [ ! -d "${asdf_dir}" ]; then
-    install_asdf
+  if ! command -v "mise" &> /dev/null; then
+    install_mise
   fi
 }
 
@@ -65,10 +38,7 @@ depends_on_asdf()
 install_python3()
 {
   blue "Install python3"
-  depends_on_asdf
-  asdf plugin add python
-  asdf install python latest
-  asdf set -u python latest
+  mise use --global python@latest
   green "Done"
 }
 
