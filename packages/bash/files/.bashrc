@@ -36,11 +36,17 @@ alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./mi update && popd"
 
 ### TOOL ###
+# DISTROBOX
+if [[ ${DISTROBOX_ENTER_PATH} ]]; then
+  distrobox_icon=" -  "
+else
+  distrobox_icon=""
+fi
+
 # DOCKER
 if command -v "docker" &> /dev/null; then
   alias c="docker"
 fi
-
 
 # FZF
 if command -v "fzf" &> /dev/null; then
@@ -167,4 +173,4 @@ fi
 # PROMPT
 ps1_head="${PS1_HEAD:-}"
 ps1_base="\w"
-export PS1="${tmux_icon}${ps1_head}${ps1_base}${ps1_git}\n$ "
+export PS1="${tmux_icon}${ps1_head}${ps1_base}${ps1_git}${distrobox_icon}\n$ "

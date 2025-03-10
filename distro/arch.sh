@@ -8,6 +8,7 @@ install_command="
     bash-language-server \
     bat \
     crun \
+    distrobox \
     fd \
     fzf \
     gcc \

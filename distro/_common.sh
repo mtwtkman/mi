@@ -109,7 +109,7 @@ install_basic_packages()
 install_common_packages()
 {
   blue "Install basic packages."
-  install_asdf
+  install_mise
   install_python3
   install_neovim_remote
   install_poi
@@ -118,7 +118,7 @@ install_common_packages()
 
 update_common_packages()
 {
-  install_asdf
+  install_mise
   upgrade_pip
   install_poi
 }
