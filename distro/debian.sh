@@ -6,6 +6,7 @@ install_command="
     bash \
     bash-completion \
     bat \
+    distrobox \
     fd-find \
     fzf \
     gcc \
