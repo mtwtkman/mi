@@ -6,6 +6,9 @@ local regular_snippets = {
   s("pry", {
     t("require 'pry';binding.pry"),
   }),
+  s("byebug", {
+    t("require 'byebug';byebug"),
+  }),
 }
 
 local auto_snippets = {}

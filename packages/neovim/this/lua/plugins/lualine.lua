@@ -15,13 +15,13 @@ require("lualine").setup({
           bg = c.white
         }
       },
-      {
-        "lsp_progress",
-        color = {
-          fg = c.black,
-          bg = c.white
-        }
-      },
+      -- {
+      --   "lsp_progress",
+      --   color = {
+      --     fg = c.black,
+      --     bg = c.white
+      --   }
+      -- },
     },
     lualine_x = {
       {
