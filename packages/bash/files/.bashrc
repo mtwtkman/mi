@@ -38,7 +38,7 @@ alias miup="mi && ./mi update && popd"
 ### TOOL ###
 # DISTROBOX
 if [[ ${CONTAINER_ID} ]]; then
-  distrobox_icon=" -  "
+  distrobox_icon=" -  : \e[33m${CONTAINER_ID}\e[0m"
 else
   distrobox_icon=""
 fi
