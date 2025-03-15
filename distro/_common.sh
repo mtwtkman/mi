@@ -99,10 +99,6 @@ install_basic_packages()
   install_command="${1}"
   blue "Install basic packages."
   eval "${install_command}"
-  if [ $? != 0 ]; then
-    red "Abort."
-    exit 1
-  fi
 }
 
 

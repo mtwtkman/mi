@@ -119,7 +119,7 @@ export GPG_TTY=$(tty)
 
 # MISE
 if command -v "mise" &> /dev/null; then
-  eval "$(${HOME}/.local/bin/mise activate bash)"
+  eval "$($(whereis -b mise | cut -d ' ' -f 2) activate bash)"
 fi
 
 # NVIM
