@@ -16,7 +16,7 @@ require("lualine").setup({
         }
       },
       {
-        "lsp_progress",
+        "lsp_status",
         color = {
           fg = c.black,
           bg = c.white

@@ -16,7 +16,6 @@ local plugins = {
     "nvim-lualine/lualine.nvim",
     dependencies = {
       "mtwtkman/nvim-web-devicons",
-      "arkav/lualine-lsp-progress",
     },
     config = function()
       require("plugins.lualine")
