@@ -1,5 +1,20 @@
 local c = require("color")
+local theme = {
+  normal = {
+    a = { fg = c.black, bg = c.white },
+    b = { fg = c.white, bg = c.black },
+    c = { fg = c.black, bg = c.white },
+    z = { fg = c.white, bg = c.black },
+  },
+  insert = { a = { fg = c.black, bg = c.white } },
+  visual = { a = { fg = c.black, bg = c.white } },
+  replace = { a = { fg = c.black, bg = c.white } },
+}
+
 require("lualine").setup({
+  options = {
+    theme = theme,
+  },
   sections = {
     lualine_b = {
       "grapple",
@@ -12,14 +27,14 @@ require("lualine").setup({
         path = 1,
         color = {
           fg = c.black,
-          bg = c.white
+          bg = c.white,
         }
       },
       {
         "lsp_status",
         color = {
           fg = c.black,
-          bg = c.white
+          bg = c.white,
         }
       },
     },
@@ -28,14 +43,14 @@ require("lualine").setup({
         "encoding",
         color = {
           fg = c.black,
-          bg = c.white
+          bg = c.white,
         },
       },
       {
         "fileformat",
         color = {
           fg = c.black,
-          bg = c.white
+          bg = c.white,
         },
       },
       {
@@ -43,7 +58,7 @@ require("lualine").setup({
         colored = false,
         color = {
           fg = c.black,
-          bg = c.white
+          bg = c.white,
         },
       },
     },
@@ -52,7 +67,7 @@ require("lualine").setup({
         "location",
         color = {
           fg = c.black,
-          bg = c.white
+          bg = c.white,
         },
       }
     },
