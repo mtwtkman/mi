@@ -12,8 +12,8 @@ end
 
 local setup_keymaps = function(bufnr)
   nmap("<space>e", vim.diagnostic.open_float, { silent = true })
-  nmap("[d", vim.diagnostic.goto_prev, { silent = true })
-  nmap("]d", vim.diagnostic.goto_next, { silent = true })
+  nmap("[d", function() vim.diagnostic.jump({count=1, float=true}) end, { silent = true })
+  nmap("]d", function() vim.diagnostic.jump({count=-1, float=true}) end, { silent = true })
   nmap("gD", vim.lsp.buf.declaration, { silent = true, buffer = bufnr })
   nmap("gd", vim.lsp.buf.definition, { silent = true, buffer = bufnr })
   nmap("K", vim.lsp.buf.hover, { silent = true, buffer = bufnr })
