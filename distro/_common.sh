@@ -21,19 +21,6 @@ detect_os()
 # EXTERNAL PACKAGES
 tmux_plugins_dir="${HOME}/.config/tmux/plugins"
 
-# MISE
-function install_mise()
-{
-  curl https://mise.run | sh
-}
-
-function depends_on_mise()
-{
-  if ! command -v "mise" &> /dev/null; then
-    install_mise
-  fi
-}
-
 ## POI
 install_poi()
 {
@@ -69,14 +56,12 @@ install_basic_packages()
 install_common_packages()
 {
   blue "Install basic packages."
-  install_mise
   # install_poi
   green "Done."
 }
 
 update_common_packages()
 {
-  install_mise
   # install_poi
 }
 
