@@ -55,7 +55,7 @@ local make_default_config = function()
 end
 
 vim.diagnostic.config({
-  float = { border = border_type },
+  float = { border = "rounded" },
 })
 
 return {
