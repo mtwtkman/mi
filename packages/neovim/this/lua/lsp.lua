@@ -31,7 +31,7 @@ local setup_keymaps = function(bufnr)
 end
 
 local on_attach = function(client, bufnr)
-  vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
+  vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", { buf = bufnr })
   if client.server_capabilities.documentSymbolProvider then
     navic.attach(client, bufnr)
   end
