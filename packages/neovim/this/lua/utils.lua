@@ -13,24 +13,24 @@ function M.optional_value(x, default)
   return x
 end
 
-function M.create_map(mode, lhs, rhs, value, options)
-  vim.keymap.set(mode, lhs, rhs, value, M.optional_value(options, {}))
+function M.create_map(mode, lhs, rhs, options)
+  vim.keymap.set(mode, lhs, rhs, M.optional_value(options, {}))
 end
 
-function M.nmap(lhs, rhs, value, options)
-  M.create_map("n", lhs, rhs, value, options)
+function M.nmap(lhs, rhs, options)
+  M.create_map("n", lhs, rhs, options)
 end
 
-function M.imap(lhs, rhs, value, options)
-  M.create_map("i", lhs, rhs, value, options)
+function M.imap(lhs, rhs, options)
+  M.create_map("i", lhs, rhs, options)
 end
 
-function M.vmap(lhs, rhs, value, options)
-  M.create_map("v", lhs, rhs, value, options)
+function M.vmap(lhs, rhs, options)
+  M.create_map("v", lhs, rhs, options)
 end
 
-function M.tmap(lhs, rhs, value, options)
-  M.create_map("t", lhs, rhs, value, options)
+function M.tmap(lhs, rhs, options)
+  M.create_map("t", lhs, rhs, options)
 end
 
 function M.compoase(a, b)
