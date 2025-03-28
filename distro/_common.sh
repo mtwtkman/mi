@@ -34,42 +34,6 @@ function depends_on_mise()
   fi
 }
 
-## PYTHON
-install_python3()
-{
-  blue "Install python3"
-  mise use --global python@latest
-  green "Done"
-}
-
-upgrade_pip()
-{
-  blue "Upgrade pip"
-  depends_on_python3
-  pip install --upgrade pip
-  blue "Upgrade outdated python packages"
-  pip list --outdated | tail -n +3 | cut -d ' ' -f1 | xargs -n1 pip install -U 2> /dev/null
-  green "Done"
-}
-
-depends_on_python3()
-{
-  if ! command -v "python" &> /dev/null; then
-    install_python3
-  fi
-  eval "$(mise activate bash)"
-}
-
-## NEOVIM
-install_neovim_remote()
-{
-  blue "Install neovim-remote"
-  depends_on_python3
-  pip install neovim-remote
-  asdf reshim python
-  green "Done"
-}
-
 ## POI
 install_poi()
 {
@@ -106,8 +70,6 @@ install_common_packages()
 {
   blue "Install basic packages."
   install_mise
-  install_python3
-  install_neovim_remote
   install_poi
   green "Done."
 }
@@ -115,7 +77,6 @@ install_common_packages()
 update_common_packages()
 {
   install_mise
-  upgrade_pip
   install_poi
 }
 

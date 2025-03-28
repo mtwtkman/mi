@@ -126,6 +126,7 @@ fi
 if command -v "nvim" &> /dev/null; then
   export NVIM_LUASNIP_SNIPPETS_PATH="${HOME}/.config/nvim/snippets"
   export EDITOR="nvim"
+  alias vim="nvim"
   alias v="vim"
   alias vimdiff="nvim -d"
   alias vrh="vr -cc split --remote-wait"
@@ -135,14 +136,6 @@ if command -v "nvim" &> /dev/null; then
   alias vup="vim +LazySYnc"
   alias miedit="${EDITOR} ${MI_HOME}"
   alias mie="miedit"
-  function vim()
-  {
-    if [ -z ${NVIM} ]; then
-      nvim --listen /tmp/nvimsocket $@
-    else
-      nvr $@
-    fi
-  }
 fi
 
 # PODMAN
