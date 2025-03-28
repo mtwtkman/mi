@@ -50,7 +50,7 @@ install_poi()
   pushd "${workdir}" &> /dev/null
   git clone git@github.com:mtwtkman/poi
   cd poi
-  ./dev.sh release
+  mise release
   mv dest/poi "${HOME}/.local/bin"
   popd
   /bin/rm -rf "${workdir}"
@@ -70,14 +70,14 @@ install_common_packages()
 {
   blue "Install basic packages."
   install_mise
-  install_poi
+  # install_poi
   green "Done."
 }
 
 update_common_packages()
 {
   install_mise
-  install_poi
+  # install_poi
 }
 
 deploy_settings()
