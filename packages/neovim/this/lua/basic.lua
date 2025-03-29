@@ -98,4 +98,14 @@ vim.api.nvim_create_user_command("EditConfig", function()
 end, {})
 
 nmap("<leader><c-t>", ":tabe %<cr>", { silent = true })
+
+local function open_path_under_cursor(params)
+  vim.cmd(":" .. params.args .. " " .. vim.fn.expand("<cWORD>"))
+end
+
+vim.api.nvim_create_user_command("OpenPathUnderCursor", open_path_under_cursor, { nargs = 1 })
+nmap("Ov",  ":OpenPathUnderCursor vsp<CR>", { silent = true })
+nmap("Os",  ":OpenPathUnderCursor sp<CR>", { silent = true })
+nmap("Ot",  ":OpenPathUnderCursor tabe<CR>", { silent = true })
+
 vim.o.exrc = true
