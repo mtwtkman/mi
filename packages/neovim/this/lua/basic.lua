@@ -98,3 +98,4 @@ vim.api.nvim_create_user_command("EditConfig", function()
 end, {})
 
 nmap("<leader><c-t>", ":tabe %<cr>", { silent = true })
+vim.o.exrc = true
