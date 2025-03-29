@@ -3,11 +3,24 @@ local utils = require("utils")
 local nmap = utils.nmap
 
 local setup_diagnostic_signs = function()
-  local signs = { Error = "", Warning = "", Info = "", Hint = "󰌵" }
-  for type, icon in pairs(signs) do
-    local hl = "DiagnosticSign" .. type
-    vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-  end
+  local hl = {
+    [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+    [vim.diagnostic.severity. WARN] = "DiagnosticSignWarn",
+    [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+    [vim.diagnostic.severity. HINT] = "DiagnosticSignHint"
+  }
+  vim.diagnostic.config({
+    signs = {
+      text = {
+        [vim.diagnostic.severity.ERROR] = "",
+        [vim.diagnostic.severity.WARN] = "",
+        [vim.diagnostic.severity.INFO] = "",
+        [vim.diagnostic.severity.HINT] = "󰌵"
+      },
+      linehl = hl,
+      numhl = hl,
+    },
+  })
 end
 
 local setup_keymaps = function(bufnr)

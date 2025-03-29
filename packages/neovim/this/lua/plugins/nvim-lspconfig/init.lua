@@ -24,4 +24,5 @@ require("lspconfig.ui.windows").default_options = {
 local path = {
   source = utils.get_dir(debug.getinfo(1, "S").source) .. "/lang",
 }
+
 utils.iterate_child_modules(path, configure_lsp)
