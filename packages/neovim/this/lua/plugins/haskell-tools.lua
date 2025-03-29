@@ -1,6 +1,6 @@
 local nmap = require("utils").nmap
 
-local lsp_config = require("lsp").make_default_config()
+local lsp_config = require("lsp.config").make_default()
 
 vim.g.haskell_tools = {
   hls = {

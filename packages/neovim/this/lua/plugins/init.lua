@@ -50,6 +50,7 @@ local plugins = {
     config = function()
       require("plugins.nvim-lspconfig")
     end,
+    enabled = false,
   },
   {
     "hrsh7th/cmp-nvim-lsp",

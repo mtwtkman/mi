@@ -5,7 +5,7 @@ local home = os.getenv('HOME')
 local workspace = home .. "/.local/share/eclipse/" .. vim.fn.fnamemodify(root_dir, ":p:h:t")
 
 local cmd = { "jdtls", "-data", workspace }
-local config = require("lsp").make_default_config()
+local config = require("lsp.config").make_default()
 local bundles = {}
 
 config.cmd = cmd
