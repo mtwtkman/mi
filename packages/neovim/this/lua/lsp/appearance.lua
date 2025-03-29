@@ -14,7 +14,6 @@ return {
           [vim.diagnostic.severity.INFO] = "",
           [vim.diagnostic.severity.HINT] = "󰌵"
         },
-        linehl = hl,
         numhl = hl,
       },
     })
