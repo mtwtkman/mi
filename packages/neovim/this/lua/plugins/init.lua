@@ -46,13 +46,6 @@ local plugins = {
     end,
   },
   {
-    "neovim/nvim-lspconfig",
-    config = function()
-      require("plugins.nvim-lspconfig")
-    end,
-    enabled = false,
-  },
-  {
     "hrsh7th/cmp-nvim-lsp",
   },
   {
@@ -136,9 +129,6 @@ local plugins = {
   },
   {
     "SmiteshP/nvim-navic",
-    dependencies = {
-      "neovim/nvim-lspconfig",
-    },
   },
   {
     "numToStr/Comment.nvim",
