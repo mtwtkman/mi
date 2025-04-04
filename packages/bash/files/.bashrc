@@ -92,9 +92,6 @@ if command -v "fzf" &> /dev/null; then
   esac
 fi
 
-# GHCUP
-[ -f "${HOME}/.ghcup/env" ] && . "${HOME}/.ghcup/env"
-
 # GIT
 if command -v "git" &> /dev/null; then
   ps1_git='$(__git_ps1 " (%s)")'
@@ -117,11 +114,6 @@ fi
 
 # GPG
 export GPG_TTY=$(tty)
-
-# MISE
-if command -v "mise" &> /dev/null; then
-  eval "$($(whereis -b mise | cut -d ' ' -f 2) activate bash)"
-fi
 
 # NVIM
 if command -v "nvim" &> /dev/null; then
@@ -155,12 +147,6 @@ if [ "${TMUX}" ]; then
   tmux_icon=" "
 else
   tmux_icon=""
-fi
-
-# WASMTIME
-if [ -f "${HOME}/.wasmtime/bin/wasmtime" ]; then
-  export WASMTIME_HOME="$HOME/.wasmtime"
-  export PATH="$WASMTIME_HOME/bin:$PATH"
 fi
 
 ### Finalize User Setting ###
