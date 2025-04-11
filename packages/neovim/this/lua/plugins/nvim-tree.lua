@@ -106,17 +106,17 @@ local function on_attach(bufnr)
   vim.keymap.set('n', 'l', nvim_tree_api.node.open.edit, opts('Open'))
 end
 
-local trash_cmd = "rm"
-if vim.fn.executable("poi") == 1 then
-  trash_cmd = "poi toss"
-end
-
-require("nvim-tree").setup({
+local option = {
   on_attach = on_attach,
   diagnostics = {
     enable = true,
   },
-  trash = {
-    cmd = trash_cmd,
-  },
-})
+}
+
+if vim.env.NVIM_TREE_TRASH_COMMAND ~= nil then
+  option.trash = {
+    cmd = vim.env.NVIM_TREE_TRASH_COMMAND,
+  }
+end
+
+require("nvim-tree").setup(option)

@@ -140,6 +140,7 @@ fi
 # POI
 if command -v "poi" &> /dev/null; then
   alias rm="poi toss"
+  export NVIM_TREE_TRASH_COMMAND="poi toss"
 fi
 
 # TMUX
