@@ -1,0 +1,12 @@
+#!/bin/sh
+
+curl https://TermuxArch.github.io/TermuxArch/setupTermuxArch | bvash
+./arch/startarch c 'pacman-key --init && pacman-key --populate archlinuxarm && pacman --noconfirm -S archlinux-keyring && pacman --noconfirm -Syu sudo'
+./arch/startarch c 'useradd -m -U me'
+./arch/startarch c 'passwd me'
+./arch/startarch c "echo 'me ALL=(ALL:ALL) ALL' >> /etc/sudoers"
+cat <<EOF > $HOME/../usr/bin/arch
+#!/usr/bin/env bash
+startarch l me
+EOF
+chmod +x $HOME/../usr/bin/arch
