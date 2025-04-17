@@ -1,12 +1,26 @@
 #!/bin/sh
 
+pkg update
+pkg upgrade -y
+pkg install -y xfce firefox
+
 curl https://TermuxArch.github.io/TermuxArch/setupTermuxArch | bvash
 ./arch/startarch c 'pacman-key --init && pacman-key --populate archlinuxarm && pacman --noconfirm -S archlinux-keyring && pacman --noconfirm -Syu sudo'
 ./arch/startarch c 'useradd -m -U me'
 ./arch/startarch c 'passwd me'
 ./arch/startarch c "echo 'me ALL=(ALL:ALL) ALL' >> /etc/sudoers"
-cat <<EOF > $HOME/../usr/bin/arch
+bin_path="${HOME}/../usr/bin/"
+
+arch_command="${bin_path}arch"
+cat <<EOF > "${arch_command}"
 #!/usr/bin/env bash
 startarch l me
 EOF
-chmod +x $HOME/../usr/bin/arch
+chmod +x "${arch_command}"
+
+x_command="${bin_path}x"
+cat <<EOF > "${x_command}"
+#!/usr/bin/env bash
+termux-x11 :1 -xstartup "dbus-launch --exit-with-session xfce4-session"
+EOF
+chmod +x "${x_command}"
