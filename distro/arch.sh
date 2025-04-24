@@ -27,7 +27,7 @@ install_command="
     unzip
 "
 update_command="yes | sudo pacman -Syu"
-purge_command="pacman -Qqd | sudo pacman -Rsu -"
+purge_command="pacman -Qqtd | sudo pacman -Rs -"
 
 source "${here}/_common.sh"
 perform "${install_command}" "${update_command}" "${purge_command}" "${1}"
