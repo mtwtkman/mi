@@ -19,7 +19,7 @@ install_command="
     tmux \
     libtree-sitter-dev
 "
-update_command="yes | sudo apt-get update"
+update_command="sudo apt update && sudo apt upgrade -y"
 purge_command="sudo apt autoclean && sudo apt autopuge"
 
 source "${here}/_common.sh"
