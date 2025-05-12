@@ -16,9 +16,6 @@ return {
         },
         numhl = hl,
       },
-    })
-
-    vim.diagnostic.config({
       float = { border = "rounded" },
     })
   end

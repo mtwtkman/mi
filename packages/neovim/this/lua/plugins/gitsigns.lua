@@ -32,7 +32,6 @@ require("gitsigns").setup({
     map("n", "<leader>hd", gs.diffthis)
     map("n", "<leader>hD", function() gs.diffthis("~") end)
     map("n", "<leader>td", gs.toggle_deleted)
-
     map({"o", "x"}, "ih", ":<C-u>Gitsigns select_hunk<CR>")
   end,
 })
