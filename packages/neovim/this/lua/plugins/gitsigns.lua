@@ -34,4 +34,7 @@ require("gitsigns").setup({
     map("n", "<leader>td", gs.toggle_deleted)
     map({"o", "x"}, "ih", ":<C-u>Gitsigns select_hunk<CR>")
   end,
+  preview_config = {
+    border = { "┌", "─" ,"┐", "│", "┘", "─", "└", "│" },
+  }
 })
