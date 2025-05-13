@@ -44,7 +44,8 @@ if [ "${distro}" = "autodetect" ]; then
   elif [ $(command -v sw_vers) > /dev/null ]; then
     distro="macos"
   elif [ "${ostype}" = "android" ]; then
-    distro="termux"
+    echo 'NO DISTRO'
+    exit 0
   fi
   if [ -z "${distro}" ]; then
     red "Cannot detected OS name."
@@ -58,7 +59,6 @@ case "${distro}" in
   *arch*) cmd="${here}/distro/arch.sh";;
   *macos*) cmd="${here}/distro/macos.sh";;
   *debian*|*ubuntu*) cmd="${here}/distro/debian.sh";;
-  *termux*) cmd="${here}/distro/termux.sh";;
   *)
     red "No definition for ${distro}."
     exit 0
