@@ -2,6 +2,12 @@ local utils = require("utils")
 local nmap = utils.nmap
 local telescope = require("telescope")
 local builtin = require("telescope.builtin")
+local actions = require("telescope.actions")
+
+local scrolling_mappings = {
+  ["<C-b>"] = actions.results_scrolling_up,
+  ["<C-f>"] = actions.results_scrolling_down,
+}
 
 telescope.setup({
   defaults = {
@@ -11,6 +17,10 @@ telescope.setup({
       horizontal = {
         preview_width = 0.5
       }
+    },
+    mappings = {
+      i = scrolling_mappings,
+      n = scrolling_mappings,
     },
   },
   extensions = {
