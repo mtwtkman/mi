@@ -10,6 +10,7 @@ install_command="
     crun \
     distrobox \
     fd \
+    flatpak \
     fzf \
     gcc \
     git \
