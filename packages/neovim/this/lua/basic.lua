@@ -81,14 +81,7 @@ end, {})
 nmap("<leader><c-r>", ":ReloadCurrentLuaFile<CR>", { silent = true })
 
 local function gx_command()
-  local command = (function()
-    if vim.fn.has("wsl") then
-      return "wslview"
-    else
-      return "xdg-open"
-    end
-  end)()
-  return ":silent execute '!" .. command .. "' shellescape(expand('<cfile>'), 1)<cr>"
+  return ":silent execute '!xdg-open' shellescape(expand('<cfile>'), 1)<cr>"
 end
 
 nmap("gx", gx_command(), { silent = true })
