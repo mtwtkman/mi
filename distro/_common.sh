@@ -31,7 +31,6 @@ perform()
   update_command="${2}"
   purge_command="${3}"
   target_command="${4}"
-  cmd="${5}"
   case "${target_command}" in
     install)
       install_basic_packages "${install_command}"
