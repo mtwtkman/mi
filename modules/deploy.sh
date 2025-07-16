@@ -16,11 +16,11 @@ create_link()
 if [ -d "files" ]; then
   find ./files -maxdepth 1 -mindepth 1 -print0 | while IFS= read -r -d '' f
   do
-    src="$(readlink -m ${f})"
+    src="$(eval "${MI_ABSPATH_GETTER} ${f}")"
     create_link "${src}" "${dest}/$(basename ${src})"
   done
 elif [ -d "this" ]; then
-  create_link $(readlink -m "this") "${dest}"
+  create_link $(eval "${MI_ABSPATH_GETTER} this") "${dest}"
 else
   red "Cannot find config files."
   exit 1
