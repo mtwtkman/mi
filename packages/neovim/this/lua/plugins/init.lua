@@ -259,6 +259,10 @@ local plugins = {
       require("plugins.lean")
     end,
   },
+  {
+    "kiddos/gemini.nvim",
+    opts = {}
+  }
 }
 
 local opts = {

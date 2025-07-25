@@ -11,6 +11,9 @@ export XDG_CONFIG_HOME="${HOME}/.config"
 if [[ $(uname -r) == *"WSL2"* ]]; then
   export LIBGL_ALWAYS_INDIRECT=0
 fi
+if [[ -f "${HOME}/.local/env" ]]; then
+  source ${HOME}/.local/env
+fi
 
 osname="$(uname -o | tr "[:upper:]" "[:lower:]")"
 declare -a candidates=("linux" "darwin")
