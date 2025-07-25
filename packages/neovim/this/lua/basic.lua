@@ -29,7 +29,7 @@ set.smartcase = true
 set.foldmethod = "marker"
 set.mouse = ""
 set.clipboard = "unnamed"
-if vim.fn.has("wsl") then
+if utils.is_wsl() then
   local yank_to_clip = vim.api.nvim_create_augroup("YankToClip", { clear = true })
   vim.api.nvim_create_autocmd({ "TextYankPost" }, {
     pattern = { "*" },

@@ -1,5 +1,6 @@
 local lazy = require("lazy")
 local c = require("color")
+local util = require("utils")
 
 local plugins = {
   {
@@ -37,9 +38,7 @@ local plugins = {
   {
     "nvim-tree/nvim-tree.lua",
     dependencies = {
-      {
-        "mtwtkman/nvim-web-devicons",
-      },
+      "mtwtkman/nvim-web-devicons",
     },
     config = function()
       require("plugins.nvim-tree")
@@ -197,9 +196,7 @@ local plugins = {
       require("plugins.grapple")
     end,
     dependencies = {
-      {
-        "mtwtkman/nvim-web-devicons",
-      },
+      "mtwtkman/nvim-web-devicons",
     },
   },
   {
@@ -260,8 +257,22 @@ local plugins = {
     end,
   },
   {
-    "kiddos/gemini.nvim",
-    opts = {}
+    "yetone/avante.nvim",
+    build = (vim.fn.has("win32") and not util.is_wsl())
+      and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
+      or "make",
+    event = "VeryLazy",
+    version = false,
+    config = function()
+      require("plugins.avante")
+    end,
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "MunifTanjim/nui.nvim",
+      "nvim-telescope/telescope.nvim",
+      "hrsh7th/nvim-cmp",
+      "mtwtkman/nvim-web-devicons",
+    },
   }
 }
 

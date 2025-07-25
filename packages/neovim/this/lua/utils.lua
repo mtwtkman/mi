@@ -6,6 +6,10 @@ function M.each(f, ary)
   end
 end
 
+function M.is_wsl()
+  return os.getenv("WSL_DISTRO_NAME") ~= nil
+end
+
 function M.optional_value(x, default)
   if (x == nil) then
     return default
