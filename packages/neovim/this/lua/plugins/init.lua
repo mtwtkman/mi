@@ -258,7 +258,7 @@ local plugins = {
   },
   {
     "yetone/avante.nvim",
-    build = (vim.fn.has("win32") and not util.is_wsl())
+    build = (vim.fn.has("win32") == 1 and not util.is_wsl())
       and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
       or "make",
     event = "VeryLazy",
