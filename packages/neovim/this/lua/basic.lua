@@ -34,7 +34,7 @@ if utils.is_wsl() then
   vim.api.nvim_create_autocmd({ "TextYankPost" }, {
     pattern = { "*" },
     group = yank_to_clip,
-    command = ':call system(system("which clip.exe"), @")'
+    command = ':call system("clip.exe", @")'
   })
 end
 set.splitbelow = true
