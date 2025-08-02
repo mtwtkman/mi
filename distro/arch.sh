@@ -40,8 +40,8 @@ function install_yay()
 
 install_command="
   sudo pacman -Sy --noconfirm --needed base-devel git
-  eval $(install_fakeroot_tcp)
-  eval $(install_yay)
+  eval \$(install_fakeroot_tcp)
+  eval \$(install_yay)
   sudo yay -Sy --noconfirm \
     bash \
     bash-completion \
