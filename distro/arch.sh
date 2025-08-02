@@ -63,6 +63,7 @@ install_command="
     ripgrep \
     slirp4netns \
     tmux \
+    ttf-hack-nerd \
     tree-sitter \
     unzip
 
