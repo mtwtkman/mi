@@ -39,7 +39,10 @@ function install_yay()
 }
 
 install_command="
-  sudo pacman -Sy --noconfirm \
+  sudo pacman -Sy --noconfirm --needed base-devel git
+  eval $(install_fakeroot_tcp)
+  eval $(install_yay)
+  sudo yay -Sy --noconfirm \
     bash \
     bash-completion \
     bash-language-server \
@@ -50,8 +53,8 @@ install_command="
     flatpak \
     fzf \
     gcc \
-    git \
     jaq \
+    kitty \
     make \
     man-db \
     neovim \
@@ -61,10 +64,11 @@ install_command="
     ripgrep \
     slirp4netns \
     tmux \
+    ttf-hack-nerd \
     tree-sitter \
     unzip
-  eval $(install_fakeroot_tcp)
-  eval $(install_yay)
+
+  yay -Syu --noconfirm ttf-hack-nerd kitty
 "
 update_command="yay -Syu --noconfirm"
 purge_command="yay -Yc"
