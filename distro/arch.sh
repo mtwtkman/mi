@@ -54,7 +54,6 @@ install_command="
     fzf \
     gcc \
     jaq \
-    kitty \
     make \
     man-db \
     neovim \
@@ -64,7 +63,6 @@ install_command="
     ripgrep \
     slirp4netns \
     tmux \
-    ttf-hack-nerd \
     tree-sitter \
     unzip
 
