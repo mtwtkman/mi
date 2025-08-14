@@ -273,7 +273,13 @@ local plugins = {
       "hrsh7th/nvim-cmp",
       "mtwtkman/nvim-web-devicons",
     },
-  }
+  },
+  {
+    "willothy/flatten.nvim",
+    config = true,
+    lazy = false,
+    priority = 1001,
+  },
 }
 
 local opts = {
