@@ -1,5 +1,4 @@
 local lazy = require("lazy")
-local c = require("color")
 local util = require("utils")
 
 local plugins = {
