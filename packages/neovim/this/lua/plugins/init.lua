@@ -157,12 +157,6 @@ local plugins = {
     "mfussenegger/nvim-jdtls",
   },
   {
-    "akinsho/toggleterm.nvim",
-    config = function()
-      require("plugins.toggleterm")
-    end,
-  },
-  {
     "mrcjkb/haskell-tools.nvim",
     config = function()
       require("plugins.haskell-tools")
@@ -234,12 +228,6 @@ local plugins = {
     },
     config = function()
       require("plugins.dropbar")
-    end,
-  },
-  {
-    "folke/zen-mode.nvim",
-    config = function()
-      require("plugins.zen-mode");
     end,
   },
   {
