@@ -10,6 +10,7 @@ function _G.set_terminal_keymaps()
   local opts = { buffer = 0, silent = true }
   tmap("<ESC>", [[<C-\><C-n>]], opts)
   tmap("<C-w>", [[<C-\><C-n><C-w>]], opts)
+  tmap([[<C-\>]], function () vim.cmd("hide") end, { silent = true})
 end
 
 vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
