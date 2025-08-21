@@ -4,20 +4,7 @@ local util = require("utils")
 
 local plugins = {
   {
-    "mtwtkman/nvim-web-devicons",
-    branch = "mono",
-    config = function()
-      require("nvim-web-devicons").setup({
-        variant = "mono",
-        mono_color = { color = c.white, cterm_color = "15" },
-      })
-    end
-  },
-  {
     "nvim-lualine/lualine.nvim",
-    dependencies = {
-      "mtwtkman/nvim-web-devicons",
-    },
     config = function()
       require("plugins.lualine")
     end,
@@ -37,9 +24,6 @@ local plugins = {
   },
   {
     "nvim-tree/nvim-tree.lua",
-    dependencies = {
-      "mtwtkman/nvim-web-devicons",
-    },
     config = function()
       require("plugins.nvim-tree")
     end,
@@ -110,7 +94,6 @@ local plugins = {
     end,
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
-      "mtwtkman/nvim-web-devicons",
     },
   },
   {
@@ -189,9 +172,6 @@ local plugins = {
     config = function()
       require("plugins.grapple")
     end,
-    dependencies = {
-      "mtwtkman/nvim-web-devicons",
-    },
   },
   {
     "nvim-telescope/telescope.nvim",
@@ -259,7 +239,6 @@ local plugins = {
       "MunifTanjim/nui.nvim",
       "nvim-telescope/telescope.nvim",
       "hrsh7th/nvim-cmp",
-      "mtwtkman/nvim-web-devicons",
     },
   },
   {

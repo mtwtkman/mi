@@ -14,6 +14,7 @@ local theme = {
 require("lualine").setup({
   options = {
     theme = theme,
+    icons_enabled = false,
   },
   sections = {
     lualine_b = {
