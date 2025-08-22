@@ -115,27 +115,6 @@ local option = {
     indent_markers = {
       enable = true,
     },
-    icons = {
-      show = {
-        folder = false,
-        file = false,
-      },
-      glyphs = {
-        folder = {
-          arrow_closed = "+",
-          arrow_open = "-",
-        },
-        git = {
-          unstaged = "x",
-          staged = "s",
-          unmerged = "u",
-          renamed = "$",
-          untracked = "*",
-          deleted = "!",
-          ignored = ":"
-        },
-      },
-    },
   },
 }
 
