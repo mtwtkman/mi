@@ -246,6 +246,13 @@ local plugins = {
     lazy = false,
     priority = 1001,
   },
+  {
+    "akinsho/toggleterm.nvim",
+    tag = "*",
+    config = function()
+      require("plugins.toggleterm")
+    end,
+  },
 }
 
 local opts = {
