@@ -248,7 +248,7 @@ local plugins = {
   },
   {
     "akinsho/toggleterm.nvim",
-    tag = "*",
+    version = "*",
     config = function()
       require("plugins.toggleterm")
     end,
