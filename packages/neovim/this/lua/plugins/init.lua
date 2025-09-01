@@ -224,23 +224,6 @@ local plugins = {
     end,
   },
   {
-    "yetone/avante.nvim",
-    build = (vim.fn.has("win32") == 1 and not util.is_wsl())
-      and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
-      or "make",
-    event = "VeryLazy",
-    version = false,
-    config = function()
-      require("plugins.avante")
-    end,
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "MunifTanjim/nui.nvim",
-      "nvim-telescope/telescope.nvim",
-      "hrsh7th/nvim-cmp",
-    },
-  },
-  {
     "willothy/flatten.nvim",
     config = true,
     lazy = false,
