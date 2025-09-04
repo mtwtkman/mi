@@ -1,24 +1,55 @@
+[column]
+  ui = auto
+
+[branch]
+  sort = -committerdate
+
+[tag]
+  sort = version:refname
+
 [core]
 	editor = "nvim"
 
 [diff]
-	tool = "nvr"
-
-[difftool "nvr"]
-	cmd = "nvr -s -d $LOCAL $REMOTE"
+  algorithm = histogram
+  colorMoved = plain
+  memonicPrefix = true
+  renames = true
 
 [init]
 	defaultBranch = "main"
 
 [merge]
-	tool = "nvr"
-
-[mergetool "nvr"]
-	cmd = "nvr -s -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd J | wincmd ='"
+  conflictstyle = zdiff3
 
 [user]
 	email = "924277+mtwtkman@users.noreply.github.com"
 	name = "mtwtkman"
+
+[fetch]
+  prune = true
+  prunTags = true
+  all = true
+
+[push]
+  default = simple
+  autoSetupRemote = true
+  followTags = true
+
+[rerere]
+  enabled = true
+  autoupdate = true
+
+[help]
+  autocorrect = prompt
+
+[commit]
+  verbose = true
+
+[rebase]
+  autoSquash = true
+  autoStash = true
+  updateRefs = true
 
 [alias]
   adog = log --all --decorate --oneline --graph
