@@ -24,11 +24,13 @@ vim.lsp.config("*", {
 })
 
 local lsp_dir = {
-  source = utils.get_dir(debug.getinfo(1, "S").source) .. "/../../lsp",
+  source = utils.get_dir(debug.getinfo(1, "S").source) .. "/servers",
 }
 
 local enable_lsp_server = function(lsp)
-  vim.lsp.enable(lsp:gsub(".lua", ""))
+  local server = lsp:gsub(".lua", "")
+  vim.lsp.config[server] = require("lsp.servers." .. server)
+  vim.lsp.enable(server)
 end
 
 utils.iterate_child_modules(lsp_dir, enable_lsp_server)

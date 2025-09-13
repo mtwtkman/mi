@@ -22,7 +22,12 @@ EOF
 )
 
 install_command="
-  yes | sudo apt install \
+  sudo apt update
+  sudo apt upgrade -y
+  sudo apt install -y git
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  brew install \
     bash \
     bash-completion \
     bat \
@@ -30,7 +35,6 @@ install_command="
     fd-find \
     fzf \
     gcc \
-    git \
     jq \
     make \
     man-db \
