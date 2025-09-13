@@ -48,6 +48,8 @@ install_command="
     bash-language-server \
     bat \
     crun \
+    podman \
+    podman-compose \
     distrobox \
     fd \
     flatpak \
@@ -58,8 +60,6 @@ install_command="
     man-db \
     neovim \
     openssh \
-    podman \
-    podman-compose \
     ripgrep \
     slirp4netns \
     tmux \
