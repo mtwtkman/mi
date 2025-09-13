@@ -36,7 +36,7 @@ install_command="
     tmux \
     tree-sitter
 "
-update_command="sudo apt update && sudo apt upgrade -y; ${update_lateste_neovim}; brew update && brew upgrade"
+update_command="sudo apt update && sudo apt upgrade -y; brew update && brew upgrade"
 purge_command="sudo apt autoclean && sudo apt autopuge; brew autoremove"
 
 source "${here}/_common.sh"
