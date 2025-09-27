@@ -8,5 +8,5 @@ return {
     "typescript.tsx",
     "typescriptreact",
   },
-  root_marker = { "tsconfig.json", "package.json" },
+  root_markers = { "tsconfig.json", "package.json" },
 }
