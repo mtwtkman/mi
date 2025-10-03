@@ -132,6 +132,7 @@ if command -v "nvim" &> /dev/null; then
   alias vup="vim +LazySYnc"
   alias miedit="${EDITOR} ${MI_HOME}"
   alias mie="miedit"
+  export MANPAGER="nvim +Man!"
 fi
 
 # PODMAN
