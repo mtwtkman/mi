@@ -44,13 +44,6 @@ set.shortmess:append("c")
 set.backspace = { "indent", "eol", "start" }
 vim.g.mapleader = ","
 nmap("<ESC><ESC>", ":<C-u>nohlsearch<CR>")
-if vim.fn.executable('nvr') then
-  vim.env.GIT_EDITOR = "nvr -cc split --remote-wait"
-  vim.api.nvim_create_autocmd({ "FileType" }, {
-    pattern = { "gitcommit", "gitrebase", "gitconfig" },
-    callback = function() set.bufhidden = "delete" end
-  })
-end
 
 local auto_remove_trail_blanks_group = vim.api.nvim_create_augroup("AutoRemoveTrailBlanks", { clear = true })
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
