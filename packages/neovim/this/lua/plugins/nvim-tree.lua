@@ -118,10 +118,8 @@ local option = {
   },
 }
 
-if vim.env.NVIM_TREE_TRASH_COMMAND ~= nil then
-  option.trash = {
-    cmd = vim.env.NVIM_TREE_TRASH_COMMAND,
-  }
-end
+option.trash = {
+  cmd = vim.env.NVIM_TREE_TRASH_COMMAND or "/bin/rm -rf"
+}
 
 require("nvim-tree").setup(option)
