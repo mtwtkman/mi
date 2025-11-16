@@ -1,29 +1,6 @@
 #!/bin/bash
 here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
 
-function install_fakeroot_tcp()
-{
-  currentdir=$(pwd)
-  workdir="/tmp/facroot-build"
-  makepkg --nobuild
-  tar xf fakeroot_*.tar.gz
-  cd fakeroot-*
-
-  ./bootstrap
-  ./configure --prefix=/usr --libdir=/usr/lib/fakeroot --with-ipc=tcp
-  make
-  sudo make install
-
-  sudo su -
-  cd $workdir
-  cd fakeroot-*
-  source PKGBUILD
-  package
-  exit
-  cd $currentdir
-  /bin/rm -rf $workdir
-}
-
 function install_yay()
 {
   currentdir=$(pwd)
@@ -40,7 +17,6 @@ function install_yay()
 
 install_command="
   sudo pacman -Sy --noconfirm --needed base-devel git
-  eval \$(install_fakeroot_tcp)
   eval \$(install_yay)
   sudo yay -Sy --noconfirm \
     bash \
