@@ -163,3 +163,36 @@ export PS1="${tmux_icon}${ps1_head}${ps1_base}${ps1_git}${distrobox_icon}\n$ "
 # EXTRA
 extra_bashrc="${HOME}/.bashrc.extra"
 [[ -e "${extra_bashrc}" ]] && source "${extra_bashrc}"
+
+SSH_ENV="$HOME/.ssh/agent-env"
+RUNNING_AGENT=0
+if [ -f "${SSH_ENV}" ]; then
+  . "${SSH_ENV}" > /dev/null
+  ps -fp "${SSH_AGENT_PID}" | grep -q "${SSH_AGENT_PID}"
+  if [ $? -eq 0 ]; then
+    RUNNING_AGENT=1
+    if ! ssh-add -l > /dev/null 2>&1; then
+      echo "SSH agent running, but no keys added. Attempting to add ALL keys..."
+      for key in ~/.ssh/*; do
+        if [ -f "$key" ] &&
+          [[ "$key" != *.pub ]] &&
+          [[ "$key" != *known_hosts ]] &&
+          [[ "$key" != *config ]] &&
+          [[ "$key" != *agent-env ]]; then
+          ssh-add "$key" 2>/dev/null
+        fi
+      done
+    fi
+  fi
+fi
+
+if [ "${RUNNING_AGENT}" -eq 0 ]; then
+  echo "Starting new ssh-agent..."
+  /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+  . "${SSH_ENV}" > /dev/null
+  for key in ~/.ssh/*; do
+    if [ -f "$key" ] && [ ! -f "$key".pub ]; then
+      ssh-add "$key" 2>/dev/null
+    fi
+  done
+fi
