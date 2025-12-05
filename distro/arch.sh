@@ -1,24 +1,23 @@
 #!/bin/bash
 here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
 
-function install_yay()
+function install_paru()
 {
   currentdir=$(pwd)
   sudo pacman -Sy --noconfirm --needed base-devel
-  workdir="/tmp/aur_build"
+  workdir="/tmp/paru_build"
   mkdir $workdir
   cd $workdir
-  git clone https://aur.archlinux.org/yay.git
-  cd yay
+  git clone https://aur.archlinux.org/paru.git
+  cd paru
   makepkg -si
   cd $currentdir
   /bin/rm -rf $workdir
 }
 
 install_command="
-  sudo pacman -Sy --noconfirm --needed base-devel git
-  eval \$(install_yay)
-  sudo yay -Sy --noconfirm \
+  #eval \$(install_paru)
+  sudo paru -Sy --noconfirm \
     bash \
     bash-completion \
     bash-language-server \
@@ -43,10 +42,10 @@ install_command="
     tree-sitter \
     unzip
 
-  yay -Syu --noconfirm ttf-hack-nerd kitty
+  paru -Syu --noconfirm ttf-hack-nerd kitty
 "
-update_command="yay -Syu --noconfirm"
-purge_command="yay -Yc"
+update_command="paru -Syu --noconfirm"
+purge_command="paru -Yc"
 
 source "${here}/_common.sh"
 perform "${install_command}" "${update_command}" "${purge_command}" "${1}"
