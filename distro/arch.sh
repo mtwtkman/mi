@@ -45,7 +45,7 @@ install_command="
   paru -Syu --noconfirm ttf-hack-nerd kitty
 "
 update_command="paru -Syu --noconfirm"
-purge_command="paru -c --noconfirmc && paru -Scc --noconfirm"
+purge_command="paru -c --noconfirm"
 
 source "${here}/_common.sh"
 perform "${install_command}" "${update_command}" "${purge_command}" "${1}"
