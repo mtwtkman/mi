@@ -34,6 +34,7 @@ install_command="
     make \
     man-db \
     neovim \
+    nnn \
     openssh \
     ripgrep \
     slirp4netns \
