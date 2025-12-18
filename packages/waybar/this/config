@@ -5,7 +5,18 @@
     "position": "top",
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": ["sway/window"],
-    "modules-right": ["network", "pulseaudio", "battery", "clock"],
+    "modules-right": ["cpu", "memory", "network", "pulseaudio", "battery", "clock"],
+    "cpu": {
+      "interval": 1,
+      "format": " {usage}%"
+    },
+    "memory": {
+      "interval": 30,
+      "format": " {}%",
+      "max-length": 10,
+      "tooltip": true,
+      "tooltip-format": "Memory: {used:0.1f}GB / {total:0.1f}GB"
+    },
     "clock": {
         "interval": 1,
         "format": "{:%Y-%m-%d %H:%M:%S(%a)}"
