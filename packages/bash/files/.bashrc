@@ -138,6 +138,7 @@ fi
 # PODMAN
 if command -v "podman" &> /dev/null; then
   source <(podman completion bash)
+  alias podman="env -u DBUS_SESSION_BUS_ADDRESS podman"
   alias c="podman"
 fi
 

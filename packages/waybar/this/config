@@ -1,0 +1,40 @@
+{
+    "layer": "top",
+    "font_family": "HackNerdFont,Noto Sans CJK,sans-serif",
+    "font_size": 12,
+    "position": "top",
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["sway/window"],
+    "modules-right": ["network", "pulseaudio", "battery", "clock"],
+    "clock": {
+        "interval": 1,
+        "format": "{:%Y-%m-%d %H:%M:%S(%a)}"
+    },
+    "battery": {
+        "format": "{icon}{capacity}%",
+        "format-charging": "<span foreground='#afffb0'>󰂄</span>{capacity}%",
+        "format-icons": [
+            "<span foreground='#c34444'>󰁺</span>",
+            "<span foreground='#c39f44'>󰁼</span>",
+            "<span foreground='#44c377'>󰁾</span>",
+            "<span foreground='#44c377'>󰂁</span>",
+            "<span foreground='#448CC3'>󰁹</span>"
+        ],
+	"status": {
+            "warning": 30,
+            "critical": 10
+        }
+    },
+    "network": {
+        "format-wifi": " {essid}",
+        "format-ethernet": "󰈁"
+    },
+    "pulseaudio": {
+        "format": "{icon} {volume}%" ,
+        "format-muted": " {volume}%",
+        "format-icons": {
+            "0": "",
+	    "default": ""
+        }
+    }
+}
