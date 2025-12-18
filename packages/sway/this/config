@@ -239,3 +239,5 @@ mouse_warping container
 
 default_border pixel 2
 default_floating_border normal
+
+bindsym $mod+Shift+w exec alacritty -e nmtui
