@@ -1,16 +1,16 @@
 * {
-    font-family: HackNerdFont,Noto Sans CJK,sans-serif;
-    font-size: 15px;
+  font-family: HackNerdFont,Noto Sans CJK,sans-serif;
+  font-size: 15px;
 }
 window#waybar {
-    background: #282c34;
-    color: #abb2bf;
+  background: #282c34;
+  color: #abb2bf;
 }
 #workspaces button.focused {
-    background: #284B68;
-    color: #ffffff;
+  background: #284B68;
+  color: #ffffff;
 }
 
 .modules-right>*>* {
-    padding-left: 10px;
+  padding-left: 10px;
 }
