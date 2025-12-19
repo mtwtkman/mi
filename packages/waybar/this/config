@@ -33,10 +33,11 @@
             "<span foreground='#44c377'>󰂁</span>",
             "<span foreground='#448CC3'>󰁹</span>"
         ],
-	"status": {
+        "status": {
             "warning": 30,
             "critical": 10
-        }
+        },
+        "interva": 3
     },
     "network": {
         "format-wifi": " {essid}",
