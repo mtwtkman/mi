@@ -19,11 +19,13 @@
     },
     "clock": {
         "interval": 1,
-        "format": "{:%Y-%m-%d %H:%M:%S(%a)}"
+        "format": "{:%Y-%m-%d %H:%M:%S(%a)}",
+        "tooltip": false
     },
     "battery": {
         "format": "{icon}{capacity}%",
         "format-charging": "<span foreground='#afffb0'>󰂄</span>{capacity}%",
+        "format-plugged": "<span foreground='#a9e2ed'></span>{capacity}%",
         "format-icons": [
             "<span foreground='#c34444'>󰁺</span>",
             "<span foreground='#c39f44'>󰁼</span>",
@@ -38,7 +40,8 @@
     },
     "network": {
         "format-wifi": " {essid}",
-        "format-ethernet": "󰈁"
+        "format-ethernet": "󰈁",
+        "tooltip": false
     },
     "pulseaudio": {
         "format": "{icon} {volume}%" ,
