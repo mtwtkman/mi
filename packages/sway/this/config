@@ -222,7 +222,7 @@ bindsym $mod+r mode "resize"
 
 include /etc/sway/config.d/*
 exec waybar
-
+exec mako
 
 # Startup Applications
 exec --no-startup-id fcitx5 -d &
@@ -231,9 +231,10 @@ exec --no-startup-id /usr/bin/gnome-keyring-daemon --start
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
 # Audio Control (Pipewire/Pactl)
-bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
-bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
-bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+exec avizo-service
+bindsym XF86AudioRaiseVolume exec volumectl -u up
+bindsym XF86AudioLowerVolume exec volumectl -u down
+bindsym XF86AudioMute exec volumectl toggle-mute
 
 mouse_warping container
 
