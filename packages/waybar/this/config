@@ -37,7 +37,7 @@
             "warning": 30,
             "critical": 10
         },
-        "interva": 3
+        "interval": 3
     },
     "network": {
         "format-wifi": " {essid}",
