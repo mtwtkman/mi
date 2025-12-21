@@ -20,6 +20,7 @@ local plugins = {
   },
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
   },
   {
     "nvim-tree/nvim-tree.lua",

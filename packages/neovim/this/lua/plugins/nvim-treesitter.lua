@@ -1,7 +1,7 @@
 local nmap = require("utils").nmap
 local ts_ctx = require("treesitter-context")
 
-require("nvim-treesitter.configs").setup({
+require("nvim-treesitter").setup({
   highlight = { enable = true },
   indent = { enable = true },
   incremental_selection = { enable = true },
@@ -60,7 +60,4 @@ require("nvim-treesitter.configs").setup({
   },
 })
 
-local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
-vim.keymap.set({ "n", "x", "o" }, ";", ts_repeat_move.repeat_last_move_next)
-vim.keymap.set({ "n", "x", "o" }, ",", ts_repeat_move.repeat_last_move_previous)
 nmap("<leader>c", ts_ctx.toggle, { silent = true })
