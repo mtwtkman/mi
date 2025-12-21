@@ -18,12 +18,12 @@ function install_paru()
 install_command="
   #eval \$(install_paru)
   sudo paru -Sy --noconfirm \
-    avizo \
     bash \
     bash-completion \
     bash-language-server \
     bat \
     crun \
+    foot \
     podman \
     podman-compose \
     distrobox \

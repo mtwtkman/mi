@@ -14,7 +14,7 @@ set $down j
 set $up k
 set $right l
 # Your preferred terminal emulator
-set $term alacritty
+set $term foot
 # Your preferred application launcher
 set $menu wofi --show drun
 
@@ -68,7 +68,7 @@ input type:keyboard {
 # Basics:
 #
     # Start a terminal
-    bindsym $mod+Return exec $term
+    bindsym $mod+Return exec footclient
 
     # Kill focused window
     bindsym $mod+Shift+q kill
@@ -235,4 +235,4 @@ mouse_warping container
 default_border pixel 2
 default_floating_border normal
 
-bindsym $mod+Shift+w exec alacritty -e nmtui
+bindsym $mod+Shift+w exec foot -e nmtui
