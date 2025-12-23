@@ -68,6 +68,7 @@ input type:keyboard {
 # Basics:
 #
     # Start a terminal
+    exec foot --server
     bindsym $mod+Return exec footclient
 
     # Kill focused window
@@ -230,9 +231,17 @@ exec --no-startup-id nm-applet &
 exec --no-startup-id /usr/bin/gnome-keyring-daemon --start
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
+exec dbus-update-activation-enviroment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+exec systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+exec /usr/lib/polkit-kde-authentication-agent-1
+
 mouse_warping container
 
 default_border pixel 2
 default_floating_border normal
 
 bindsym $mod+Shift+w exec foot -e nmtui
+
+exec foot
+exec firefox
+
