@@ -42,7 +42,12 @@ alias boxkit="curl https://raw.githubusercontent.com/mtwtkman/boxkit/main/boxkit
 ### TOOL ###
 # ABDUCO
 if command -v "abduco" &> /dev/null; then
-  alias amain="abduco -A main $SHELL"
+  function a()
+  {
+    abduco -A $1 $SHELL
+  }
+
+  alias amain="a main"
 fi
 
 # DISTROBOX
