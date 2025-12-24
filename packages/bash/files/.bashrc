@@ -40,16 +40,6 @@ alias miup="mi && ./mi update && popd"
 alias boxkit="curl https://raw.githubusercontent.com/mtwtkman/boxkit/main/boxkit | sh -s"
 
 ### TOOL ###
-# ABDUCO
-if command -v "abduco" &> /dev/null; then
-  function a()
-  {
-    abduco -A $1 $SHELL
-  }
-
-  alias amain="a main"
-fi
-
 # DISTROBOX
 if [[ ${CONTAINER_ID} ]]; then
   distrobox_icon=" -  : \e[33m${CONTAINER_ID}\e[0m"
