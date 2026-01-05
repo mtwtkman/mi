@@ -16,19 +16,17 @@ function install_paru()
 }
 
 install_command="
-  #eval \$(install_paru)
-  sudo paru -Sy --noconfirm \
+  ! command -v "paru" >/dev/null && eval \$(install_paru)
+  paru -Sy --noconfirm \
     bash \
     bash-completion \
     bash-language-server \
-    bat \
     crun \
     foot \
     podman \
     podman-compose \
     distrobox \
     fd \
-    flatpak \
     fzf \
     gcc \
     jaq \
@@ -45,8 +43,6 @@ install_command="
     ttf-hack-nerd \
     tree-sitter \
     unzip
-
-  paru -Syu --noconfirm ttf-hack-nerd kitty
 "
 update_command="paru -Syu --noconfirm"
 purge_command="paru -c --noconfirm"
