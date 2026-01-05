@@ -58,6 +58,7 @@ input type:touchpad {
 
 input type:keyboard {
     xkb_options ctrl:nocaps
+    xkb_file "~/.config/jp_remap.xkb"
 }
 #
 # You can also configure each device individually.
@@ -244,4 +245,3 @@ bindsym $mod+Shift+w exec foot -e nmtui
 
 exec foot
 exec firefox
-

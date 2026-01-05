@@ -23,7 +23,7 @@ if [ -d "${dest}" ]; then
 fi
 
 pushd "${local_dir}" &> /dev/null
-git clone git@github.com:mtwtkman/mi.git
+git clone https://github.com/mtwtkman/mi.git
 popd &> /dev/null
 
 pushd "${dest}" &> /dev/null

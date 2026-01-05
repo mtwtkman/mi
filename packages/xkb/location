@@ -1,0 +1,4 @@
+#!/bin/bash
+# xkb keymap is at '/usr/share/X11/xkb/symbols'
+# Detect a keymapping by `rg 'Henkan_Mode' /usr/share/X11/xkb/`
+echo "${HOME}/.config"
