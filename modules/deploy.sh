@@ -20,7 +20,7 @@ if [ -d "files" ]; then
     create_link "${src}" "${dest}/$(basename ${src})"
   done
 elif [ -d "this" ]; then
-  parent=$(eval "${MI_ABSPATH_GETTER} this")
+  parent=$(dirname $dest)
   [ ! -d "${parent}" ] && mkdir -p "${parent}"
   create_link "${parent}" "${dest}"
 else
