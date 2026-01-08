@@ -120,6 +120,11 @@ fi
 # GPG
 export GPG_TTY=$(tty)
 
+# NNN
+if command -v "nnn" &> /dev/null; then
+  alias n="nnn -d"
+fi
+
 # NVIM
 if command -v "nvim" &> /dev/null; then
   export NVIM_LUASNIP_SNIPPETS_PATH="${HOME}/.config/nvim/snippets"
