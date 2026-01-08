@@ -122,7 +122,7 @@ export GPG_TTY=$(tty)
 
 # NNN
 if command -v "nnn" &> /dev/null; then
-  alias n="nnn -d"
+  export NNN_OPTS="adeH"
 fi
 
 # NVIM
