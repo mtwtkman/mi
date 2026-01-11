@@ -24,9 +24,40 @@ local function open_qf_entry(cmd)
   vim.cmd("normal! zz")
 end
 
+vim.api.nvim_create_autocmd("CursorMoved", {
+  buffer = 0,
+  callback = function()
+    local line = vim.fn.line(".")
+    local qf_list = vim.fn.getqflist()
+    local entry = qf_list[line]
+
+    if entry and entry.valid == 1 then
+      local fname = vim.api.nvim_buf_get_name(entry.bufnr)
+      vim.cmd("pedit " .. fname)
+
+      for _, win in ipairs(vim.api.nvim_list_wins()) do
+        if vim.wo[win].previewwindow then
+          vim.api.nvim_win_set_cursor(win, {entry.lnum, entry.col - 1})
+          vim.api.nvim_win_call(win, function()
+            vim.cmd("normal! zz")
+          end)
+          break
+        end
+      end
+    end
+  end,
+})
+
 vim.wo.wrap = false
 nmap("q", ":q<CR>", { silent = true, buffer = true })
 nmap("<CR>", function() open_qf_entry("") end, { buffer = true, silent = true })
 nmap("s", function() open_qf_entry("") end, { buffer = true, silent = true })
 nmap("v", function() open_qf_entry("vertical") end, { buffer = true, silent = true })
 nmap("t", function() open_qf_entry("tab") end, { buffer = true, silent = true})
+
+vim.api.nvim_create_autocmd("BufWinLeave", {
+  buffer = 0,
+  callback = function()
+    vim.cmd("pclose")
+  end,
+})
