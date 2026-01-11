@@ -14,7 +14,7 @@ function build_fzf_term_buffer(fzf_source_cmd, extra_opts)
     vim.o.shada = old_shada
   end
 
-  vim.cmd("botright 10split")
+  vim.cmd("botright 100split")
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_win_set_buf(win, buf)
