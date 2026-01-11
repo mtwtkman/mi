@@ -24,7 +24,7 @@ local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
   local old_shada = vim.o.shada
   vim.o.shada = ""
 
-  vim.cmd("split")
+  vim.cmd("botright 10split")
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_win_set_buf(win, buf)

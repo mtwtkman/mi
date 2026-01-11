@@ -174,43 +174,6 @@ local plugins = {
     end,
   },
   {
-    "nvim-telescope/telescope.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-    config = function()
-      require("plugins.telescope")
-    end,
-  },
-  {
-    "nvim-telescope/telescope-fzf-native.nvim",
-    build = "make",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-    }
-  },
-  {
-    "nvim-telescope/telescope-ui-select.nvim",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-    },
-  },
-  {
-    "aznhe21/actions-preview.nvim",
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-    },
-  },
-  {
-    "Bekaboo/dropbar.nvim",
-    dependencies = {
-      "nvim-telescope/telescope-fzf-native.nvim",
-    },
-    config = function()
-      require("plugins.dropbar")
-    end,
-  },
-  {
     "willothy/flatten.nvim",
     config = true,
     lazy = false,
