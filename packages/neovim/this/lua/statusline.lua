@@ -13,9 +13,9 @@ local function get_mode()
 end
 
 local function get_git_branch()
-  local branch = vim.fn.system("git branch --show-current 2> /dev/null"):gsub("\n", "")
-  if branch ~= "" then
-    return string.format("  %s ", branch)
+  local dict = vim.b.gitsigns_status_dict
+  if dict and dict.head and dict.head ~= "" then
+    return string.format("  %s ", dict.head)
   end
   return ""
 end
@@ -32,10 +32,16 @@ end
 
 local function get_lsp_status()
   local clients = vim.lsp.get_clients({ bufnr = 0 })
-  if #clients > 0 then
-    return " [LSP] "
+  if #clients == 0 then
+    return ""
   end
-  return ""
+
+  local names = {}
+  for _, client in ipairs(clients) do
+    table.insert(names, client.name)
+  end
+
+  return string.format(" [%s] ", table.concat(names, ", "))
 end
 
 _G.custom_statusline = function()
@@ -45,7 +51,7 @@ _G.custom_statusline = function()
     "%#StatusLinePath#", get_relative_path(),
     "%m%r%h%w",
     "%=",
-    get_lsp_status(),
+    "%#StatusLineLSP#", get_lsp_status(),
     get_file_info(),
     " %l:%c ",
   })

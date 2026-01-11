@@ -1,12 +1,8 @@
-local navic = require("nvim-navic")
 local appearance = require("lsp.appearance")
 local keymap = require("lsp.keymap")
 
 local on_attach = function(client, bufnr)
   vim.api.nvim_set_option_value("omnifunc", "v:lua.vim.lsp.omnifunc", { buf = bufnr })
-  if client.server_capabilities.documentSymbolProvider then
-    navic.attach(client, bufnr)
-  end
 
   appearance.register()
   keymap.register(bufnr)
