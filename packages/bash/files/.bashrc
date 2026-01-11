@@ -123,6 +123,7 @@ export GPG_TTY=$(tty)
 # NNN
 if command -v "nnn" &> /dev/null; then
   export NNN_OPTS="adeH"
+  export NNN_PLUG="f:finder"
 fi
 
 # NVIM
