@@ -28,6 +28,8 @@ local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
   local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_win_set_buf(win, buf)
+  vim.api.nvim_buf_set_var(buf, "is_fzf_term", true)
+  vim.bo[buf].buflisted = true
 
   vim.fn.termopen(fzf_cmd, {
     on_exit = function()
@@ -52,20 +54,34 @@ local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
         for _, line in ipairs(lines) do
           local filename, lnum, text
 
-          local f_path, f_lnum, f_text = line:match("([^:]+):(%d+):(.*)")
-          if f_path and vim.fn.filereadable(f_path) == 1 then
-            filename, lnum, text = f_path, f_lnum, f_text
+          if line:match("^term://") then
+            filename = line
+            lnum = 1
+            text = "Terminal"
           else
-            local b_lnum, b_text = line:match("(%d+):(.*)")
-            if b_lnum then
-              filename = vim.api.nvim_buf_get_name(0)
-              lnum, text = b_lnum, b_text
+            local f_path, f_lnum, f_text = line:match("([^:]+):(%d+):(.*)")
+            if f_path and vim.fn.filereadable(f_path) == 1 then
+              filename, lnum, text = f_path, f_lnum, f_text
             else
-              filename, lnum, text = line, 1, label or "FZF"
+              local b_lnum, b_text = line:match("(%d+):(.*)")
+              if b_lnum then
+                filename = vim.api.nvim_buf_get_name(0)
+                lnum, text = b_lnum, b_text
+              else
+                filename, lnum, text = line, 1, label or "FZF"
+              end
             end
           end
+
+          local bufnr = vim.fn.bufnr(filename)
           if filename and filename ~= "" then
-            table.insert(items, { filename = filename, lnum = tonumber(lnum) or 1, col = 1, text = text or "" })
+            table.insert(items, {
+              bufnr = bufnr > 0 and bufnr or nil,
+              filename = bufnr > 0 and nil or filename,
+              lnum = tonumber(lnum) or 1,
+              col = 1,
+              text = text or ""
+            })
           end
         end
 
@@ -91,10 +107,15 @@ local function fzf_recent_buffers()
   local lines = {}
 
   for _, bufnr in ipairs(bufs) do
-    local name = vim.api.nvim_buf_get_name(bufnr)
-    if name ~= "" and not name:match("term://") then
-      local rel_path = vim.fn.fnamemodify(name, ":~:.")
-      table.insert(lines, rel_path)
+    if vim.api.nvim_buf_is_loaded(bufnr) then
+      local name = vim.api.nvim_buf_get_name(bufnr)
+      local status, is_fzf = pcall(vim.api.nvim_buf_getr_var, bufnr, "is_fzf_term")
+      if status and is_fzf then
+        -- noop
+      elseif name ~= "" then
+        local display = name:match("*term://") and string.format("[%d] %s", bufnr, name) or vim.fn.fnamemodify(name, ":~:.")
+        table.insert(lines, display)
+      end
     end
   end
   if #lines == 0 then
