@@ -37,10 +37,6 @@ hl("IncSearch", c.black, c.light_grey1, false)
 hl("Cursor", c.white, c.white, false)
 hl("CurSearch", c.black, c.light_grey2, false)
 
--- nvim-tree
-hl("Directory", c.white, nil, false)
-hl("NvimTreeFolderIcon", c.white, nil, false)
-
 -- nvim-cmp
 hl("CmpItemAbbrDefault", c.white, nil, false)
 hl("CmpItemAbbrMatchDefault", c.white, nil, false)

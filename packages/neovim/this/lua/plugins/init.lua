@@ -21,6 +21,7 @@ local plugins = {
     config = function()
       require("plugins.nvim-tree")
     end,
+    enabled = false
   },
   {
     "hrsh7th/cmp-nvim-lsp",

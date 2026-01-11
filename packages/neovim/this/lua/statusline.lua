@@ -7,6 +7,16 @@ local modes = {
   ['r']  = 'PROMPT',  ['rm'] = 'MORE',    ['r?'] = 'CONFIRM', ['!']   = 'SHELL',
 }
 
+local function get_netrw_target()
+  if vim.bo.filetype == "netrw" then
+    local target = vim.g.netrw_targetlocal
+    if target then
+      return "%#StatusLineGit# Target: " .. target .. " %*"
+    end
+  end
+  return ""
+end
+
 local function get_mode()
   local m = vim.api.nvim_get_mode().mode
   return string.format(" [%s] ", modes[m] or m)
