@@ -1,22 +1,6 @@
-local util = require("utils")
-if vim.fn.executable("rg") == 1 then
-  vim.o.grepprg = "rg --vimgrep --smart-case --hidden"
-  vim.o.grepformat = "%f:%l:%c:%m"
-end
+local M = {}
 
-vim.api.nvim_create_user_command("Grep", function(opts)
-  vim.cmd("silent grep! " .. opts.args)
-  vim.cmd("redraw!")
-  vim.cmd("cwindow")
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if vim.bo[vim.api.nvim_win_get_buf(win)].buftype == "quickfix" then
-      vim.api.nvim_set_current_win(win)
-      break
-    end
-  end
-end, { nargs = "+" })
-
-local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
+function M.fzf_to_qf(fzf_source_cmd, label, extra_opts)
   local temp_file = vim.fn.tempname()
   local opts = extra_opts or ""
   local fzf_cmd = fzf_source_cmd .. " | fzf " .. opts .. " > " .. temp_file
@@ -97,57 +81,4 @@ local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
   vim.cmd("startinsert")
 end
 
-local function fzf_files()
-  fzf_to_qf("fd --type f --strip-cwd-prefix", "Files")
-end
-
-local function fzf_recent_buffers()
-  local bufs = vim.api.nvim_list_bufs()
-  local lines = {}
-
-  for _, bufnr in ipairs(bufs) do
-    if vim.api.nvim_buf_is_loaded(bufnr) then
-      local name = vim.api.nvim_buf_get_name(bufnr)
-      local status, is_fzf = pcall(vim.api.nvim_buf_getr_var, bufnr, "is_fzf_term")
-      if status and is_fzf then
-        -- noop
-      elseif name ~= "" then
-        local display = name:match("*term://") and string.format("[%d] %s", bufnr, name) or vim.fn.fnamemodify(name, ":~:.")
-        table.insert(lines, display)
-      end
-    end
-  end
-  if #lines == 0 then
-    print("No buffer history in this session.")
-    return
-  end
-  local seen = {}
-  local unique_lines = {}
-  for i = #lines, 1, -1 do
-    if not seen[lines[i]] then
-      table.insert(unique_lines, lines[i])
-      seen[lines[i]] = true
-    end
-  end
-  local source = "echo '" .. table.concat(unique_lines, "\n") .. "'"
-  fzf_to_qf(source, "Buffers")
-end
-
-local function fzf_buffer_search()
-  local file = vim.fn.expand("%")
-  local cmd = "grep -n '' " .. vim.fn.shellescape(file)
-  fzf_to_qf(cmd, "Buffer Search", "--no-preview")
-end
-
-util.nmap("<leader>gw", ":Grep <C-r><C-w><CR>", { silent = true })
-util.nmap("<Leader>gg", ":Grep ")
-util.nmap("<leader>b", fzf_recent_buffers, { silent = true })
-util.nmap("<leader>/", fzf_buffer_search)
-util.nmap("<leader>o", fzf_files, { silent = true })
-
-
-vim.api.nvim_create_autocmd("QuickFixCmdPost", {
-  pattern = { "grep", "vimgrep" },
-  command = "cwindow",
-})
-
+return M

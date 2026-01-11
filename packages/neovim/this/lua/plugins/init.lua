@@ -95,13 +95,7 @@ local plugins = {
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
     },
-  },
-  {
-    "s1n7ax/nvim-window-picker",
-    config = function()
-      require("plugins.nvim-window-picker")
-    end,
-    version = "2.*",
+    enabled = false
   },
   {
     "lewis6991/gitsigns.nvim",
