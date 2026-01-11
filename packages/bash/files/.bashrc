@@ -2,6 +2,9 @@
 if [ -e "/opt/homebrew" ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
+shopt -s histappend
+export PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+export HISTCONTROL=ignoreboth:erasedups
 
 # ENVVAR
 MI_HOME="${HOME}/.local/mi"
