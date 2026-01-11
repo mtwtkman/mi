@@ -16,9 +16,10 @@ vim.api.nvim_create_user_command("Grep", function(opts)
   end
 end, { nargs = "+" })
 
-local function fzf_to_qf(fzf_source_cmd, label)
+local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
   local temp_file = vim.fn.tempname()
-  local fzf_cmd = fzf_source_cmd .. " | fzf > " .. temp_file
+  local opts = extra_opts or ""
+  local fzf_cmd = fzf_source_cmd .. " | fzf " .. opts .. " > " .. temp_file
 
   local old_shada = vim.o.shada
   vim.o.shada = ""
@@ -116,7 +117,7 @@ util.nmap("<leader>fb", fzf_recent_buffers, { silent = true })
 local function fzf_buffer_search()
   local file = vim.fn.expand("%")
   local cmd = "grep -n '' " .. vim.fn.shellescape(file)
-  fzf_to_qf(cmd, "Buffer Search")
+  fzf_to_qf(cmd, "Buffer Search", "--no-preview")
 end
 util.nmap("<leader>fl", fzf_buffer_search)
 
