@@ -127,6 +127,7 @@ export GPG_TTY=$(tty)
 if command -v "nnn" &> /dev/null; then
   export NNN_OPTS="adeH"
   export NNN_PLUG="f:finder"
+  export NO_COLOR=1
 fi
 
 # NVIM

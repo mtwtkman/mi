@@ -14,9 +14,15 @@ function build_fzf_term_buffer(fzf_source_cmd, extra_opts)
     vim.o.shada = old_shada
   end
 
-  vim.cmd("botright 100split")
-  local win = vim.api.nvim_get_current_win()
   local buf = vim.api.nvim_create_buf(false, true)
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = vim.o.columns,
+    height = vim.o.lines,
+    col = 0,
+    row = 0,
+    style = "minimal",
+  })
   vim.api.nvim_win_set_buf(win, buf)
   vim.api.nvim_buf_set_var(buf, "is_fzf_term", true)
   vim.bo[buf].buflisted = false
