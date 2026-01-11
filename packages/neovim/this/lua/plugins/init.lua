@@ -88,9 +88,6 @@ local plugins = {
     end,
   },
   {
-    "SmiteshP/nvim-navic",
-  },
-  {
     "sindrets/diffview.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
