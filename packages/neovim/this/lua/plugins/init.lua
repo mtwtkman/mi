@@ -113,12 +113,6 @@ local plugins = {
     "SmiteshP/nvim-navic",
   },
   {
-    "numToStr/Comment.nvim",
-    config = function()
-      require("plugins.Comment")
-    end,
-  },
-  {
     "sindrets/diffview.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -178,13 +172,6 @@ local plugins = {
     config = true,
     lazy = false,
     priority = 1001,
-  },
-  {
-    "akinsho/toggleterm.nvim",
-    version = "*",
-    config = function()
-      require("plugins.toggleterm")
-    end,
   },
 }
 
