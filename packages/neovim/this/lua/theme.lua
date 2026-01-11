@@ -64,12 +64,6 @@ hl("NeogitDiffDelete", c.white, c.dark_red, false)
 hl("NeogitGraphAuthor", c.white, nil, false)
 hl("NeogitRemote", c.light_green, nil, false)
 
---dropbar
-hl("DropbarIconUIPickPivot", c.black, c.white, false)
-
--- telescope
-hl("TelescopeMatching", c.white, c.light_grey4, false)
-
 -- lsp
 hl("DiagnosticInfo", c.light_blue, nil, false)
 hl("DiagnosticWarn", c.light_yellow, nil, false)
