@@ -1,5 +1,6 @@
 local util = require("utils")
 local finder = require("quickfix.app.finder")
+local lsp = require("quickfix.app.lsp")
 
 if vim.fn.executable("rg") == 1 then
   vim.o.grepprg = "rg --vimgrep --smart-case --hidden"
@@ -23,6 +24,7 @@ util.nmap("<Leader>gg", ":Grep ")
 util.nmap("<leader>b", finder.find_recent_buffers, { silent = true })
 util.nmap("<leader>/", finder.buffer_search)
 util.nmap("<leader>o", finder.find_files, { silent = true })
+util.nmap("<leader>l", lsp.symbols, { silent = true })
 
 vim.api.nvim_create_autocmd("QuickFixCmdPost", {
   pattern = { "grep", "vimgrep" },

@@ -1,8 +1,10 @@
 local fzf_to_qf = require("quickfix.processor").fzf_to_qf
+local parser = require("quickfix.parser")
+
 local M = {}
 
 function M.find_files()
-  fzf_to_qf("fd --type f --strip-cwd-prefix", "Files")
+  fzf_to_qf("fd --type f --strip-cwd-prefix", "Files", "", parser.grep_style)
 end
 
 function M.find_recent_buffers()
@@ -10,16 +12,20 @@ function M.find_recent_buffers()
   local lines = {}
 
   for _, bufnr in ipairs(bufs) do
-    if vim.api.nvim_buf_is_loaded(bufnr) then
-      local name = vim.api.nvim_buf_get_name(bufnr)
-      local status, is_fzf = pcall(vim.api.nvim_buf_getr_var, bufnr, "is_fzf_term")
-      if status and is_fzf then
-        -- noop
-      elseif name ~= "" then
-        local display = name:match("*term://") and string.format("[%d] %s", bufnr, name) or vim.fn.fnamemodify(name, ":~:.")
-        table.insert(lines, display)
-      end
+    local name = vim.api.nvim_buf_get_name(bufnr)
+
+    if not vim.api.nvim_buf_is_loaded(bufnr) or name == "" then
+      goto continue
     end
+
+    local status, is_fzf = pcall(vim.api.nvim_buf_getr_var, bufnr, "is_fzf_term")
+    if status and is_fzf then
+      goto continue
+    end
+
+    local display = name:match("term://") and string.format("[%d] %s", bufnr, name) or vim.fn.fnamemodify(name, ":~:.")
+    table.insert(lines, rel_name)
+    ::continue::
   end
   if #lines == 0 then
     print("No buffer history in this session.")
@@ -33,14 +39,14 @@ function M.find_recent_buffers()
       seen[lines[i]] = true
     end
   end
-  local source = "echo '" .. table.concat(unique_lines, "\n") .. "'"
-  fzf_to_qf(source, "Buffers")
+  local source = "echo '" .. vim.fn.shellescape(table.concat(unique_lines, "\n"))
+  fzf_to_qf(source, "Buffers", "--prompt='Buffers> ' --tiebreak=index", parser.file_or_term)
 end
 
 function M.buffer_search()
   local file = vim.fn.expand("%")
   local cmd = "grep -n '' " .. vim.fn.shellescape(file)
-  fzf_to_qf(cmd, "Buffer Search", "--no-preview")
+  fzf_to_qf(cmd, "Buffer Search", "--no-preview", parser.buffer_local)
 end
 
 return M
