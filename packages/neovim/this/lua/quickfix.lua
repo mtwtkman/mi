@@ -21,6 +21,9 @@ local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
   local opts = extra_opts or ""
   local fzf_cmd = fzf_source_cmd .. " | fzf " .. opts .. " > " .. temp_file
 
+  local origin_buf = vim.api.nvim_get_current_buf()
+  local origin_path = vim.api.nvim_buf_get_name(origin_buf)
+
   local old_shada = vim.o.shada
   vim.o.shada = ""
 
@@ -29,7 +32,6 @@ local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_win_set_buf(win, buf)
   vim.api.nvim_buf_set_var(buf, "is_fzf_term", true)
-  vim.bo[buf].buflisted = true
 
   vim.fn.termopen(fzf_cmd, {
     on_exit = function()
@@ -63,9 +65,9 @@ local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
             if f_path and vim.fn.filereadable(f_path) == 1 then
               filename, lnum, text = f_path, f_lnum, f_text
             else
-              local b_lnum, b_text = line:match("(%d+):(.*)")
+              local b_lnum, b_text = line:match("^(%d+):(.*)")
               if b_lnum then
-                filename = vim.api.nvim_buf_get_name(0)
+                filename = origin_path
                 lnum, text = b_lnum, b_text
               else
                 filename, lnum, text = line, 1, label or "FZF"
@@ -73,19 +75,17 @@ local function fzf_to_qf(fzf_source_cmd, label, extra_opts)
             end
           end
 
-          local bufnr = vim.fn.bufnr(filename)
           if filename and filename ~= "" then
+            local bufnr = (filename == origin_path) and origin_buf or vim.fn.bufnr(filename)
             table.insert(items, {
               bufnr = bufnr > 0 and bufnr or nil,
-              filename = bufnr > 0 and nil or filename,
+              filename = filename,
               lnum = tonumber(lnum) or 1,
               col = 1,
               text = text or ""
             })
           end
         end
-
-        if #items == 0 then return end
 
         vim.fn.setqflist(items)
         vim.cmd("botright copen 10")
@@ -100,7 +100,6 @@ end
 local function fzf_files()
   fzf_to_qf("fd --type f --strip-cwd-prefix", "Files")
 end
-util.nmap("<leader>ff", fzf_files, { silent = true })
 
 local function fzf_recent_buffers()
   local bufs = vim.api.nvim_list_bufs()
@@ -133,17 +132,18 @@ local function fzf_recent_buffers()
   local source = "echo '" .. table.concat(unique_lines, "\n") .. "'"
   fzf_to_qf(source, "Buffers")
 end
-util.nmap("<leader>fb", fzf_recent_buffers, { silent = true })
 
 local function fzf_buffer_search()
   local file = vim.fn.expand("%")
   local cmd = "grep -n '' " .. vim.fn.shellescape(file)
   fzf_to_qf(cmd, "Buffer Search", "--no-preview")
 end
-util.nmap("<leader>fl", fzf_buffer_search)
 
 util.nmap("<leader>gw", ":Grep <C-r><C-w><CR>", { silent = true })
 util.nmap("<Leader>G", ":Grep ")
+util.nmap("<leader>fb", fzf_recent_buffers, { silent = true })
+util.nmap("<leader>/", fzf_buffer_search)
+util.nmap("<leader>ff", fzf_files, { silent = true })
 
 vim.api.nvim_create_autocmd("QuickFixCmdPost", {
   pattern = { "grep", "vimgrep" },
