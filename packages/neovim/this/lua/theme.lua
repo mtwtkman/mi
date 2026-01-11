@@ -21,6 +21,9 @@ hl("MoreMsg", c.light_blue, nil, false)
 hl("TabLineSel", c.black, c.white, true)
 hl("Question", c.white, nil, true)
 
+-- statusline
+hl("StatusLineGit", c.white, c.black, false)
+
 -- diff
 hl("DiffAdd", c.white, c.dark_green, false)
 hl("DiffDelete", c.dark_red, nil, false)
@@ -75,9 +78,3 @@ hl("DiagnosticHint", c.light_magenta, nil, false)
 hl("IblIndent", c.dark_grey4, nil, true)
 hl("IblScope", c.white, nil, true)
 hl("IblWhitespace", c.white, nil, true)
-
--- window-picker
-hl("WindowPickerWinBar", c.white, c.light_red, false)
-hl("WindowPickerWinBarNC", c.black, c.light_blue, false)
-hl("WindowPickerStatusLine", c.white, c.light_red, false)
-hl("WindowPickerStatusLineNC", c.black, c.light_blue, false)

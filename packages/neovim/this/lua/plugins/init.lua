@@ -3,12 +3,6 @@ local util = require("utils")
 
 local plugins = {
   {
-    "nvim-lualine/lualine.nvim",
-    config = function()
-      require("plugins.lualine")
-    end,
-  },
-  {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     config = function()
@@ -135,15 +129,6 @@ local plugins = {
     config = function()
       require("plugins.gitlinker")
     end,
-  },
-  {
-    "nvimtools/none-ls.nvim",
-    config = function()
-      require("plugins.none-ls")
-    end,
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
   },
   {
     "cbochs/grapple.nvim",
