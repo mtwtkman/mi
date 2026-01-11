@@ -141,9 +141,10 @@ end
 
 util.nmap("<leader>gw", ":Grep <C-r><C-w><CR>", { silent = true })
 util.nmap("<Leader>gg", ":Grep ")
-util.nmap("<leader>fb", fzf_recent_buffers, { silent = true })
+util.nmap("<leader>b", fzf_recent_buffers, { silent = true })
 util.nmap("<leader>/", fzf_buffer_search)
-util.nmap("<leader>ff", fzf_files, { silent = true })
+util.nmap("<leader>o", fzf_files, { silent = true })
+
 
 vim.api.nvim_create_autocmd("QuickFixCmdPost", {
   pattern = { "grep", "vimgrep" },
