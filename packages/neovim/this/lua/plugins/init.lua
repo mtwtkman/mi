@@ -88,16 +88,6 @@ local plugins = {
     end,
   },
   {
-    "stevearc/aerial.nvim",
-    config = function()
-      require("plugins.aerial")
-    end,
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-    },
-    enabled = false
-  },
-  {
     "lewis6991/gitsigns.nvim",
     config = function()
       require("plugins.gitsigns")
