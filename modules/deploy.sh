@@ -21,7 +21,7 @@ if [ -d "files" ]; then
   done
 elif [ -d "this" ]; then
   [ ! -d "${dest}" ] && mkdir -p "${dest}"
-  create_link "${parent}" "${dest}"
+  create_link "$(pwd)/this" "${dest}"
 else
   red "Cannot find config files."
   exit 1
