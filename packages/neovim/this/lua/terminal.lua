@@ -4,7 +4,7 @@ local nmap = utils.nmap
 
 nmap("<leader>tt", ":tabe<CR>:terminal<CR>", { silent = true })
 nmap("<leader>tv", ":vsp<CR>:terminal<CR>", { silent = true })
-nmap("<leader>ts", ":sp<CR>:terminal<CR>", { silent = true })
+nmap("<leader>ts", ":botright 10split<CR>:terminal<CR>", { silent = true })
 
 function _G.set_terminal_keymaps()
   local opts = { buffer = 0, silent = true }
