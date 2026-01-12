@@ -20,8 +20,7 @@ if [ -d "files" ]; then
     create_link "${src}" "${dest}/$(basename ${src})"
   done
 elif [ -d "this" ]; then
-  parent=$(dirname $dest)
-  [ ! -d "${parent}" ] && mkdir -p "${parent}"
+  [ ! -d "${dest}" ] && mkdir -p "${dest}"
   create_link "${parent}" "${dest}"
 else
   red "Cannot find config files."
