@@ -27,8 +27,10 @@ end
 vim.api.nvim_create_autocmd("CursorMoved", {
   buffer = 0,
   callback = function()
-    local line = vim.fn.line(".")
     local qf_list = vim.fn.getqflist()
+    if #qf_list == 1 then return end
+
+    local line = vim.fn.line(".")
     local entry = qf_list[line]
 
     if entry and entry.valid == 1 then
