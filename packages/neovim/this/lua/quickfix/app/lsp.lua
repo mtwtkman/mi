@@ -8,7 +8,7 @@ function M.symbols()
   local client = clients[1]
 
   if not client then
-    vim.notify("No LSP client attached", vim.log.lovels.WARN)
+    vim.notify("No LSP client attached", vim.log.levels.WARN)
     return
   end
   local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
