@@ -14,7 +14,7 @@ function M.find_recent_buffers()
   for _, bufnr in ipairs(bufs) do
     local name = vim.api.nvim_buf_get_name(bufnr)
 
-    if not vim.api.nvim_buf_is_loaded(bufnr) or name == "" then
+    if vim.bo[bufnr].filetype == 'netrw' or vim.fn.isdirectory(name) == 1 then
       goto continue
     end
 
@@ -23,7 +23,7 @@ function M.find_recent_buffers()
       goto continue
     end
 
-    local display = name:match("term://") and string.format("[%d] %s", bufnr, name) or vim.fn.fnamemodify(name, ":~:.")
+    local rel_name = name:match("term://") and string.format("[%d] %s", bufnr, name) or vim.fn.fnamemodify(name, ":~:.")
     table.insert(lines, rel_name)
     ::continue::
   end
@@ -39,7 +39,7 @@ function M.find_recent_buffers()
       seen[lines[i]] = true
     end
   end
-  local source = "echo '" .. vim.fn.shellescape(table.concat(unique_lines, "\n"))
+  local source = "echo " .. vim.fn.shellescape(table.concat(unique_lines, "\n"))
   fzf_to_qf(source, "Buffers", "--prompt='Buffers> ' --tiebreak=index", parser.file_or_term)
 end
 
