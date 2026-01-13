@@ -5,6 +5,7 @@ xkb_keymap {
   xkb_symbols {
     include "pc"
     include "us"
+    include "ctrl(nocaps)"
     include "inet(evdev)"
     replace key <MUHE> { [ Super_L ] };
     replace key <HENK> { [ Alt_R ] };

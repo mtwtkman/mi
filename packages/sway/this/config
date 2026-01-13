@@ -57,7 +57,6 @@ input type:touchpad {
 }
 
 input type:keyboard {
-    xkb_options ctrl:nocaps
     xkb_file "~/.config/jp_remap.xkb"
 }
 #
