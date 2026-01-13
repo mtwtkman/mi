@@ -76,4 +76,4 @@ hl("IblScope", c.white, nil, true)
 hl("IblWhitespace", c.white, nil, true)
 
 -- netrw
-hl("Directory", c.white, nil, false)
+hl("Directory", c.white, nil, true)
