@@ -10,5 +10,4 @@ end
 
 nmap("<leader>n", toggle_netrw, { silent = true })
 nmap("a", "%", { buffer = true, remap = true })
-nmap("q", "<cmd>Lexplore<CR>", { buffer = true, silent = true, nowait = true })
 nmap("l", "<CR>", { buffer = true, remap = true, nowait = true })
