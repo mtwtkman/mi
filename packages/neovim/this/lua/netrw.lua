@@ -10,14 +10,6 @@ vim.g.netrw_winsize = 20
 vim.g.netrw_localrmdir = "rmdir"
 vim.opt_local.number = false
 vim.opt_local.relativenumber = false
-local function toggle_netrw()
-  if vim.bo.filetype == "netrw" then
-    vim.cmd("Rexplore")
-  else
-    vim.cmd("Lexplore")
-  end
-end
-nmap("<leader>n", toggle_netrw, { silent = true })
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "netrw",
