@@ -49,4 +49,21 @@ function M.buffer_search()
   fzf_to_qf(cmd, "Buffer Search", "--no-preview", parser.buffer_local)
 end
 
+function M.live_grep(query)
+  local search_query = query or ""
+  if search_query == "" then
+    search_query = vim.fn.input("Search Word > ")
+    vim.cmd("redraw")
+  end
+  if search_query == "" then return end
+  local word = vim.fn.shellescape(search_query)
+  local cmd = string.format("rg --vimgrep --smart-case %s", word)
+  fzf_to_qf(
+    cmd,
+    "Grep",
+    "--prompt='Grep(" .. word .. ")> '",
+    parser.grep_style
+  )
+end
+
 return M
