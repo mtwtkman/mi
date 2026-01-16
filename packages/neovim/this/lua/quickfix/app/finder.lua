@@ -4,7 +4,7 @@ local parser = require("quickfix.parser")
 local M = {}
 
 function M.find_files()
-  fzf_to_qf("fd --type f --strip-cwd-prefix", "Files", "", parser.grep_style)
+  fzf_to_qf("fd --type f -H -E '.git' --strip-cwd-prefix", "Files", "", parser.grep_style)
 end
 
 function M.find_recent_buffers()
