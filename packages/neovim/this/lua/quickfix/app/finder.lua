@@ -14,7 +14,7 @@ function M.find_recent_buffers()
   for _, bufnr in ipairs(bufs) do
     local name = vim.api.nvim_buf_get_name(bufnr)
 
-    if vim.bo[bufnr].filetype == 'netrw' or vim.fn.isdirectory(name) == 1 then
+    if vim.bo[bufnr].filetype == "netrw" or vim.fn.isdirectory(name) == 1 then
       goto continue
     end
 

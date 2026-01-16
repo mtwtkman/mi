@@ -17,13 +17,6 @@ local plugins = {
     branch = "main",
   },
   {
-    "nvim-tree/nvim-tree.lua",
-    config = function()
-      require("plugins.nvim-tree")
-    end,
-    enabled = false
-  },
-  {
     "hrsh7th/cmp-nvim-lsp",
   },
   {
