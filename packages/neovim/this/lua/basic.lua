@@ -99,8 +99,6 @@ local function open_path_under_cursor(params)
 end
 
 vim.api.nvim_create_user_command("OpenPathUnderCursor", open_path_under_cursor, { nargs = 1 })
-nmap("Ov",  ":OpenPathUnderCursor vsp<CR>", { silent = true })
-nmap("Os",  ":OpenPathUnderCursor sp<CR>", { silent = true })
-nmap("Ot",  ":OpenPathUnderCursor tabe<CR>", { silent = true })
-
-vim.o.exrc = true
+nmap("Ov", ":OpenPathUnderCursor vsp<CR>", { silent = true })
+nmap("Os", ":OpenPathUnderCursor sp<CR>", { silent = true })
+nmap("Ot", ":OpenPathUnderCursor tabe<CR>", { silent = true })
