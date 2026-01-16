@@ -66,4 +66,13 @@ function M.live_grep(query)
   )
 end
 
+function M.find_directories()
+  fzf_to_qf(
+    "fd --type d -H -E '.git' --strip-cwd-prefix",
+    "Change Directory",
+    "--preview 'ls -F {1}'",
+    parser.directory_path
+  )
+end
+
 return M

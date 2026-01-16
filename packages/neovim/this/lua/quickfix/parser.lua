@@ -37,4 +37,10 @@ function M.lsp_symbol(line, origin_path)
   }
 end
 
+function M.directory_path(line, _)
+  if line ~= "" then
+    return { filename = line, text = "Directory" }
+  end
+end
+
 return M
