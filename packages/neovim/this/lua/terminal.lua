@@ -36,6 +36,6 @@ local function open_term_within_current_dir(winpos)
   vim.cmd(winpos .. " | terminal cd " .. vim.fn.shellescape(dir) .. " && " .. vim.o.shell)
 end
 
-nmap("<leader>ds", function() open_term_within_current_dir("split") end, { silent = true })
+nmap("<leader>ds", function() open_term_within_current_dir("20split") end, { silent = true })
 nmap("<leader>dt", function() open_term_within_current_dir("tabnew") end, { silent = true })
 nmap("<leader>dv", function() open_term_within_current_dir("vsplit") end, { silent = true })
