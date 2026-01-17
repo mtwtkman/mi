@@ -74,3 +74,6 @@ hl("DiagnosticHint", c.light_magenta, nil, false)
 hl("IblIndent", c.dark_grey4, nil, true)
 hl("IblScope", c.white, nil, true)
 hl("IblWhitespace", c.white, nil, true)
+
+-- netrw
+hl("Directory", c.white, nil, true)
