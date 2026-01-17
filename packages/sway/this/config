@@ -27,7 +27,7 @@ output 'LG Electronics LG ULTRAFINE 504NTFAF3067' position 0 0
 output 'Lenovo Group Limited 0x4094 Unknown' position 3840 1080
 output 'Panasonic Industry Company Panasonic-TV 0x01010101' position 3840 -2160
 # thinkpad X9
-output 'Samsung Display Corp. 0x4209 Unknown' position 3840 960
+output 'Samsung Display Corp. 0x4209 Unknown' position 3840 620
 #
 # Example configuration:
 #
