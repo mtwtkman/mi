@@ -103,3 +103,26 @@ vim.api.nvim_create_user_command("OpenPathUnderCursor", open_path_under_cursor, 
 nmap("Ov", ":OpenPathUnderCursor vsp<CR>", { silent = true })
 nmap("Os", ":OpenPathUnderCursor sp<CR>", { silent = true })
 nmap("Ot", ":OpenPathUnderCursor tabe<CR>", { silent = true })
+
+vim.api.nvim_create_user_command('RenameFile', function()
+    local old_name = vim.api.nvim_buf_get_name(0)
+    if old_name == "" then
+        print("Error: Buffer has no file name")
+        return
+    end
+    local new_name = vim.fn.input('Rename to: ', old_name, 'file')
+    if new_name == "" or new_name == old_name then
+        print("Rename cancelled")
+        return
+    end
+    vim.cmd('write ' .. vim.fn.fnameescape(new_name))
+    local success, err = os.remove(old_name)
+    if not success then
+        print("Error deleting old file: " .. err)
+        return
+    end
+    vim.cmd('bwipeout ' .. vim.fn.fnameescape(old_name))
+    vim.cmd('edit ' .. vim.fn.fnameescape(new_name))
+    print("Renamed to: " .. new_name)
+end, {})
+nmap("<space>rn", ":RenameFile<CR>")
