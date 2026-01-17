@@ -30,3 +30,12 @@ vim.api.nvim_create_autocmd({ "TermOpen" }, {
   command = "startinsert",
   group = terminal_buffer_group,
 })
+
+local function open_term_within_current_dir(winpos)
+  local dir = vim.fn.expand("%:p:h")
+  vim.cmd(winpos .. " | terminal cd " .. vim.fn.shellescape(dir) .. " && " .. vim.o.shell)
+end
+
+nmap("<leader>ds", function() open_term_within_current_dir("split") end, { silent = true })
+nmap("<leader>dt", function() open_term_within_current_dir("tabnew") end, { silent = true })
+nmap("<leader>dv", function() open_term_within_current_dir("vsplit") end, { silent = true })
