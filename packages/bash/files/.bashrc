@@ -69,7 +69,7 @@ if command -v "fzf" &> /dev/null; then
   --ansi
   --preview='cat {}'
   --bind=ctrl-f:page-down,ctrl-b:page-up,'ctrl-v:become(vim {})',ctrl-^:first,ctrl-/:last
-  --color bg:#000000,fg:#ffffff,bg+:#404040,fg+:#ffffff,hl:#99ccff,hl+:#3399ff
+  --color bg:#000000,fg:#ffffff,bg+:#c0c0c0,fg+:#ffffff,hl:#99ccff,hl+:#3399ff
   """
   export FZF_CTRL_T_COMMAND="${FZF_DEFAULT_COMMAND}"
 
