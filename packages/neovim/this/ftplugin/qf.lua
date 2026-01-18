@@ -53,7 +53,7 @@ vim.api.nvim_create_autocmd("CursorMoved", {
 vim.wo.wrap = false
 nmap("q", ":q<CR>", { silent = true, buffer = true })
 nmap("<CR>", function() open_qf_entry("") end, { buffer = true, silent = true })
-nmap("s", function() open_qf_entry("") end, { buffer = true, silent = true })
+nmap("s", function() open_qf_entry("split") end, { buffer = true, silent = true })
 nmap("v", function() open_qf_entry("vertical") end, { buffer = true, silent = true })
 nmap("t", function() open_qf_entry("tab") end, { buffer = true, silent = true})
 
