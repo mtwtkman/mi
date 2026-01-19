@@ -14,10 +14,6 @@ function build_fzf_term_buffer(fzf_source_cmd, extra_opts)
     vim.o.shada = old_shada
   end
 
-  vim.api.nvim_set_hl(0, "FzfToQfWinBG", {
-    bg = "#000000",
-    fg = "#ffffff",
-  })
   local buf = vim.api.nvim_create_buf(false, true)
   local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
@@ -27,7 +23,6 @@ function build_fzf_term_buffer(fzf_source_cmd, extra_opts)
     row = 0,
     style = "minimal",
   })
-  vim.api.nvim_win_set_option(win, "winhl", "Normal:FzfToQfWinBG,FloatBorder:FzfToQfWinBG")
   vim.api.nvim_win_set_buf(win, buf)
   vim.api.nvim_buf_set_var(buf, "is_fzf_term", true)
   vim.bo[buf].buflisted = false
