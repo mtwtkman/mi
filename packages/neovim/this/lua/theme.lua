@@ -21,6 +21,9 @@ hl("MoreMsg", c.light_blue, nil, false)
 hl("TabLineSel", c.black, c.white, true)
 hl("Question", c.white, nil, true)
 
+-- floating window
+hl("NormalFloat", c.white, c.black, false)
+
 -- statusline
 hl("StatusLineGit", c.white, c.black, false)
 
