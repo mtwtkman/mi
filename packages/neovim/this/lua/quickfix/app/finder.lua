@@ -24,7 +24,7 @@ function M.find_recent_buffers()
     end
 
     local rel_name = name:match("term://") and string.format("[%d] %s", bufnr, name) or vim.fn.fnamemodify(name, ":~:.")
-    table.insert(lines, rel_name)
+    if rel_name ~= "" and vim.fn.isdirectory(vim.fn.expand(rel_name)) == 0 then table.insert(lines, rel_name) end
     ::continue::
   end
   if #lines == 0 then
