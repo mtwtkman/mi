@@ -52,7 +52,12 @@ end
 function M.live_grep(query)
   local search_query = query or ""
   if search_query == "" then
-    search_query = vim.fn.input("Search Word > ")
+    local status, input = pcall(vim.fn.input, "Search Word > ")
+    if not status then
+      vim.api.nvim_echo({{"Cancelsd", "Comment"}}, false, {})
+      return
+    end
+    search_query = input
     vim.cmd("redraw")
   end
   if search_query == "" then return end
