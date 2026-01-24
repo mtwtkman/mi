@@ -38,7 +38,7 @@ hl("Removed", c.light_red, nil, false)
 hl("Search", c.light_grey2, c.dark_grey4, false)
 hl("IncSearch", c.black, c.light_grey1, false)
 hl("Cursor", c.white, c.white, false)
-hl("CurSearch", c.black, c.light_grey2, false)
+hl("CurSearch", c.white, c.dark_grey4, false)
 
 -- nvim-cmp
 hl("CmpItemAbbrDefault", c.white, nil, false)
