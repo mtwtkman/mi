@@ -49,14 +49,20 @@ function M.buffer_search()
   fzf_to_qf(cmd, "Buffer Search", "--no-preview", parser.buffer_local)
 end
 
+local is_mac = vim.loop.os_uname().sysname == "Darwin"
+_G.fzf_to_qf_grep_preview_conf = {
+  color_start = is_mac and [[\033[1m]] or [[\x1b[1m]],
+  color_reset = is_mac and [[\033[0m]] or [[\x1b[0m]]
+}
+
 function M.live_grep(query)
   local search_query = query or ""
   local word = (search_query ~= "") and vim.fn.shellescape(search_query) or "' '"
   local cmd = string.format("rg --vimgrep --smart-case %s .", word)
+  local cs = _G.fzf_to_qf_grep_preview_conf.color_start
+  local cr = _G.fzf_to_qf_grep_preview_conf.color_reset
   local prompt_str = "--prompt='Grep" .. (search_query == "" and "" or "(" .. search_query ..")") .. ">'"
-  local preview_cmd = "--preview \"cat {1} | sed '{2}s/.*/\\x1b[1m&\\x1b[0m/'\""
-
-  print(prompt_str,host)
+  local preview_cmd = string.format("--preview \"cat {1} | sed '{2}s/.*/%s&%s/'\"", cs, cr)
   local fzf_options = {
     prompt_str,
     "--delimiter ':'",
