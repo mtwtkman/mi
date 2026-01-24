@@ -51,22 +51,22 @@ end
 
 function M.live_grep(query)
   local search_query = query or ""
-  if search_query == "" then
-    local status, input = pcall(vim.fn.input, "Search Word > ")
-    if not status then
-      vim.api.nvim_echo({{"Cancelsd", "Comment"}}, false, {})
-      return
-    end
-    search_query = input
-    vim.cmd("redraw")
-  end
-  if search_query == "" then return end
-  local word = vim.fn.shellescape(search_query)
-  local cmd = string.format("rg --vimgrep --smart-case %s", word)
+  local word = (search_query ~= "") and vim.fn.shellescape(search_query) or "' '"
+  local cmd = string.format("rg --vimgrep --smart-case %s .", word)
+  local prompt_str = "--prompt='Grep" .. (search_query == "" and "" or "(" .. search_query ..")") .. ">'"
+  local preview_cmd = "--preview \"cat {1} | sed '{2}s/.*/\\x1b[1m&\\x1b[0m/'\""
+
+  print(prompt_str,host)
+  local fzf_options = {
+    prompt_str,
+    "--delimiter ':'",
+    preview_cmd,
+    "--preview-window 'right:50%:border-left:+{2}-/2:~3'"
+  }
   fzf_to_qf(
     cmd,
     "Grep",
-    "--prompt='Grep(" .. word .. ")> '",
+    table.concat(fzf_options, " "),
     parser.grep_style
   )
 end
