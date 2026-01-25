@@ -31,11 +31,18 @@ vim.api.nvim_create_autocmd({ "TermOpen" }, {
   group = terminal_buffer_group,
 })
 
-local function open_term_within_current_dir(winpos)
+local function open_term_within_current_dir(winpos, cmd)
   local dir = vim.fn.expand("%:p:h")
-  vim.cmd(winpos .. " | terminal cd " .. vim.fn.shellescape(dir) .. " && " .. vim.o.shell)
+  local shell_cmd = string.format("%s %s", vim.o.shell, cmd == "" and "" or string.format("-lc '%s && %s'", cmd, vim.o.shell))
+  vim.cmd(winpos .. " | terminal cd " .. vim.fn.shellescape(dir) .. " && " .. shell_cmd)
 end
 
 nmap("<leader>ds", function() open_term_within_current_dir("20split") end, { silent = true })
 nmap("<leader>dt", function() open_term_within_current_dir("tabnew") end, { silent = true })
 nmap("<leader>dv", function() open_term_within_current_dir("vsplit") end, { silent = true })
+
+local function show_directory()
+  open_term_within_current_dir("20split", "ls -la")
+end
+
+nmap("<leader>n", show_directory, { silent = true })
