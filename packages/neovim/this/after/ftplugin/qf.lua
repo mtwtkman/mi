@@ -24,6 +24,13 @@ local function open_qf_entry(cmd)
   vim.cmd("normal! zz")
 end
 
+local function open_in_current_buffer()
+  local qf_idx = vim.fn.line(".")
+  vim.cmd("wincmd p")
+  vim.cmd(qf_idx .. "cc")
+  vim.cmd("cclose")
+end
+
 vim.api.nvim_create_autocmd("CursorMoved", {
   buffer = 0,
   callback = function()
@@ -63,3 +70,6 @@ vim.api.nvim_create_autocmd("BufWinLeave", {
     vim.cmd("pclose")
   end,
 })
+
+nmap("o", open_in_current_buffer, { buffer = true, silent = true })
+nmap("<CR>", open_in_current_buffer, { buffer = true, silent = true })

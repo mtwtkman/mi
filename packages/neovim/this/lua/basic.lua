@@ -148,3 +148,4 @@ vim.api.nvim_create_user_command("CreateNewFile", function()
   print("Created " .. fullpath)
 end, {})
 nmap("<leader>ca", ":CreateNewFile<CR>")
+vim.opt.switchbuf = { "useopen", "uselast" }
