@@ -5,15 +5,6 @@ local nmap = utils.nmap
 nmap("<leader>tt", ":tabe<CR>:terminal<CR>", { silent = true })
 nmap("<leader>tv", ":vsp<CR>:terminal<CR>", { silent = true })
 nmap("<leader>ts", ":botright 20split<CR>:terminal<CR>", { silent = true })
-nmap("<C-\\>", ":botright 20split<CR>:terminal<CR>", { silent = true })
-
-function _G.set_terminal_keymaps()
-  local opts = { buffer = 0, silent = true }
-  tmap("<ESC>", [[<C-\><C-n>]], opts)
-  tmap("<C-w>", [[<C-\><C-n><C-w>]], opts)
-end
-
-vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
 
 local terminal_buffer_group = vim.api.nvim_create_augroup("TerminalBuffer", { clear = true })
 
@@ -46,3 +37,41 @@ local function show_directory()
 end
 
 nmap("<leader>n", show_directory, { silent = true })
+
+local term_buf = nil
+local term_win = nil
+
+local function toggle_terminal()
+  if term_win and vim.api.nvim_win_is_valid(term_win) then
+    vim.api.nvim_win_hide(term_win)
+    term_win = nil
+    return
+  end
+
+  if not term_buf or not vim.api.nvim_buf_is_valid(term_buf) then
+    term_buf = vim.api.nvim_create_buf(false, true)
+  end
+
+  vim.cmd("botright 20split")
+  term_win = vim.api.nvim_get_current_win()
+  vim.api.nvim_win_set_buf(term_win, term_buf)
+
+  if vim.bo[term_buf].buftype ~= "terminal" then
+    vim.fn.termopen(vim.o.shell)
+    vim.opt_local.winfixheight = true
+    vim.opt_local.winfixbuf = true
+  end
+
+  vim.cmd("startinsert")
+end
+
+nmap("<C-\\>", toggle_terminal, { silent = true })
+
+function _G.set_terminal_keymaps()
+  local opts = { buffer = 0, silent = true }
+  tmap("<ESC>", [[<C-\><C-n>]], opts)
+  tmap("<C-w>", [[<C-\><C-n><C-w>]], opts)
+  tmap("<C-\\>", toggle_terminal, opts)
+end
+
+vim.cmd("autocmd! TermOpen term://* lua set_terminal_keymaps()")
