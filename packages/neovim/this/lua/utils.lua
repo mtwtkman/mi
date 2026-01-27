@@ -113,9 +113,4 @@ function M.merge_table(a, b)
   return copied_a
 end
 
-function M.hl(name, fg, bg, bold)
-  local opt = { fg = fg, bg = bg, bold = bold }
-  vim.api.nvim_set_hl(0, name, opt)
-end
-
 return M

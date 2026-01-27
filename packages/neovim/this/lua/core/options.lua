@@ -54,7 +54,6 @@ vim.opt.signcolumn = "yes"
 vim.cmd.highlight({"Normal", "guibg=NONE", "ctermbg=NONE"})
 vim.o.statusline = "%!v:lua.require('core.statusline').render()"
 vim.cmd.colorscheme("mi")
-
 vim.opt.completeopt = {
   menu = true,
   menuone = true,
