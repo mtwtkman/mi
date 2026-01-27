@@ -31,6 +31,8 @@ install_command="
     gcc \
     jaq \
     libnotify \
+    lua \
+    luarocks
     make \
     mako \
     man-db \
@@ -42,6 +44,7 @@ install_command="
     tmux \
     ttf-hack-nerd \
     tree-sitter \
+    tree-sitter-cli \
     unzip
 "
 update_command="paru -Syu --noconfirm"
