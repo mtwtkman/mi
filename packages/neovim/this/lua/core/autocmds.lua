@@ -1,5 +1,3 @@
-local utils = require("utils")
-
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   pattern = { "*" },
   group = vim.api.nvim_create_augroup("AutoRemoveTrailBlanks", { clear = true }),
@@ -16,7 +14,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
-if utils.is_wsl() then
+if os.getenv("WSL_DISTRO_NAME") ~= nil then
   local yank_to_clip = vim.api.nvim_create_augroup("YankToClip", { clear = true })
   vim.api.nvim_create_autocmd({ "TextYankPost" }, {
     pattern = { "*" },
@@ -24,3 +22,8 @@ if utils.is_wsl() then
     command = ':call system("clip.exe", @")'
   })
 end
+
+vim.api.nvim_create_autocmd("QuickFixCmdPost", {
+  pattern = { "grep", "vimgrep" },
+  command = "cwindow",
+})

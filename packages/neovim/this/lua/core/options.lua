@@ -59,3 +59,7 @@ vim.opt.completeopt = {
   menuone = true,
   select = false,
 }
+if vim.fn.executable("rg") == 1 then
+  vim.o.grepprg = "rg --vimgrep --smart-case --hidden"
+  vim.o.grepformat = "%f:%l:%c:%m"
+end

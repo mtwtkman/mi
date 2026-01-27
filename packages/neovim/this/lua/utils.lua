@@ -6,37 +6,6 @@ function M.each(f, ary)
   end
 end
 
-function M.is_wsl()
-  return os.getenv("WSL_DISTRO_NAME") ~= nil
-end
-
-function M.optional_value(x, default)
-  if (x == nil) then
-    return default
-  end
-  return x
-end
-
-function M.create_map(mode, lhs, rhs, options)
-  vim.keymap.set(mode, lhs, rhs, M.optional_value(options, {}))
-end
-
-function M.nmap(lhs, rhs, options)
-  M.create_map("n", lhs, rhs, options)
-end
-
-function M.imap(lhs, rhs, options)
-  M.create_map("i", lhs, rhs, options)
-end
-
-function M.vmap(lhs, rhs, options)
-  M.create_map("v", lhs, rhs, options)
-end
-
-function M.tmap(lhs, rhs, options)
-  M.create_map("t", lhs, rhs, options)
-end
-
 function M.compoase(a, b)
   return function(args)
     return a(b(args))
@@ -95,22 +64,6 @@ end
 function M.copy_to_clipboard(content)
   vim.fn.setreg("+", content)
   vim.fn.setreg('"', content)
-end
-
-function M.copy_table(t)
-  local t2 = {}
-  for k, v in pairs(t) do
-    t2[k] = v
-  end
-  return t2
-end
-
-function M.merge_table(a, b)
-  local copied_a = M.copy_table(a)
-  for k, v in pairs(b) do
-    copied_a[k] = v
-  end
-  return copied_a
 end
 
 return M

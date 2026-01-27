@@ -22,4 +22,3 @@ require("core.autocmds")
 require("core.keymaps")
 
 require("lsp")
-require("quickfix")

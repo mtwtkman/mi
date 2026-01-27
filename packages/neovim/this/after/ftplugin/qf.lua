@@ -1,5 +1,3 @@
-local nmap = require("utils").nmap;
-
 local function open_qf_entry(cmd)
   local entry = vim.fn.getqflist()[vim.fn.line(".")]
   if not entry then return end
@@ -58,11 +56,11 @@ vim.api.nvim_create_autocmd("CursorMoved", {
 })
 
 vim.wo.wrap = false
-nmap("q", ":q<CR>", { silent = true, buffer = true })
-nmap("<CR>", function() open_qf_entry("") end, { buffer = true, silent = true })
-nmap("s", function() open_qf_entry("horizontal") end, { buffer = true, silent = true })
-nmap("v", function() open_qf_entry("vertical") end, { buffer = true, silent = true })
-nmap("t", function() open_qf_entry("tab") end, { buffer = true, silent = true})
+vim.keymap.set("n", "q", ":q<CR>", { silent = true, buffer = true })
+vim.keymap.set("n", "<CR>", function() open_qf_entry("") end, { buffer = true, silent = true })
+vim.keymap.set("n", "s", function() open_qf_entry("horizontal") end, { buffer = true, silent = true })
+vim.keymap.set("n", "v", function() open_qf_entry("vertical") end, { buffer = true, silent = true })
+vim.keymap.set("n", "t", function() open_qf_entry("tab") end, { buffer = true, silent = true})
 
 vim.api.nvim_create_autocmd("BufWinLeave", {
   buffer = 0,
@@ -71,5 +69,5 @@ vim.api.nvim_create_autocmd("BufWinLeave", {
   end,
 })
 
-nmap("o", open_in_current_buffer, { buffer = true, silent = true })
-nmap("<CR>", open_in_current_buffer, { buffer = true, silent = true })
+vim.keymap.set("n", "o", open_in_current_buffer, { buffer = true, silent = true })
+vim.keymap.set("n", "<CR>", open_in_current_buffer, { buffer = true, silent = true })

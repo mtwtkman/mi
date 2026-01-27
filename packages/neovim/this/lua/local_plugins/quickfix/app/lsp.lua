@@ -1,5 +1,5 @@
-local fzf_to_qf = require("quickfix.processor").fzf_to_qf
-local parser = require("quickfix.parser")
+local fzf_to_qf = require("local_plugins.quickfix.processor").fzf_to_qf
+local parser = require("local_plugins.quickfix.parser")
 
 local M = {}
 

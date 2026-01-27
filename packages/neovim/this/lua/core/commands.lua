@@ -1,4 +1,5 @@
 local utils = require("utils")
+local qf_finder = require("local_plugins.quickfix.app.finder")
 
 vim.api.nvim_create_user_command("CopyCurrentFileRelativePath", function(params)
   local value = "%:."
@@ -70,3 +71,7 @@ vim.api.nvim_create_user_command("FW", function()
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command("RelativeNumberToggle", function() vim.opt.relativenumber = not vim.o.relativenumber end, {})
+
+vim.api.nvim_create_user_command("Grep", function(opts)
+  qf_finder.live_grep(opts.args)
+end, { nargs = "*" })

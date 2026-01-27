@@ -1,5 +1,4 @@
 local lazy = require("lazy")
-local util = require("utils")
 
 local plugins = {
   {

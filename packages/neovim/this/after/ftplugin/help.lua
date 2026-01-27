@@ -1,2 +1,1 @@
-local nmap = require("utils").nmap
-nmap("q", ":q<CR>", { silent = true, buffer = true })
+vim.keymap.set("n", "q", ":q<CR>", { silent = true, buffer = true })
