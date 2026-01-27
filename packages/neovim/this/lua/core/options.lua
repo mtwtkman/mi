@@ -35,3 +35,28 @@ vim.opt.updatetime = 300
 vim.opt.shortmess:append("c")
 vim.opt.backspace = { "indent", "eol", "start" }
 vim.opt.switchbuf = { "useopen", "uselast" }
+
+vim.cmd.syntax("enable")
+vim.cmd.filetype({ "plugin", "indent", "on" })
+vim.opt.termguicolors = true
+vim.opt.number = true
+vim.opt.relativenumber = true
+vim.opt.cursorline = true
+vim.opt.ruler = true
+vim.opt.title = true
+vim.opt.showtabline = 2
+vim.opt.tabstop = 2
+vim.opt.expandtab = true
+vim.opt.cmdheight = 2
+vim.opt.wrap = false
+vim.opt.scrolloff = 5
+vim.opt.signcolumn = "yes"
+vim.cmd.highlight({"Normal", "guibg=NONE", "ctermbg=NONE"})
+vim.o.statusline = "%!v:lua.require('core.statusline').render()"
+vim.cmd.colorscheme("mi")
+
+vim.opt.completeopt = {
+  menu = true,
+  menuone = true,
+  select = false,
+}

@@ -44,7 +44,9 @@ local function get_lsp_status()
   return string.format(" [%s] ", table.concat(names, ", "))
 end
 
-_G.custom_statusline = function()
+local M = {}
+
+M.render = function()
   return table.concat({
     "%#StatusLineMode#", get_mode(),
     "%#StatusLineGit#", get_git_branch(),
@@ -57,4 +59,4 @@ _G.custom_statusline = function()
   })
 end
 
-vim.o.statusline = "%!v:lua.custom_statusline()"
+return M

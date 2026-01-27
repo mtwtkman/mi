@@ -21,8 +21,5 @@ require("core.commands")
 require("core.autocmds")
 require("core.keymaps")
 
-require("style")
 require("lsp")
 require("quickfix")
-require("statusline")
-vim.cmd.colorscheme("mi")

@@ -1,4 +1,6 @@
 local terminal = require("core.terminal")
+local neogit = require("neogit")
+local ts_ctx = require("treesitter-context")
 
 vim.keymap.set("n", "<ESC><ESC>", ":<C-u>nohlsearch<CR>")
 vim.keymap.set("n", "<leader>cf", ":CopyCurrentFileRelativePath<CR>")
@@ -26,4 +28,8 @@ vim.keymap.set("n", "<leader>ds", function() terminal.open_within_current_dir("2
 vim.keymap.set("n", "<leader>dt", function() terminal.open_within_current_dir("tabnew") end)
 vim.keymap.set("n", "<leader>dv", function() terminal.open_within_current_dir("vsplit") end)
 vim.keymap.set("n", "<leader>n", function() terminal.open_within_current_dir("20split", "ls -la") end)
-vim.keymap.set("n", "<C-\\>", terminal.toggle, { silent = true })
+vim.keymap.set("n", "<C-\\>", terminal.toggle)
+vim.keymap.set("n", "<leader>w", ":FW<space>")
+vim.keymap.set("n", "<leader>rn", ":RelativeNumberToggle<CR>")
+vim.keymap.set("n", "<leader>Gc", function() neogit.open({ kind = "floating" }) end, { silent = true })
+vim.keymap.set("n", "<leader>c", ts_ctx.toggle, { silent = true } )

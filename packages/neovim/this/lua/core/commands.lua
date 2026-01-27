@@ -63,3 +63,10 @@ vim.api.nvim_create_user_command("CreateNewFile", function()
   print("Created " .. fullpath)
 end, {})
 
+vim.api.nvim_create_user_command("FW", function()
+  vim.fn.execute("resize " .. params.args)
+  set.wfh = true
+  set.wfw = true
+end, { nargs = 1 })
+
+vim.api.nvim_create_user_command("RelativeNumberToggle", function() vim.opt.relativenumber = not vim.o.relativenumber end, {})
