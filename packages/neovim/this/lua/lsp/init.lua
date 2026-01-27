@@ -1,21 +1,6 @@
 local utils = require("utils")
 local config = require("lsp.config").make_default()
-
-local lsp_info = function()
-  vim.cmd("checkhealth vim.lsp")
-end
-
-local lsp_log = function()
-  vim.cmd("tabe " .. vim.lsp.get_log_path())
-end
-
-local lsp_restart = function()
-  vim.lsp.stop_client(vim.lsp.get_clients())
-end
-
-vim.api.nvim_create_user_command("LspInfo", lsp_info, {})
-vim.api.nvim_create_user_command("LspLog", lsp_log, {})
-vim.api.nvim_create_user_command("LspRestart", lsp_restart, {})
+local servers = require("lsp.servers")
 
 vim.lsp.config("*", {
   capabilities = config.capabilities,
@@ -23,14 +8,7 @@ vim.lsp.config("*", {
   flags = config.flags,
 })
 
-local lsp_dir = {
-  source = utils.get_dir(debug.getinfo(1, "S").source) .. "/servers",
-}
-
-local enable_lsp_server = function(lsp)
-  local server = lsp:gsub(".lua", "")
-  vim.lsp.config[server] = require("lsp.servers." .. server)
-  vim.lsp.enable(server)
+for server_name, server_config in pairs(servers) do
+  vim.lsp.config[server_name] = server_config
+  vim.lsp.enable(server_name)
 end
-
-utils.iterate_child_modules(lsp_dir, enable_lsp_server)

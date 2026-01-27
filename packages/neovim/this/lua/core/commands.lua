@@ -75,3 +75,7 @@ vim.api.nvim_create_user_command("RelativeNumberToggle", function() vim.opt.rela
 vim.api.nvim_create_user_command("Grep", function(opts)
   qf_finder.live_grep(opts.args)
 end, { nargs = "*" })
+
+vim.api.nvim_create_user_command("LspInfo", function() vim.cmd("checkhealth vim.lsp") end, {})
+vim.api.nvim_create_user_command("LspLog", function() vim.cmd("tabe " .. vim.lsp.get_log_path()) end, {})
+vim.api.nvim_create_user_command("LspRestart", function() vim.lsp.stop_client(vim.lsp.get_clients()) end, {})
