@@ -58,7 +58,7 @@ _G.fzf_to_qf_grep_preview_conf = {
 function M.live_grep(query)
   local search_query = query or ""
   local word = (search_query ~= "") and vim.fn.shellescape(search_query) or "' '"
-  local cmd = string.format("rg --vimgrep --smart-case %s .", word)
+  local cmd = string.format("rg --vimgrep --smart-case %s . | awk -F: '!seen[$1\":\"$2]++'", word)
   local cs = _G.fzf_to_qf_grep_preview_conf.color_start
   local cr = _G.fzf_to_qf_grep_preview_conf.color_reset
   local prompt_str = "--prompt='Grep" .. (search_query == "" and "" or "(" .. search_query ..")") .. ">'"
