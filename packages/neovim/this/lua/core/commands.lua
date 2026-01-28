@@ -1,4 +1,3 @@
-local utils = require("utils")
 local qf_finder = require("local_plugins.quickfix.app.finder")
 
 vim.api.nvim_create_user_command("CopyCurrentFileRelativePath", function(params)
@@ -6,7 +5,8 @@ vim.api.nvim_create_user_command("CopyCurrentFileRelativePath", function(params)
   if params.bang == true then
     value = "%:.:h"
   end
-  utils.copy_to_clipboard(vim.fn.expand(value))
+  vim.fn.setreg("+", content)
+  vim.fn.setreg('"', content)
 end, { bang = true })
 
 vim.api.nvim_create_user_command("ReloadInitLua", function()

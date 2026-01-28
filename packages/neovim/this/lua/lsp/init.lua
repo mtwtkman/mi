@@ -1,4 +1,3 @@
-local utils = require("utils")
 local config = require("lsp.config").make_default()
 local servers = require("lsp.servers")
 
