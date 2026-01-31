@@ -180,11 +180,6 @@ local plugins = {
     "hrsh7th/cmp-buffer",
   },
   {
-    "lukas-reineke/indent-blankline.nvim",
-    opts = {},
-    main = "ibl",
-  },
-  {
     "lewis6991/gitsigns.nvim",
     opts = {
       on_attach = function(bufnr)
