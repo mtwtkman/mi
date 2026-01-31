@@ -41,3 +41,4 @@ vim.keymap.set("n", "<leader>b", qf_finder.find_recent_buffers, { silent = true 
 vim.keymap.set("n", "<leader>/", qf_finder.buffer_search)
 vim.keymap.set("n", "<leader>o", qf_finder.find_files, { silent = true })
 vim.keymap.set("n", "<leader>l", qf_lsp.symbols, { silent = true })
+vim.keymap.set("n", "<leader>fw", function() vim.cmd("tabe %") end, { silent = true })
