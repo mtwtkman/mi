@@ -231,9 +231,10 @@ local plugins = {
       local actions = require("diffview.actions")
 
       require("diffview").setup({
+        use_icons = false,
         keymaps = {
           view = {
-            { "n", "q", actions.close, { desc = "Close the diffview buffer" } },
+            { "n", "q", actions.close, { silent = true } },
           },
         },
       })
