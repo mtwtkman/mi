@@ -47,37 +47,6 @@ alias micl="miclean"
 alias boxkit="curl https://raw.githubusercontent.com/mtwtkman/boxkit/main/boxkit | sh -s"
 
 ### TOOL ###
-# AIDER
-if command -v "aider" &> /dev/null && env | rg "OPENAI_API_KEY" &> /dev/null; then
-  export OPENAI_API_BASE=https://models.inference.ai.azure.com
-
-  function ai()
-  {
-    local models=("gpt-4o" "anthropic-claude-3-5-sonnet")
-    local choice=""
-    local current_index=0
-    local menu_text="which model?"
-
-    for m in ${models[@]}; do
-      menu_text="${menu_text}\n${current_index}: ${m}"
-      current_index=$((current_index+1))
-    done
-    printf "%b\n" "${menu_text}"
-    while true; do
-      read -p "input number: " choice
-
-      if [[ "${choice}" =~ ^[0-9]+$ ]] && [ "${choice}" -lt "${#models[@]}" ]; then
-        break
-      fi
-
-      printf "\e[1A\e[K"
-    done
-    aider --model "${models[${choice}]}"
-  }
-  alias ai:gpt="aider --model openai/gpt-4o"
-  alias ai:son="aider --model openai/anthropic-claude-3-5-sonnet"
-fi
-
 # DISTROBOX
 if [[ ${CONTAINER_ID} ]]; then
   distrobox_icon=" -  : \e[33m${CONTAINER_ID}\e[0m"
