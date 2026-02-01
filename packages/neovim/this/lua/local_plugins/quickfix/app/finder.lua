@@ -12,6 +12,10 @@ function M.find_recent_buffers()
   local lines = {}
 
   for _, bufnr in ipairs(bufs) do
+    if not vim.api.nvim_buf_is_loaded(bufnr) then
+      goto continue
+    end
+
     local name = vim.api.nvim_buf_get_name(bufnr)
 
     if vim.bo[bufnr].filetype == "netrw" or vim.fn.isdirectory(name) == 1 then
@@ -19,12 +23,29 @@ function M.find_recent_buffers()
     end
 
     local status, is_fzf = pcall(vim.api.nvim_buf_getr_var, bufnr, "is_fzf_term")
+
     if status and is_fzf then
       goto continue
     end
 
-    local rel_name = name:match("term://") and string.format("[%d] %s", bufnr, name) or vim.fn.fnamemodify(name, ":~:.")
-    if rel_name ~= "" and vim.fn.isdirectory(vim.fn.expand(rel_name)) == 0 then table.insert(lines, rel_name) end
+    local is_term = name:match("term://") == "term://"
+    local rel_name = is_term and string.format("[%d] %s", bufnr, name) or vim.fn.fnamemodify(name, ":~:.")
+
+    if rel_name == "" or vim.fn.isdirectory(vim.fn.expand(rel_name)) == 1 then
+      goto continue
+    end
+
+    if is_term then
+      local tmpdir = vim.fn.tempname()
+      vim.fn.mkdir(tmpdir, "p")
+      local tmp = vim.fs.joinpath(tmpdir, ("termbuf-%d"):format(bufnr))
+      print(tmp)
+      vim.fn.writefile(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false), tmp)
+      table.insert(lines, tmp)
+      goto continue
+    end
+    table.insert(lines, rel_name)
+
     ::continue::
   end
   if #lines == 0 then
