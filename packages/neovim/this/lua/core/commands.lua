@@ -64,11 +64,23 @@ vim.api.nvim_create_user_command("CreateNewFile", function()
   print("Created " .. fullpath)
 end, {})
 
-vim.api.nvim_create_user_command("FW", function()
-  vim.fn.execute("resize " .. params.args)
-  set.wfh = true
-  set.wfw = true
-end, { nargs = 1 })
+local function resize_window_by_ratio(direction, percentage)
+  local win = vim.api.nvim_get_current_win()
+  local ratio = tonumber(percentage) / 100
+  if ratio == nil or ratio > 100 then
+    return
+  end
+  if direction == "v" then
+    vim.cmd("vertical resize " .. math.floor(vim.o.columns * ratio))
+  else
+    vim.cmd("resize " .. math.floor(vim.o.lines * ratio))
+  end
+  vim.opt.wfh = true
+  vim.opt.wfw = true
+end
+
+vim.api.nvim_create_user_command("ResizeWindowHorizontal", function(params) resize_window_by_ratio("h", params.args) end, { nargs = 1 })
+vim.api.nvim_create_user_command("ResizeWindowVertical", function(params) resize_window_by_ratio("v", params.args) end, { nargs = 1 })
 
 vim.api.nvim_create_user_command("RelativeNumberToggle", function() vim.opt.relativenumber = not vim.o.relativenumber end, {})
 
