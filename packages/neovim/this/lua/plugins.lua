@@ -291,12 +291,6 @@ local plugins = {
       { "<leader>gB", "<CMD>GitLink! blame<CR>", mode = { "n", "v" }, silent = true, noremap = true, desc = "Open git blame permalink to clipboard" },
     },
   },
-  {
-    "willothy/flatten.nvim",
-    config = true,
-    lazy = false,
-    priority = 1001,
-  },
 }
 
 local opts = {
