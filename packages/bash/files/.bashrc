@@ -137,7 +137,6 @@ fi
 
 # NVIM
 if command -v "nvim" &> /dev/null; then
-  export NVIM_LUASNIP_SNIPPETS_PATH="${HOME}/.config/nvim/snippets"
   export EDITOR="nvim"
   alias vim="nvim"
   alias v="vim"
