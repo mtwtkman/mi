@@ -5,6 +5,7 @@ vim.api.nvim_create_user_command("CopyCurrentFileRelativePath", function(params)
   if params.bang == true then
     value = "%:.:h"
   end
+  local content = vim.fn.expand(value)
   vim.fn.setreg("+", content)
   vim.fn.setreg('"', content)
 end, { bang = true })
