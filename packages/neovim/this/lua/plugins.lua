@@ -103,9 +103,6 @@ local plugins = {
     end,
   },
   {
-    "saadparwaiz1/cmp_luasnip",
-  },
-  {
     "hrsh7th/cmp-cmdline",
   },
   {
