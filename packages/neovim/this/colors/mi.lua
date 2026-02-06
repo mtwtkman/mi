@@ -43,6 +43,20 @@ vim.api.nvim_set_hl(0, "CursorLine", { fg = nil, bg = nil, bold = false })
 vim.api.nvim_set_hl(0, "MoreMsg", { fg = color_table.light_blue, bg = nil, bold = false })
 vim.api.nvim_set_hl(0, "TabLineSel", { fg = color_table.black, bg = color_table.white, bold = true })
 vim.api.nvim_set_hl(0, "Question", { fg = color_table.white, bg = nil, bold = true })
+vim.api.nvim_set_hl(0, "Function", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Identifier", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Comment", { fg = color_table.light_grey3, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Constant", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Operator", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Tag", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Macro", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Boolean", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Label", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Structure", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Type", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Keyword", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "Delimiter", { fg = color_table.white, bg = nil, bold = false })
+vim.api.nvim_set_hl(0, "@variable", { fg = color_table.white, bg = nil, bold = false })
 
 -- floating window
 vim.api.nvim_set_hl(0, "NormalFloat", { fg = color_table.white, bg = color_table.black, bold = false })
@@ -66,22 +80,6 @@ vim.api.nvim_set_hl(0, "CurSearch", { fg = color_table.white, bg = color_table.d
 -- nvim-cmp
 vim.api.nvim_set_hl(0, "CmpItemAbbrDefault", { fg = color_table.white, bg = nil, bold = false })
 vim.api.nvim_set_hl(0, "CmpItemAbbrMatchDefault", { fg = color_table.white, bg = nil, bold = false })
-
--- treesitter
-vim.api.nvim_set_hl(0, "Function", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Identifier", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Comment", { fg = color_table.light_grey3, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Constant", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Operator", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Tag", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Macro", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Boolean", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Label", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Structure", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Type", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Keyword", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "Delimiter", { fg = color_table.white, bg = nil, bold = false })
-vim.api.nvim_set_hl(0, "@variable", { fg = color_table.white, bg = nil, bold = false })
 
 -- neogit
 vim.api.nvim_set_hl(0, "NeogitDiffAdd", { fg = color_table.white, bg = color_table.dark_green, bold = false })

@@ -33,8 +33,7 @@ install_command="
     man-db \
     neovim \
     ripgrep \
-    tmux \
-    tree-sitter
+    tmux
 "
 update_command="sudo apt update && sudo apt upgrade -y; brew update && brew upgrade"
 purge_command="sudo apt autoclean && sudo apt autopuge; brew autoremove"

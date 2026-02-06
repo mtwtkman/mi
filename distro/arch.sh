@@ -43,8 +43,6 @@ install_command="
     slirp4netns \
     tmux \
     ttf-hack-nerd \
-    tree-sitter \
-    tree-sitter-cli \
     unzip
 "
 update_command="paru -Syu --noconfirm"
