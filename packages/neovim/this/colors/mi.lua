@@ -94,10 +94,5 @@ vim.api.nvim_set_hl(0, "DiagnosticError", { fg = color_table.light_red, bg = nil
 vim.api.nvim_set_hl(0, "DiagnosticOk", { fg = color_table.light_green, bg = nil, bold = false })
 vim.api.nvim_set_hl(0, "DiagnosticHint", { fg = color_table.light_magenta, bg = nil, bold = false })
 
--- indent-breakline
-vim.api.nvim_set_hl(0, "IblIndent", { fg = color_table.dark_grey4, bg = nil, bold = true })
-vim.api.nvim_set_hl(0, "IblScope", { fg = color_table.white, bg = nil, bold = true })
-vim.api.nvim_set_hl(0, "IblWhitespace", { fg = color_table.white, bg = nil, bold = true })
-
 -- netrw
 vim.api.nvim_set_hl(0, "Directory", { fg = color_table.white, bg = nil, bold = true })
