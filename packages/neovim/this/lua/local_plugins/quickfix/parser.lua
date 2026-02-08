@@ -25,10 +25,4 @@ function M.file_or_term(line, _)
   end
 end
 
-function M.directory_path(line, _)
-  if line ~= "" then
-    return { filename = line, text = "Directory" }
-  end
-end
-
 return M
