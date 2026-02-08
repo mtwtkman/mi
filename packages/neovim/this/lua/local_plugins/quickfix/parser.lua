@@ -25,18 +25,6 @@ function M.file_or_term(line, _)
   end
 end
 
-function M.lsp_symbol(line, origin_path)
-  local text, lnum, col = line:match("^(.*)||(%d+)||(%d+)$")
-  if not text or not lnum then return nil end
-
-  return {
-    filename = origin_path,
-    lnum = tonumber(lnum),
-    col = tonumber(col),
-    text = text:gsub("^%s*", ""),
-  }
-end
-
 function M.directory_path(line, _)
   if line ~= "" then
     return { filename = line, text = "Directory" }

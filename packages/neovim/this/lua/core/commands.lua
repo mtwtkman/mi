@@ -1,14 +1,26 @@
 local qf_finder = require("local_plugins.quickfix.app.finder")
 
-vim.api.nvim_create_user_command("CopyCurrentFileRelativePath", function(params)
+local function copy_current_buffer_path(is_absolute, is_directory)
   local value = "%:."
-  if params.bang == true then
+  if is_directory == true then
     value = "%:.:h"
   end
   local content = vim.fn.expand(value)
+  if is_absolute == true then
+    content = vim.fs.abspath(content)
+  end
   vim.fn.setreg("+", content)
   vim.fn.setreg('"', content)
+end
+
+vim.api.nvim_create_user_command("CopyCurrentFileRelativePath", function(params)
+  copy_current_buffer_path(false, params.bang)
 end, { bang = true })
+
+vim.api.nvim_create_user_command("CopyCurrentFileAbsolutePath", function(params)
+  copy_current_buffer_path(true, params.bang)
+end, { bang = true })
+
 
 vim.api.nvim_create_user_command("ReloadInitLua", function()
   vim.cmd[[luafile $MYVIMRC]]
