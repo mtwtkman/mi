@@ -185,9 +185,6 @@ local plugins = {
     },
   },
   {
-    "mfussenegger/nvim-jdtls",
-  },
-  {
     "mrcjkb/haskell-tools.nvim",
     config = function()
       local lsp_config = require("lsp.config").make_default()
