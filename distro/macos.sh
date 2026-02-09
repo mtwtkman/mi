@@ -16,6 +16,7 @@ install_command="
     make \
     man-db \
     neovim \
+    nnn \
     openssh \
     docker \
     docker-compose \

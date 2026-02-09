@@ -32,6 +32,7 @@ install_command="
     make \
     man-db \
     neovim \
+    nnn \
     ripgrep \
     tmux
 "

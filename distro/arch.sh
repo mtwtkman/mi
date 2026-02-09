@@ -43,7 +43,8 @@ install_command="
     slirp4netns \
     tmux \
     ttf-hack-nerd \
-    unzip
+    unzip \
+    wl-clipboard
 "
 update_command="paru -Syu --noconfirm"
 purge_command="paru -c --noconfirm"

@@ -2,7 +2,6 @@
 here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 source "${here}/../modules/message.sh"
 
-# BASIC PACKAGES
 install_basic_packages()
 {
   install_command="${1}"
@@ -24,7 +23,6 @@ deploy_settings()
   green "Done."
 }
 
-# ENTRYPOINT
 perform()
 {
   install_command="${1}"
