@@ -30,10 +30,6 @@ vim.api.nvim_create_user_command("ReloadCurrentLuaFile", function()
   vim.cmd[[luafile %]]
 end, {})
 
-vim.api.nvim_create_user_command("OpenPathUnderCursor", function(params)
-  vim.cmd(":" .. params.args .. " " .. vim.fn.expand("<cWORD>"))
-end, { nargs = 1 })
-
 vim.api.nvim_create_user_command("RenameFile", function()
     local old_name = vim.api.nvim_buf_get_name(0)
     if old_name == "" then
