@@ -180,9 +180,6 @@ local plugins = {
         telescope = false,
       },
     },
-    keys = {
-      { "<leader>gc", ":Neogit<CR>", silent = true }
-    },
   },
   {
     "mrcjkb/haskell-tools.nvim",
@@ -209,13 +206,6 @@ local plugins = {
   },
   {
     "linrongbin16/gitlinker.nvim",
-    opts = {},
-    keys = {
-      { "<leader>gl", "<CMD>GitLink<CR>", mode = { "n", "v" }, silent = true, noremap = true, desc = "Copy git permalink to clipboard" },
-      { "<leader>gL", "<CMD>GitLink!<CR>", mode = { "n", "v" }, silent = true, noremap = true, desc = "Open git permalink to clipboard" },
-      { "<leader>gb", "<CMD>GitLink blame<CR>", mode = { "n", "v" }, silent = true, noremap = true, desc = "Copy git blame permalink to clipboard" },
-      { "<leader>gB", "<CMD>GitLink! blame<CR>", mode = { "n", "v" }, silent = true, noremap = true, desc = "Open git blame permalink to clipboard" },
-    },
   },
 }
 
