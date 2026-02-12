@@ -100,3 +100,12 @@ end, { nargs = "*" })
 vim.api.nvim_create_user_command("LspInfo", function() vim.cmd("checkhealth vim.lsp") end, {})
 vim.api.nvim_create_user_command("LspLog", function() vim.cmd("tabe " .. vim.lsp.get_log_path()) end, {})
 vim.api.nvim_create_user_command("LspRestart", function() vim.lsp.stop_client(vim.lsp.get_clients()) end, {})
+
+vim.api.nvim_create_user_command("QuickfixView", function(opts)
+  local output = vim.fn.execute(opts.args)
+  vim.fn.setqflist({}, "r", {
+    title = opts.args,
+    lines = vim.split(output, "\n", { trimempty = true }),
+  })
+  vim.cmd("copen")
+end, { nargs = 1, complete = 'command'})
