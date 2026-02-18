@@ -1,0 +1,19 @@
+output "LG Electronics LG ULTRAFINE 504NTFAF3067" {
+  position 0,0
+  alias $LG_DISPLAY_4K_32INCH
+}
+output "Panasonic Industry Company Panasonic-TV 0x01010101" {
+  mode 3840x2160@60.000
+  position 0,0
+  alias $PANASONIC_TV
+}
+
+profile thinkpad_X13_Gen1 {
+  output $PANASONIC_TV enable
+  output "Lenovo Group Limited 0x4094 Unknown" enable position 0,2160
+}
+
+profile thinkpad_X9 {
+  output $LG_DISPLAY_4K_32INCH enable
+  output "Samsung Display Corp. 0x4209 Unknown" enable position 3840,620
+}

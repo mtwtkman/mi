@@ -30,6 +30,7 @@ install_command="
     fzf \
     gcc \
     jaq \
+    kanshi \
     libnotify \
     lua \
     luarocks
