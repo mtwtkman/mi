@@ -22,7 +22,6 @@ vim.keymap.set("n", "<leader>n", function() terminal.open_within_current_dir("20
 vim.keymap.set("n", "<C-\\>", terminal.toggle, { silent = true })
 vim.keymap.set("n", "<leader>wh", ":ResizeWindowHorizontal<space>")
 vim.keymap.set("n", "<leader>wv", ":ResizeWindowVertical<space>")
-vim.keymap.set("n", "<leader>rn", ":RelativeNumberToggle<CR>", { silent = true })
 vim.keymap.set("n", "<leader>gw", function() qf_finder.live_grep(vim.fn.expand("<cword>")) end, { silent = true })
 vim.keymap.set("n", "<Leader>gg", qf_finder.live_grep, { silent = true })
 vim.keymap.set("n", "<leader>b", qf_finder.find_recent_buffers, { silent = true })
