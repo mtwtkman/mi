@@ -3,6 +3,10 @@ return {
     cmd = "bash-language-server",
     filetypes = { "sh", "bash" },
   },
+  clangd = {
+    cmd = { "clangd", "--background-index", "--clang-tidy", "--log=verbose" },
+    filetypes = { "c", "cpp" },
+  },
   elmls = {
     cmd = { "npx", "elm-language-server" },
     filetypes = { "elm" },
