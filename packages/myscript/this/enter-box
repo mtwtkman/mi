@@ -13,11 +13,20 @@ function climb()
   cd ../
 }
 
+here=$(pwd)
 found=$FALSE
+depth=0
 
 while ([ $found == $FALSE ] && [ "$(pwd)" != "/" ]); do
   found=$(is_boxable)
-  [[ $found == $FALSE ]] && climb
+  [[ $found == $FALSE ]] && depth=$((depth + 1)) && climb
 done
 
-[ $found == $TRUE ] && echo "Enter distrobox (box script at $(pwd))" && ./box e || echo "box cannot be found"
+[ $found == $FALSE ] && echo "box cannot be found" && exit 0
+
+cd "${here}"
+path=""
+for i in $(seq 1 ${depth}); do
+  path="../${path}"
+done
+./${path}box e
