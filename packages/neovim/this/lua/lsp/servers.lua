@@ -53,8 +53,14 @@ return {
       },
     },
   },
+  rubocop = {
+    command = { "bundle", "exec", "rubocop", "--lsp" },
+    filetypes = { "ruby" },
+    rootPatterns = { ".git", "Gemfile" },
+    requireRootPattern = true,
+  },
   ruby_lsp = {
-    cmd = { "ruby-lsp" },
+    cmd = { "bundle", "exec", "ruby-lsp" },
     filetypes = { "ruby", "eruby" },
     init_option = {
       formattter = "auto"

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+TRUE=1
+FALSE=0
+
+function is_boxable()
+{
+  [[ -e "box" ]] && [[ -e "distrobox.ini" ]] && echo $TRUE || echo $FALSE
+}
+
+function climb()
+{
+  cd ../
+}
+
+found=$FALSE
+
+while ([ $found == $FALSE ] && [ "$(pwd)" != "/" ]); do
+  found=$(is_boxable)
+  [[ $found == $FALSE ]] && climb
+done
+
+[ $found == $TRUE ] && echo "Enter distrobox (box script at $(pwd))" && ./box e || echo "box cannot be found"
