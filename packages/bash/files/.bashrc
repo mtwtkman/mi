@@ -148,6 +148,7 @@ if command -v "nvim" &> /dev/null; then
   alias vup="vim +LazySYnc"
   alias miedit="${EDITOR} ${MI_HOME}"
   alias mie="miedit"
+  alias lspclear="echo '' > ${HOME}/.local/state/nvim/lsp.log"
   export MANPAGER="nvim +Man!"
 fi
 
