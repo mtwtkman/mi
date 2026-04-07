@@ -111,3 +111,5 @@ vim.api.nvim_create_user_command("QuickfixView", function(opts)
 end, { nargs = 1, complete = 'command'})
 
 vim.api.nvim_create_user_command("FocusFile", function() vim.cmd("tabe %") end, {})
+
+vim.api.nvim_create_user_command("UpdatePackage", function() vim.pack.update() end, {})
