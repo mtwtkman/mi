@@ -12,7 +12,6 @@ vim.pack.add({
   github("lewis6991/gitsigns.nvim"),
   github("sindrets/diffview.nvim"),
   github("NeogitOrg/neogit"),
-  { src = github("mrcjkb/haskell-tools.nvim"), version = vim.version.range("^3") },
   github("linrongbin16/gitlinker.nvim"),
 })
 
@@ -143,7 +142,7 @@ require("gitsigns").setup({
     map({"o", "x"}, "ih", ":<C-u>Gitsigns select_hunk<CR>")
   end,
   preview_config = {
-    border = { "┌", "─" ,"┐", "│", "┘", "─", "└", "│" },
+    border = { "╭", "─" ,"╮", "│", "╯", "─", "╰", "│" },
   },
 })
 
@@ -163,17 +162,24 @@ require("neogit").setup({
   },
 })
 
-vim.api.nvim_create_autocmd("FileType", {
+vim.api.nvim_create_autocmd({ "FileType" }, {
   pattern = { "haskell", "lhaskell", "cabal", "cabalproject" },
   callback = function()
+    if (vim.g.haskell_tools ~= nil) then
+      return
+    end
+    vim.pack.add({
+      { src = github("mrcjkb/haskell-tools.nvim"), version = vim.version.range("^3") },
+    })
+    local lsp_config = require("lsp.config").make_default()
     vim.g.haskell_tools = {
       hls = {
         on_attach = function(client, bufnr, ht)
           vim.keymap.set("n", "<space>hs", ht.hoogle.hoogle_signature, { silent = true })
           vim.keymap.set("n", "<space>E", ht.lsp.buf_eval_all, { silent = true })
-          return require("lsp.config").make_default().on_attach(client, bufnr)
+          return lsp_config.on_attach(client, bufnr)
         end,
       },
     }
-  end
+  end,
 })
