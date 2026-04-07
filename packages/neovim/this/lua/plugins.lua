@@ -181,5 +181,6 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
         end,
       },
     }
+    vim.cmd("edit") -- hacky
   end,
 })
