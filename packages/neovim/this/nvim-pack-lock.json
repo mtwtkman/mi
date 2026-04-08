@@ -29,12 +29,12 @@
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "haskell-tools.nvim": {
-      "rev": "65d6993eba1a56bbd5211ef13a100d26ce3e644a",
+      "rev": "17c04c9f7a52ee5b6fa4869166b8fcb74a21df70",
       "src": "https://github.com/mrcjkb/haskell-tools.nvim",
-      "version": "3.0.0 - 4.0.0"
+      "version": "8.0.0 - 9.0.0"
     },
     "neogit": {
-      "rev": "5a7fca171e3ad07380745d573d791e95268b8f3f",
+      "rev": "5432fe2b2565bb10d868c759245cd4c64125da31",
       "src": "https://github.com/NeogitOrg/neogit"
     },
     "nvim-cmp": {
