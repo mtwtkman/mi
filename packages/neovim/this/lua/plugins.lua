@@ -158,7 +158,6 @@ require("diffview").setup({
 require("neogit").setup({
   integrations = {
     diffview = true,
-    telescope = false,
   },
 })
 
