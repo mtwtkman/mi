@@ -1,0 +1,148 @@
+#!/bin/bash
+
+DB_FILE="$HOME/.local/state/treesitter-installed.txt"
+DEST_DIR="$HOME/.local/share/nvim/site/parser"
+CMD_NAME=$(basename "$0")
+
+mkdir -p "$(dirname "$DB_FILE")"
+mkdir -p "$DEST_DIR"
+
+function usage()
+{
+  echo "Usage:"
+  echo "  $CMD_NAME <lang> [url] : Install or update"
+  echo "  $CMD_NAME rm <lang>    : Uninstall and set status to 'n'"
+  echo "  $CMD_NAME ls           : List all languages in DB"
+  echo "  $CMD_NAME              : Update all installed languages (status 'y')"
+}
+
+function update_db_status() {
+  local lang=$1
+  local url=$2
+  local status=$3
+
+  if grep -q "^$lang," "$DB_FILE" 2>/dev/null; then
+    sed -i "s|^$lang,.*|$lang,$url,$status|" "$DB_FILE"
+  else
+    echo "$lang,$url,$status" >> "$DB_FILE"
+  fi
+}
+
+function build_parser()
+{
+  local lang=$1
+  local url=$2
+  local tmp_dir=$(mktemp -d)
+  local obj_files=""
+  local linker="cc"
+  local log_prefix="[$lang]"
+
+  if ! git clone --depth 1 "$url" "$tmp_dir" &> /dev/null; then
+    echo "$log_prefix Error: Failed to clone"
+    rm -rf "$tmp_dir"
+    return 1
+  fi
+
+  local parser_c=$(find "$tmp_dir" -name "parser.c" | head -n 1)
+  if [ -z "$parser_c" ]; then
+    echo "$log_prefix Error: parser.c not found"
+    rm -rf "$tmp_dir"
+    return 1
+  fi
+
+  local src_dir=$(dirname "$parser_c")
+  cc -O3 -fPIC -I"$src_dir" -c "$parser_c" -o "$tmp_dir/parser.o" 2>/dev/null
+  obj_files="$tmp_dir/parser.o"
+
+  if [ -f "$src_dir/scanner.c" ]; then
+    cc -O3 -fPIC -I"$src_dir" -c "$src_dir/scanner.c" -o "$tmp_dir/scanner.o" 2>/dev/null
+    obj_files="$obj_files $tmp_dir/scanner.o"
+  elif [ -f "$src_dir/scanner.cc" ]; then
+    c++ -O3 -fPIC -I"$src_dir" -c "$src_dir/scanner.cc" -o "$tmp_dir/scanner.o" 2>/dev/null
+    obj_files="$obj_files $tmp_dir/scanner.o"
+    linker="c++"
+  fi
+
+  if $linker -shared -fPIC $obj_files -o "$DEST_DIR/$lang.so" 2>/dev/null; then
+    echo "$log_prefix Successfully processed"
+    update_db_status "$lang" "$url" "y"
+    rm -rf "$tmp_dir"
+    return 0
+  else
+    echo "$log_prefix Error: Build failed"
+    rm -rf "$tmp_dir"
+    return 1
+  fi
+}
+
+case "$1" in
+  --help|-h)
+    usage
+    exit 0
+    ;;
+  ls)
+    if [ -f "$DB_FILE" ]; then
+      while IFS=',' read -r lang url status; do
+        [ -z "$lang" ] && continue
+        flag=" "
+        [ "$status" == "y" ] && flag="✔︎"
+        printf "%-12s: %s [%s]\n" "$lang" "$flag" "$url"
+      done < "$DB_FILE"
+    else
+      echo "No records in DB."
+    fi
+    ;;
+
+  rm)
+    TARGET_LANG=$2
+    if [ -z "$TARGET_LANG" ]; then
+      usage; exit 1
+    fi
+
+    [ -f "$DEST_DIR/$TARGET_LANG.so" ] && rm "$DEST_DIR/$TARGET_LANG.so" && echo "Deleted $TARGET_LANG.so"
+
+    SAVED_LINE=$(grep "^$TARGET_LANG," "$DB_FILE" 2>/dev/null)
+    if [ -n "$SAVED_LINE" ]; then
+      URL=$(echo "$SAVED_LINE" | cut -d',' -f2)
+      update_db_status "$TARGET_LANG" "$URL" "n"
+      echo "Status for $TARGET_LANG set to 'n'"
+    else
+      echo "Warning: $TARGET_LANG not found in DB."
+    fi
+    ;;
+
+  "")
+    if [ ! -s "$DB_FILE" ]; then
+      echo "No installed languages found."; exit 0
+    fi
+    echo "Updating installed parsers..."
+    while IFS=',' read -r lang url status; do
+      [ "$status" == "y" ] && build_parser "$lang" "$url" &
+    done < "$DB_FILE"
+    wait
+    ;;
+
+  *)
+    TARGET_LANG=$1
+    TARGET_URL=$2
+
+    SAVED_LINE=$(grep "^$TARGET_LANG," "$DB_FILE" 2>/dev/null)
+
+    if [ -n "$SAVED_LINE" ]; then
+      URL=$(echo "$SAVED_LINE" | cut -d',' -f2)
+      echo "Found $TARGET_LANG in DB. Processing..."
+      build_parser "$TARGET_LANG" "$URL" || exit 1
+    else
+      if [ -z "$TARGET_URL" ]; then
+        printf "Enter source URL for %s: " "$TARGET_LANG"
+        read -r TARGET_URL
+      fi
+
+      if [ -z "$TARGET_URL" ]; then
+        echo "Error: URL is required."; exit 1
+      fi
+
+      build_parser "$TARGET_LANG" "$TARGET_URL" || exit 1
+    fi
+    ;;
+esac
