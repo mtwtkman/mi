@@ -2,16 +2,18 @@
 
 DB_FILE="$HOME/.local/state/treesitter-installed.txt"
 DEST_DIR="$HOME/.local/share/nvim/site/parser"
+QUERY_DIR="$HOME/.local/share/nvim/site/queries"
 CMD_NAME=$(basename "$0")
 
 mkdir -p "$(dirname "$DB_FILE")"
 mkdir -p "$DEST_DIR"
+mkdir -p "$QUERY_DIR"
 
 function usage()
 {
   echo "Usage:"
-  echo "  $CMD_NAME <lang> [url] : Install or update"
-  echo "  $CMD_NAME rm <lang>    : Uninstall and set status to 'n'"
+  echo "  $CMD_NAME <lang> [url] : Install or update (parser & queries)"
+  echo "  $CMD_NAME rm <lang>    : Uninstall parser, queries and set status to 'n'"
   echo "  $CMD_NAME ls           : List all languages in DB"
   echo "  $CMD_NAME              : Update all installed languages (status 'y')"
 }
@@ -63,16 +65,26 @@ function build_parser()
     linker="c++"
   fi
 
-  if $linker -shared -fPIC $obj_files -o "$DEST_DIR/$lang.so" 2>/dev/null; then
-    echo "$log_prefix Successfully processed"
-    update_db_status "$lang" "$url" "y"
-    rm -rf "$tmp_dir"
-    return 0
-  else
+  if ! $linker -shared -fPIC $obj_files -o "$DEST_DIR/$lang.so" 2>/dev/null; then
     echo "$log_prefix Error: Build failed"
     rm -rf "$tmp_dir"
     return 1
   fi
+
+  local repo_query_dir=$(find "$tmp_dir" -type d -name "queries" | head -n 1)
+  if [ -d "$repo_query_dir" ]; then
+    local target_lang_query="$QUERY_DIR/$lang"
+    mkdir -p "$target_lang_query"
+    cp "$repo_query_dir"/*.scm "$target_lang_query/" 2>/dev/null
+    echo "$log_prefix Queries synced to $target_lang_query"
+  else
+    echo "$log_prefix Warning: No queries found in repository"
+  fi
+
+  echo "$log_prefix Successfully processed"
+  update_db_status "$lang" "$url" "y"
+  rm -rf "$tmp_dir"
+  return 0
 }
 
 case "$1" in
@@ -100,6 +112,7 @@ case "$1" in
     fi
 
     [ -f "$DEST_DIR/$TARGET_LANG.so" ] && rm "$DEST_DIR/$TARGET_LANG.so" && echo "Deleted $TARGET_LANG.so"
+    [ -d "$QUERY_DIR/$TARGET_LANG" ] && rm -rf "$QUERY_DIR/$TARGET_LANG" && echo "Deleted queries for $TARGET_LANG"
 
     SAVED_LINE=$(grep "^$TARGET_LANG," "$DB_FILE" 2>/dev/null)
     if [ -n "$SAVED_LINE" ]; then
@@ -115,7 +128,7 @@ case "$1" in
     if [ ! -s "$DB_FILE" ]; then
       echo "No installed languages found."; exit 0
     fi
-    echo "Updating installed parsers..."
+    echo "Updating installed parsers and queries..."
     while IFS=',' read -r lang url status; do
       [ "$status" == "y" ] && build_parser "$lang" "$url" &
     done < "$DB_FILE"
