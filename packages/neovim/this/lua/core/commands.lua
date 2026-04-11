@@ -98,7 +98,10 @@ vim.api.nvim_create_user_command("Grep", function(opts)
 end, { nargs = "*" })
 
 vim.api.nvim_create_user_command("LspInfo", function() vim.cmd("checkhealth vim.lsp") end, {})
-vim.api.nvim_create_user_command("LspLog", function() vim.cmd("tabe " .. vim.lsp.log.get_filename()) end, {})
+vim.api.nvim_create_user_command("LspLog", function()
+  vim.cmd("tabe " .. vim.lsp.log.get_filename())
+  vim.cmd("set ft=lsplog")
+end, {})
 
 vim.api.nvim_create_user_command("QuickfixView", function(opts)
   local output = vim.fn.execute(opts.args)
