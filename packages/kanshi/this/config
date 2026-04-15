@@ -15,5 +15,5 @@ profile thinkpad_X13_Gen1 {
 
 profile thinkpad_X9 {
   output $LG_DISPLAY_4K_32INCH enable
-  output "Samsung Display Corp. 0x4209 Unknown" enable position 3840,620
+  output "Samsung Display Corp. 0x4209 Unknown" enable position 3840,0
 }
