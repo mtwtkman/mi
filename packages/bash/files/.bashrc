@@ -134,7 +134,7 @@ if command -v "nnn" &> /dev/null; then
   export NNN_PLUG="f:finder;p:fzplug"
   export NO_COLOR=1
 
-  if command -v "chafa" &> /dev/null: then
+  if command -v "chafa" &> /dev/null; then
     export NNN_PREVIEWIMGPROG="chafa -f sixels"
   fi
 fi
