@@ -42,6 +42,7 @@ install_command="
     openssh \
     ripgrep \
     slirp4netns \
+    sway-audio-idle-inhibit-git \
     tmux \
     ttf-hack-nerd \
     unzip \

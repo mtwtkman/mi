@@ -242,3 +242,4 @@ bindsym $mod+Shift+w exec foot -e nmtui
 exec foot
 exec firefox
 exec_always kanshi
+exec sway-audio-idle-inhibit
