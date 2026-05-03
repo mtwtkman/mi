@@ -77,6 +77,9 @@ vim.api.nvim_set_hl(0, "IncSearch", { fg = color_table.black, bg = color_table.l
 vim.api.nvim_set_hl(0, "Cursor", { fg = color_table.white, bg = color_table.white, bold = false })
 vim.api.nvim_set_hl(0, "CurSearch", { fg = color_table.white, bg = color_table.dark_grey4, bold = false })
 
+-- visual
+vim.api.nvim_set_hl(0, "Visual", { fg = color_table.black, bg = color_table.white, bold = false })
+
 -- nvim-cmp
 vim.api.nvim_set_hl(0, "CmpItemAbbrDefault", { fg = color_table.white, bg = nil, bold = false })
 vim.api.nvim_set_hl(0, "CmpItemAbbrMatchDefault", { fg = color_table.white, bg = nil, bold = false })
