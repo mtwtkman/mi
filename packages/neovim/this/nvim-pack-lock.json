@@ -34,7 +34,7 @@
       "version": "8.0.0 - 9.0.0"
     },
     "neogit": {
-      "rev": "f8bcc625fe1b9bd55f7853820fddac9b0996f697",
+      "rev": "e74dfb42c04b493031f323aec8fa5f28b0427b9e",
       "src": "https://github.com/NeogitOrg/neogit"
     },
     "nvim-cmp": {
