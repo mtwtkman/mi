@@ -29,9 +29,8 @@
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "haskell-tools.nvim": {
-      "rev": "17c04c9f7a52ee5b6fa4869166b8fcb74a21df70",
-      "src": "https://github.com/mrcjkb/haskell-tools.nvim",
-      "version": "8.0.0 - 9.0.0"
+      "rev": "d93fe85a9f8d22902636c6bf571ded594d28f85e",
+      "src": "https://github.com/mrcjkb/haskell-tools.nvim"
     },
     "neogit": {
       "rev": "99326a1310fb2d616b455d2fd16d01bf00682f06",
