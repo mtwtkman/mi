@@ -168,7 +168,7 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
       return
     end
     vim.pack.add({
-      { src = github("mrcjkb/haskell-tools.nvim") },
+      { src = github("mrcjkb/haskell-tools.nvim"), version = vim.version.range("^9") },
     })
     local lsp_config = require("lsp.config").make_default()
     vim.g.haskell_tools = {
