@@ -42,8 +42,8 @@ return {
       },
     },
   },
-  pyright = {
-    cmd = { "pyright-langserver", "--stdio" },
+  zuban = {
+    cmd = { "zuban", "server" },
     filetypes = { "python" },
     settings = {
       analysis = {
