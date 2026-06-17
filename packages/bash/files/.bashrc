@@ -91,6 +91,13 @@ if command -v "fzf" &> /dev/null; then
     command pushd $(fd . $@ -t d | fzf)
   }
 
+  fj() {
+    local selection job_num
+    selection=$(jobs | fzf --no-preview --no-multi --prompt='job> ') || return
+    job_num=$(echo "$selection" | grep -oP '\[\K[0-9]+(?=\])')
+    [[ -n "$job_num" ]] && fg "%$job_num"
+  }
+
   case "${ostype}" in
     linux) eval "$(fzf --bash)";;
     darwin)
