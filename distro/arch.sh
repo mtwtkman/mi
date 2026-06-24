@@ -23,6 +23,7 @@ install_command="
     bash-language-server \
     crun \
     foot \
+    flatpak \
     podman \
     podman-compose \
     distrobox \
