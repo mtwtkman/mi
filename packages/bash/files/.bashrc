@@ -194,6 +194,10 @@ ps1_head="${PS1_HEAD:-}"
 ps1_base="\w"
 export PS1="${tmux_icon}${ps1_head}${ps1_base}${ps1_git}${distrobox_icon}\n$ "
 
+if [[ -n "$SSH_CONNECTION" ]]; then
+  PS1="[ssh]$PS1"
+fi
+
 # EXTRA
 extra_bashrc="${HOME}/.bashrc.extra"
 [[ -e "${extra_bashrc}" ]] && source "${extra_bashrc}"
