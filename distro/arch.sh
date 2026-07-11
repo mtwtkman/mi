@@ -41,6 +41,7 @@ install_command="
     neovim \
     nnn \
     openssh \
+    rebuild-detector \
     ripgrep \
     slirp4netns \
     sway-audio-idle-inhibit-git \
@@ -49,7 +50,7 @@ install_command="
     unzip \
     wl-clipboard
 "
-update_command="paru -Syu --noconfirm"
+update_command="paru -Syu --noconfirm && checkrebuild"
 purge_command="paru -c --noconfirm"
 
 source "${here}/_common.sh"
