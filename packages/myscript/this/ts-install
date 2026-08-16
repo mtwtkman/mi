@@ -1,8 +1,8 @@
 #!/bin/bash
 
-DB_FILE="$HOME/.local/state/treesitter-installed.txt"
-DEST_DIR="$HOME/.local/share/nvim/site/parser"
-QUERY_DIR="$HOME/.local/share/nvim/site/queries"
+DB_FILE="${TS_INSTALL_DB_FILE:-$HOME/.local/state/treesitter-installed.txt}"
+DEST_DIR="${TS_INSTALL_PARSER_DIR:-$HOME/.local/share/nvim/site/parser}"
+QUERY_DIR="${TS_INSTALL_QUERY_DIR:-$HOME/.local/share/nvim/site/queries}"
 CMD_NAME=$(basename "$0")
 
 mkdir -p "$(dirname "$DB_FILE")"
@@ -32,10 +32,15 @@ function update_db_status() {
 
 function build_parser()
 {
-  local lang=$1
+  local requested_lang=$1
+  local lang=${requested_lang//-/_}
   local url=$2
+  if [[ ! "$lang" =~ ^[a-zA-Z0-9_]+$ ]]; then
+    echo "[$lang] Error: Invalid language name"
+    return 1
+  fi
   local tmp_dir=$(mktemp -d)
-  local obj_files=""
+  local -a obj_files=()
   local linker="cc"
   local log_prefix="[$lang]"
 
@@ -45,44 +50,96 @@ function build_parser()
     return 1
   fi
 
-  local parser_c=$(find "$tmp_dir" -name "parser.c" | head -n 1)
+  # Repositories can contain multiple grammars. Match the generated export
+  # instead of taking whichever parser.c happens to be returned first.
+  local symbol="tree_sitter_${lang}"
+  local parser_c=""
+  local candidate
+  while IFS= read -r candidate; do
+    if grep -Eq "${symbol}[[:space:]]*\\(" "$candidate"; then
+      if [ -n "$parser_c" ]; then
+        echo "$log_prefix Error: Multiple parsers export $symbol"
+        rm -rf "$tmp_dir"
+        return 1
+      fi
+      parser_c=$candidate
+    fi
+  done < <(find "$tmp_dir" -type f -name "parser.c" -print)
+
   if [ -z "$parser_c" ]; then
-    echo "$log_prefix Error: parser.c not found"
+    echo "$log_prefix Error: No parser exporting $symbol was found"
+    echo "$log_prefix Available languages:"
+    find "$tmp_dir" -type f -name "parser.c" -exec \
+      sed -n 's/.*tree_sitter_\([a-zA-Z0-9_]*\)[[:space:]]*(.*/  \1/p' {} + | sort -u
     rm -rf "$tmp_dir"
     return 1
   fi
 
   local src_dir=$(dirname "$parser_c")
-  cc -O3 -fPIC -I"$src_dir" -c "$parser_c" -o "$tmp_dir/parser.o" 2>/dev/null
-  obj_files="$tmp_dir/parser.o"
+  if ! cc -O3 -fPIC -I"$src_dir" -c "$parser_c" -o "$tmp_dir/parser.o"; then
+    echo "$log_prefix Error: Failed to compile parser.c"
+    rm -rf "$tmp_dir"
+    return 1
+  fi
+  obj_files+=("$tmp_dir/parser.o")
 
   if [ -f "$src_dir/scanner.c" ]; then
-    cc -O3 -fPIC -I"$src_dir" -c "$src_dir/scanner.c" -o "$tmp_dir/scanner.o" 2>/dev/null
-    obj_files="$obj_files $tmp_dir/scanner.o"
+    if ! cc -O3 -fPIC -I"$src_dir" -c "$src_dir/scanner.c" -o "$tmp_dir/scanner.o"; then
+      echo "$log_prefix Error: Failed to compile scanner.c"
+      rm -rf "$tmp_dir"
+      return 1
+    fi
+    obj_files+=("$tmp_dir/scanner.o")
   elif [ -f "$src_dir/scanner.cc" ]; then
-    c++ -O3 -fPIC -I"$src_dir" -c "$src_dir/scanner.cc" -o "$tmp_dir/scanner.o" 2>/dev/null
-    obj_files="$obj_files $tmp_dir/scanner.o"
+    if ! c++ -O3 -fPIC -I"$src_dir" -c "$src_dir/scanner.cc" -o "$tmp_dir/scanner.o"; then
+      echo "$log_prefix Error: Failed to compile scanner.cc"
+      rm -rf "$tmp_dir"
+      return 1
+    fi
+    obj_files+=("$tmp_dir/scanner.o")
     linker="c++"
   fi
 
-  if ! $linker -shared -fPIC $obj_files -o "$DEST_DIR/$lang.so" 2>/dev/null; then
+  local built_parser="$tmp_dir/$lang.so"
+  if ! "$linker" -shared -fPIC "${obj_files[@]}" -o "$built_parser"; then
     echo "$log_prefix Error: Build failed"
     rm -rf "$tmp_dir"
     return 1
   fi
 
-  local repo_query_dir=$(find "$tmp_dir" -type d -name "queries" | head -n 1)
+  # Install only queries belonging to the selected grammar.
+  local grammar_root=$(dirname "$src_dir")
+  local repo_query_dir="$grammar_root/queries"
+  if [ ! -d "$repo_query_dir" ] && [ -d "$tmp_dir/queries" ]; then
+    repo_query_dir="$tmp_dir/queries"
+  fi
   if [ -d "$repo_query_dir" ]; then
     local target_lang_query="$QUERY_DIR/$lang"
-    mkdir -p "$target_lang_query"
-    cp "$repo_query_dir"/*.scm "$target_lang_query/" 2>/dev/null
+    local staged_queries=$(mktemp -d "$QUERY_DIR/.${lang}.new.XXXXXX")
+    local old_queries=""
+    find "$repo_query_dir" -maxdepth 1 -type f -name '*.scm' \
+      -exec cp {} "$staged_queries/" \;
+    if [ -e "$target_lang_query" ] || [ -L "$target_lang_query" ]; then
+      old_queries="$tmp_dir/old-queries"
+      mv "$target_lang_query" "$old_queries"
+    fi
+    if ! mv "$staged_queries" "$target_lang_query"; then
+      [ -n "$old_queries" ] && mv "$old_queries" "$target_lang_query"
+      echo "$log_prefix Error: Failed to install queries"
+      rm -rf "$tmp_dir" "$staged_queries"
+      return 1
+    fi
     echo "$log_prefix Queries synced to $target_lang_query"
   else
-    echo "$log_prefix Warning: No queries found in repository"
+    echo "$log_prefix Warning: No queries found for the selected grammar"
   fi
 
+  mv "$built_parser" "$DEST_DIR/$lang.so"
   echo "$log_prefix Successfully processed"
   update_db_status "$lang" "$url" "y"
+  if [ "$requested_lang" != "$lang" ]; then
+    sed -i "/^${requested_lang},/d" "$DB_FILE"
+  fi
   rm -rf "$tmp_dir"
   return 0
 }
@@ -130,9 +187,8 @@ case "$1" in
     fi
     echo "Updating installed parsers and queries..."
     while IFS=',' read -r lang url status; do
-      [ "$status" == "y" ] && build_parser "$lang" "$url" &
+      [ "$status" == "y" ] && build_parser "$lang" "$url"
     done < "$DB_FILE"
-    wait
     ;;
 
   *)
