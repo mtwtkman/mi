@@ -71,8 +71,10 @@
         "interval": 3
     },
     "network": {
-        "format-wifi": " {essid}",
+        "format-wifi": "{icon} {essid}",
         "format-ethernet": "󰈁",
+        "format-disconnected": "󰲛",
+        "format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
         "tooltip": false
     },
     "pulseaudio": {
