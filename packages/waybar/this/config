@@ -77,10 +77,10 @@
     },
     "pulseaudio": {
         "format": "{icon} {volume}%" ,
+        "format-bluetooth": "󰥰 {volume}%",
         "format-muted": " {volume}%",
         "format-icons": {
-            "0": "",
-	    "default": ""
+            "default": ["", "", "", "", "", "", "", "", "", ""]
         }
     }
 }
