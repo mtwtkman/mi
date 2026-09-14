@@ -82,6 +82,12 @@ input type:keyboard {
     # mouse button for dragging.
     floating_modifier $mod normal
 
+    for_window [title="Picture-in-Picture"] {
+      floating enable;
+      resize set 10ppt 10ppt;
+      move position 90ppt 90ppt;
+    }
+
     # Reload the configuration file
     bindsym $mod+Shift+c reload
 
