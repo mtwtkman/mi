@@ -82,10 +82,14 @@ input type:keyboard {
     # mouse button for dragging.
     floating_modifier $mod normal
 
-    for_window [title="Picture-in-Picture"] {
+    for_window [app_id="firefox" title="Picture-in-Picture"] {
       floating enable;
       resize set 10ppt 10ppt;
       move position 90ppt 90ppt;
+    }
+
+    for_window [app_id="firefox" title="Extension:.*Bitwarden.*"] {
+      floating enable;
     }
 
     # Reload the configuration file
