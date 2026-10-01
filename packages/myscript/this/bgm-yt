@@ -12,6 +12,7 @@ WORKER_PID="${STATE_DIR}/worker.pid"
 SESSION_FILE="${STATE_DIR}/session"
 CURRENT_FILE="${STATE_DIR}/current.json"
 LAST_FILE="${STATE_DIR}/last.json"
+LIVE_PAUSED_FILE="${STATE_DIR}/live-paused"
 
 SEARCH_LIMIT=10
 
@@ -23,8 +24,8 @@ mkdir -p "$STATE_DIR"
 # ---------------------------------------------------------------------------
 
 die() {
- printf '%s: %s\n' "$PROGRAM" "$*" >&2
- exit 1
+  printf '%s: %s\n' "$PROGRAM" "$*" >&2
+  exit 1
 }
 
 
@@ -33,85 +34,84 @@ die() {
 # ---------------------------------------------------------------------------
 
 declare -A COMMAND_PACKAGES=(
- [mpv]="mpv"
- [yt-dlp]="yt-dlp"
- [jaq]="jaq"
- [notify-send]="libnotify"
- [python3]="python"
- [setsid]="util-linux"
+  [mpv]="mpv"
+  [yt-dlp]="yt-dlp"
+  [jaq]="jaq"
+  [notify-send]="libnotify"
+  [python3]="python"
+  [setsid]="util-linux"
 )
 
 
 ensure_dependencies() {
- local cmd package
- local -A missing_packages=()
+  local cmd package
+  local -A missing_packages=()
 
- for cmd in "${!COMMAND_PACKAGES[@]}"; do
-  if ! command -v "$cmd" >/dev/null 2>&1; then
-   package="${COMMAND_PACKAGES[$cmd]}"
-   missing_packages["$package"]=1
+  for cmd in "${!COMMAND_PACKAGES[@]}"; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      package="${COMMAND_PACKAGES[$cmd]}"
+      missing_packages["$package"]=1
+    fi
+  done
+
+  if ((${#missing_packages[@]} == 0)); then
+    return 0
   fi
- done
 
- if ((${#missing_packages[@]} == 0)); then
-  return 0
- fi
+  local -a packages=()
 
- local -a packages=()
+  for package in "${!missing_packages[@]}"; do
+    packages+=("$package")
+  done
 
- for package in "${!missing_packages[@]}"; do
-  packages+=("$package")
- done
+  printf '%s: missing required packages:\n' "$PROGRAM" >&2
 
- printf '%s: missing required packages:\n' "$PROGRAM" >&2
+  for package in "${packages[@]}"; do
+    printf '  - %s\n' "$package" >&2
+  done
 
- for package in "${packages[@]}"; do
-  printf '  - %s\n' "$package" >&2
- done
+  if [[ ! -r /dev/tty ]]; then
+    die "cannot ask for installation confirmation without a terminal"
+  fi
 
- if [[ ! -r /dev/tty ]]; then
-  die "cannot ask for installation confirmation without a terminal"
- fi
+  printf '\nInstall missing packages? [y/N] ' >/dev/tty
 
- printf '\nInstall missing packages? [y/N] ' >/dev/tty
+  local answer
+  read -r answer </dev/tty || exit 1
 
- local answer
- read -r answer </dev/tty || exit 1
+  case "$answer" in
+    y|Y|yes|YES|Yes)
+      ;;
+    *)
+      printf '%s: installation cancelled\n' "$PROGRAM" >&2
+      exit 1
+      ;;
+  esac
 
- case "$answer" in
-  y|Y|yes|YES|Yes)
-   ;;
-  *)
-   printf '%s: installation cancelled\n' "$PROGRAM" >&2
-   exit 1
-   ;;
- esac
+  if command -v paru >/dev/null 2>&1; then
+    paru -S --needed "${packages[@]}" ||
+      die "package installation failed"
 
- if command -v paru >/dev/null 2>&1; then
-  paru -S --needed "${packages[@]}" ||
-   die "package installation failed"
+  elif command -v pacman >/dev/null 2>&1; then
+    if ((EUID == 0)); then
+      pacman -S --needed "${packages[@]}" ||
+        die "package installation failed"
+    else
+      command -v sudo >/dev/null 2>&1 ||
+        die "paru is unavailable and sudo is required to run pacman"
 
- elif command -v pacman >/dev/null 2>&1; then
-  if ((EUID == 0)); then
-   pacman -S --needed "${packages[@]}" ||
-    die "package installation failed"
+      sudo pacman -S --needed "${packages[@]}" ||
+        die "package installation failed"
+    fi
+
   else
-   if ! command -v sudo >/dev/null 2>&1; then
-    die "paru is unavailable and sudo is required to run pacman"
-   fi
-
-   sudo pacman -S --needed "${packages[@]}" ||
-    die "package installation failed"
+    die "neither paru nor pacman is available"
   fi
 
- else
-  die "neither paru nor pacman is available"
- fi
-
- for cmd in "${!COMMAND_PACKAGES[@]}"; do
-  command -v "$cmd" >/dev/null 2>&1 ||
-   die "required command is still unavailable after installation: $cmd"
- done
+  for cmd in "${!COMMAND_PACKAGES[@]}"; do
+    command -v "$cmd" >/dev/null 2>&1 ||
+      die "required command is still unavailable after installation: $cmd"
+  done
 }
 
 
@@ -120,63 +120,86 @@ ensure_dependencies() {
 # ---------------------------------------------------------------------------
 
 worker_alive() {
- [[ -f "$WORKER_PID" ]] || return 1
+  [[ -f "$WORKER_PID" ]] || return 1
 
- local pid
- pid=$(<"$WORKER_PID")
+  local pid
+  pid=$(<"$WORKER_PID")
 
- [[ "$pid" =~ ^[0-9]+$ ]] || return 1
- kill -0 "$pid" 2>/dev/null || return 1
-
- if [[ -r "/proc/$pid/cmdline" ]]; then
-  tr '\0' ' ' <"/proc/$pid/cmdline" |
-   grep -Fq -- "__worker" ||
-   return 1
- fi
-
- return 0
+  [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+  kill -0 "$pid" 2>/dev/null
 }
 
 
 cleanup_stale() {
- if worker_alive; then
-  return 0
- fi
+  if worker_alive; then
+    return 0
+  fi
 
- rm -f \
-  "$WORKER_PID" \
-  "$SOCKET" \
-  "$SESSION_FILE" \
-  "$CURRENT_FILE"
+  rm -f \
+    "$WORKER_PID" \
+    "$SOCKET" \
+    "$SESSION_FILE"
+
+  if [[ -f "$LIVE_PAUSED_FILE" && -f "$CURRENT_FILE" ]]; then
+    return 0
+  fi
+
+  rm -f \
+    "$CURRENT_FILE" \
+    "$LIVE_PAUSED_FILE"
+}
+
+
+kill_worker() {
+  worker_alive || return 0
+
+  local pid
+  pid=$(<"$WORKER_PID")
+
+  kill -TERM -- "-$pid" 2>/dev/null || true
+
+  local _
+  for _ in {1..20}; do
+    kill -0 "$pid" 2>/dev/null || break
+    sleep 0.05
+  done
+
+  if kill -0 "$pid" 2>/dev/null; then
+    kill -KILL -- "-$pid" 2>/dev/null || true
+  fi
 }
 
 
 hard_stop() {
- cleanup_stale
+  cleanup_stale
 
- worker_alive || return 0
+  if worker_alive; then
+    printf 'replaced-%s-%s\n' "$$" "$RANDOM" >"$SESSION_FILE"
+    kill_worker
+  fi
 
- local pid
- pid=$(<"$WORKER_PID")
+  rm -f \
+    "$WORKER_PID" \
+    "$SOCKET" \
+    "$SESSION_FILE" \
+    "$CURRENT_FILE" \
+    "$LIVE_PAUSED_FILE"
+}
 
- # Invalidate the old worker before terminating it.
- printf 'replaced-%s-%s\n' "$$" "$RANDOM" >"$SESSION_FILE"
 
- # The worker runs in its own session/process group.
- kill -TERM -- "-$pid" 2>/dev/null || true
+pause_live_worker() {
+  worker_alive || return 0
 
- local _
- for _ in {1..20}; do
-  kill -0 "$pid" 2>/dev/null || break
-  sleep 0.05
- done
+  : >"$LIVE_PAUSED_FILE"
 
- kill -KILL -- "-$pid" 2>/dev/null || true
+  printf 'live-paused-%s-%s\n' "$$" "$RANDOM" >"$SESSION_FILE"
 
- rm -f \
-  "$WORKER_PID" \
-  "$SOCKET" \
-  "$CURRENT_FILE"
+  kill_worker
+
+  rm -f \
+    "$WORKER_PID" \
+    "$SOCKET" \
+    "$SESSION_FILE"
 }
 
 
@@ -184,26 +207,119 @@ hard_stop() {
 # mpv IPC
 # ---------------------------------------------------------------------------
 
-ipc() {
- local json="$1"
+ipc_request() {
+  local request="$1"
 
- [[ -S "$SOCKET" ]] || return 1
+  [[ -S "$SOCKET" ]] || return 1
 
- python3 - "$SOCKET" "$json" <<'PY'
+  python3 - "$SOCKET" "$request" <<'PY'
+import json
 import socket
 import sys
 
 socket_path = sys.argv[1]
-message = sys.argv[2].encode("utf-8") + b"\n"
+raw_request = sys.argv[2]
+
+try:
+  request = json.loads(raw_request)
+except json.JSONDecodeError as exc:
+  print(
+    f"bgm-yt: invalid internal IPC JSON: {exc}",
+    file=sys.stderr,
+  )
+  sys.exit(1)
+
+request_id = 1
+request["request_id"] = request_id
+
+# mpv JSON IPC requires exactly one JSON message per line.
+# Do not send embedded newlines.
+message = json.dumps(
+  request,
+  separators=(",", ":"),
+  ensure_ascii=False,
+).encode("utf-8") + b"\n"
 
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
 try:
- sock.connect(socket_path)
- sock.sendall(message)
+  sock.settimeout(2.0)
+  sock.connect(socket_path)
+  sock.sendall(message)
+
+  buffer = b""
+
+  while True:
+    while b"\n" not in buffer:
+      chunk = sock.recv(4096)
+
+      if not chunk:
+        print(
+          "bgm-yt: mpv IPC connection closed unexpectedly",
+          file=sys.stderr,
+        )
+        sys.exit(1)
+
+      buffer += chunk
+
+    line, buffer = buffer.split(b"\n", 1)
+
+    if not line:
+      continue
+
+    try:
+      response = json.loads(line)
+    except json.JSONDecodeError:
+      continue
+
+    # Ignore asynchronous events and unrelated responses.
+    if response.get("request_id") != request_id:
+      continue
+
+    error = response.get("error")
+
+    if error != "success":
+      print(
+        "bgm-yt: mpv IPC error:",
+        error or "unknown",
+        file=sys.stderr,
+      )
+      sys.exit(1)
+
+    print(
+      json.dumps(
+        response,
+        separators=(",", ":"),
+        ensure_ascii=False,
+      )
+    )
+
+    break
+
 finally:
- sock.close()
+  sock.close()
 PY
+}
+
+
+ipc() {
+  ipc_request "$1" >/dev/null
+}
+
+
+mpv_pause_state() {
+  local response
+
+  response=$(
+    ipc_request '{
+      "command": [
+        "get_property",
+        "pause"
+      ]
+    }'
+  ) || return 1
+
+  jaq -r '.data' <<<"$response"
 }
 
 
@@ -212,35 +328,42 @@ PY
 # ---------------------------------------------------------------------------
 
 get_metadata() {
- local url="$1"
+  local url="$1"
 
- yt-dlp \
-  --no-playlist \
-  --quiet \
-  --no-warnings \
-  --dump-single-json \
-  "$url"
+  yt-dlp \
+    --no-playlist \
+    --quiet \
+    --no-warnings \
+    --dump-single-json \
+    "$url"
 }
 
 
 format_duration() {
- local seconds="$1"
+  local seconds="$1"
 
- if [[ ! "$seconds" =~ ^[0-9]+$ ]]; then
-  printf 'unknown\n'
-  return
- fi
+  if [[ ! "$seconds" =~ ^[0-9]+$ ]] || ((seconds <= 0)); then
+    printf 'unknown\n'
+    return
+  fi
 
- if ((seconds >= 3600)); then
-  printf '%02d:%02d:%02d\n' \
-   $((seconds / 3600)) \
-   $(((seconds % 3600) / 60)) \
-   $((seconds % 60))
- else
-  printf '%02d:%02d\n' \
-   $((seconds / 60)) \
-   $((seconds % 60))
- fi
+  if ((seconds >= 3600)); then
+    printf '%02d:%02d:%02d\n' \
+      $((seconds / 3600)) \
+      $(((seconds % 3600) / 60)) \
+      $((seconds % 60))
+  else
+    printf '%02d:%02d\n' \
+      $((seconds / 60)) \
+      $((seconds % 60))
+  fi
+}
+
+
+current_is_live() {
+  [[ -f "$CURRENT_FILE" ]] || return 1
+
+  [[ "$(jaq -r '.is_live // false' "$CURRENT_FILE")" == "true" ]]
 }
 
 
@@ -249,137 +372,137 @@ format_duration() {
 # ---------------------------------------------------------------------------
 
 start_playback() {
- local url="$1"
- local loop="$2"
+  local url="$1"
+  local loop="$2"
 
- local metadata
+  local metadata
+  metadata=$(get_metadata "$url") ||
+    die "failed to retrieve YouTube metadata"
 
- metadata=$(get_metadata "$url") ||
-  die "failed to retrieve YouTube metadata"
+  local canonical_url
+  local title
+  local duration
+  local is_live
 
- local canonical_url
- local title
- local duration
+  canonical_url=$(
+    jaq -r '
+      .webpage_url //
+      .original_url //
+      empty
+    ' <<<"$metadata"
+  )
 
- canonical_url=$(
-  jaq -r '
-   .webpage_url //
-   .original_url //
-   empty
-  ' <<<"$metadata"
- )
+  title=$(
+    jaq -r '
+      .title //
+      "(unknown title)"
+    ' <<<"$metadata"
+  )
 
- title=$(
-  jaq -r '
-   .title //
-   "(unknown title)"
-  ' <<<"$metadata"
- )
+  duration=$(
+    jaq -r '
+      (.duration // 0) | floor
+    ' <<<"$metadata"
+  )
 
- duration=$(
-  jaq -r '
-   (.duration // 0) | floor
-  ' <<<"$metadata"
- )
+  is_live=$(
+    jaq -r '
+      .is_live // false
+    ' <<<"$metadata"
+  )
 
- [[ -n "$canonical_url" ]] ||
-  canonical_url="$url"
+  [[ -n "$canonical_url" ]] ||
+    canonical_url="$url"
 
- #
- # Resolve metadata before replacing the current playback.
- # An invalid new URL therefore does not interrupt the existing BGM.
- #
- hard_stop
+  hard_stop
 
- local session
- session="$$_$(date +%s%N)_${RANDOM}"
+  local session
+  session="$$_$(date +%s%N)_${RANDOM}"
 
- printf '%s\n' "$session" >"$SESSION_FILE"
+  printf '%s\n' "$session" >"$SESSION_FILE"
 
- jaq -n \
-  --arg url "$canonical_url" \
-  --arg title "$title" \
-  --argjson duration "$duration" \
-  --argjson loop "$loop" \
-  '{
-   url: $url,
-   title: $title,
-   duration: $duration,
-   loop: ($loop == 1)
-  }' >"$CURRENT_FILE"
+  jaq -n \
+    --arg url "$canonical_url" \
+    --arg title "$title" \
+    --argjson duration "$duration" \
+    --argjson loop "$loop" \
+    --argjson is_live "$is_live" \
+    '{
+      url: $url,
+      title: $title,
+      duration: $duration,
+      loop: ($loop == 1),
+      is_live: $is_live
+    }' >"$CURRENT_FILE"
 
- cp "$CURRENT_FILE" "$LAST_FILE"
+  cp "$CURRENT_FILE" "$LAST_FILE"
 
- #
- # Start the worker in its own session/process group.
- #
- setsid "$0" __worker \
-  "$canonical_url" \
-  "$loop" \
-  "$session" \
-  "$title" \
-  >/dev/null 2>&1 &
+  setsid "$0" __worker \
+    "$canonical_url" \
+    "$loop" \
+    "$session" \
+    "$title" \
+    "$is_live" \
+    >/dev/null 2>&1 &
 
- printf '%s\n' "$!" >"$WORKER_PID"
+  printf '%s\n' "$!" >"$WORKER_PID"
 }
 
 
 worker() {
- local url="$1"
- local loop="$2"
- local session="$3"
- local title="$4"
+  local url="$1"
+  local loop="$2"
+  local session="$3"
+  local title="$4"
+  local is_live="$5"
 
- rm -f "$SOCKET"
+  rm -f "$SOCKET"
 
- local -a mpv_args=(
-  --no-video
-  --no-terminal
-  --really-quiet
-  --keep-open=no
-  --input-ipc-server="$SOCKET"
-  --ytdl=yes
-  --ytdl-format="bestaudio/best"
- )
+  local -a mpv_args=(
+    --no-config
+    --no-video
+    --no-terminal
+    --really-quiet
+    --keep-open=no
+    --input-ipc-server="$SOCKET"
+    --ytdl=yes
+    --ytdl-format="bestaudio/best"
+  )
 
- if [[ "$loop" == "1" ]]; then
-  mpv_args+=(--loop-file=inf)
- fi
+  if [[ "$loop" == "1" && "$is_live" != "true" ]]; then
+    mpv_args+=(--loop-file=inf)
+  fi
 
- mpv "${mpv_args[@]}" "$url"
- local status=$?
+  mpv "${mpv_args[@]}" "$url"
+  local status=$?
 
- #
- # If another playback replaced this one, the session ID will have
- # changed. Do not clean up the new playback state or notify.
- #
- [[ -f "$SESSION_FILE" ]] || return "$status"
+  [[ -f "$SESSION_FILE" ]] || return "$status"
 
- local current_session
- current_session=$(<"$SESSION_FILE")
+  local current_session
+  current_session=$(<"$SESSION_FILE")
 
- [[ "$current_session" == "$session" ]] ||
+  [[ "$current_session" == "$session" ]] ||
+    return "$status"
+
+  rm -f \
+    "$WORKER_PID" \
+    "$SOCKET" \
+    "$SESSION_FILE" \
+    "$CURRENT_FILE" \
+    "$LIVE_PAUSED_FILE"
+
+  if ((status == 0)); then
+    if [[ "$loop" != "1" || "$is_live" == "true" ]]; then
+      notify-send \
+        --app-name="$PROGRAM" \
+        "YouTube playback finished" \
+        "$title" \
+        >/dev/null 2>&1 ||
+        true
+    fi
+  fi
+
   return "$status"
-
- rm -f \
-  "$WORKER_PID" \
-  "$SOCKET" \
-  "$SESSION_FILE" \
-  "$CURRENT_FILE"
-
- #
- # Notify only on normal non-loop playback completion.
- #
- if ((status == 0)) && [[ "$loop" != "1" ]]; then
-  notify-send \
-   --app-name="$PROGRAM" \
-   "YouTube playback finished" \
-   "$title" \
-   >/dev/null 2>&1 ||
-   true
- fi
-
- return "$status"
 }
 
 
@@ -388,224 +511,318 @@ worker() {
 # ---------------------------------------------------------------------------
 
 cmd_search() {
- local loop=0
+  local loop=0
 
- while (($# > 0)); do
-  case "$1" in
-   -l|--loop)
-    loop=1
-    shift
-    ;;
+  while (($# > 0)); do
+    case "$1" in
+      -l|--loop)
+        loop=1
+        shift
+        ;;
 
-   --)
-    shift
-    break
-    ;;
+      --)
+        shift
+        break
+        ;;
 
-   -*)
-    die "unknown option for search: $1"
-    ;;
+      -*)
+        die "unknown option for search: $1"
+        ;;
 
-   *)
-    break
-    ;;
-  esac
- done
+      *)
+        break
+        ;;
+    esac
+  done
 
- (($# > 0)) ||
-  die "usage: $PROGRAM search [-l|--loop] <keyword>"
+  (($# > 0)) ||
+    die "usage: $PROGRAM search [-l|--loop] <keyword>"
 
- local keyword="$*"
+  local keyword="$*"
 
- local results
+  local results
+  results=$(
+    yt-dlp \
+      --flat-playlist \
+      --quiet \
+      --no-warnings \
+      --print '%(id)s	%(title)s' \
+      "ytsearch${SEARCH_LIMIT}:${keyword}"
+  ) || die "YouTube search failed"
 
- results=$(
-  yt-dlp \
-   --flat-playlist \
-   --quiet \
-   --no-warnings \
-   --print '%(id)s	%(title)s' \
-   "ytsearch${SEARCH_LIMIT}:${keyword}"
- ) || die "YouTube search failed"
+  [[ -n "$results" ]] ||
+    die "no search results"
 
- [[ -n "$results" ]] ||
-  die "no search results"
+  local -a ids=()
+  local -a titles=()
 
- local -a ids=()
- local -a titles=()
+  local id
+  local title
+  local index=1
 
- local id
- local title
- local index=1
+  while IFS=$'\t' read -r id title; do
+    [[ -n "$id" ]] || continue
 
- while IFS=$'\t' read -r id title; do
-  [[ -n "$id" ]] || continue
+    ids+=("$id")
+    titles+=("$title")
 
-  ids+=("$id")
-  titles+=("$title")
+    printf '%2d. %s\n' "$index" "$title"
 
-  printf '%2d. %s\n' "$index" "$title"
+    ((index++))
+  done <<<"$results"
 
-  ((index++))
- done <<<"$results"
+  ((${#ids[@]} > 0)) ||
+    die "no search results"
 
- ((${#ids[@]} > 0)) ||
-  die "no search results"
+  printf '> ' >&2
 
- printf '> ' >&2
+  local selection
+  read -r selection || exit 0
 
- local selection
- read -r selection || exit 0
+  [[ "$selection" =~ ^[0-9]+$ ]] ||
+    die "invalid index: $selection"
 
- [[ "$selection" =~ ^[0-9]+$ ]] ||
-  die "invalid index: $selection"
+  ((selection >= 1 && selection <= ${#ids[@]})) ||
+    die "index out of range"
 
- ((selection >= 1 && selection <= ${#ids[@]})) ||
-  die "index out of range"
+  local selected_id
+  selected_id="${ids[$((selection - 1))]}"
 
- local selected_id
- selected_id="${ids[$((selection - 1))]}"
-
- start_playback \
-  "https://www.youtube.com/watch?v=${selected_id}" \
-  "$loop"
+  start_playback \
+    "https://www.youtube.com/watch?v=${selected_id}" \
+    "$loop"
 }
 
 
 cmd_play() {
- local loop=0
+  local loop=0
 
- while (($# > 0)); do
-  case "$1" in
-   -l|--loop)
-    loop=1
-    shift
-    ;;
+  while (($# > 0)); do
+    case "$1" in
+      -l|--loop)
+        loop=1
+        shift
+        ;;
 
-   --)
-    shift
-    break
-    ;;
+      --)
+        shift
+        break
+        ;;
 
-   -*)
-    die "unknown option for play: $1"
-    ;;
+      -*)
+        die "unknown option for play: $1"
+        ;;
 
-   *)
-    break
-    ;;
-  esac
- done
+      *)
+        break
+        ;;
+    esac
+  done
 
- (($# == 1)) ||
-  die "usage: $PROGRAM play [-l|--loop] <youtube-url>"
+  (($# == 1)) ||
+    die "usage: $PROGRAM play [-l|--loop] <youtube-url>"
 
- start_playback "$1" "$loop"
+  start_playback "$1" "$loop"
 }
 
 
 cmd_now() {
- cleanup_stale
+  cleanup_stale
 
- worker_alive || exit 0
- [[ -f "$CURRENT_FILE" ]] || exit 0
+  if [[ -f "$LIVE_PAUSED_FILE" && -f "$CURRENT_FILE" ]]; then
+    :
+  elif ! worker_alive; then
+    exit 0
+  fi
 
- local url
- local title
- local duration
+  [[ -f "$CURRENT_FILE" ]] || exit 0
 
- url=$(jaq -r '.url' "$CURRENT_FILE")
- title=$(jaq -r '.title' "$CURRENT_FILE")
- duration=$(jaq -r '.duration' "$CURRENT_FILE")
+  local url
+  local title
+  local duration
+  local is_live
+  local state
 
- printf 'URL:   %s\n' "$url"
- printf 'Title: %s\n' "$title"
- printf 'Duration: %s\n' "$(format_duration "$duration")"
+  url=$(jaq -r '.url' "$CURRENT_FILE")
+  title=$(jaq -r '.title' "$CURRENT_FILE")
+  duration=$(jaq -r '.duration' "$CURRENT_FILE")
+  is_live=$(jaq -r '.is_live // false' "$CURRENT_FILE")
+
+  printf 'URL:      %s\n' "$url"
+  printf 'Title:    %s\n' "$title"
+
+  if [[ "$is_live" == "true" ]]; then
+    printf 'Duration: LIVE\n'
+
+    if [[ -f "$LIVE_PAUSED_FILE" ]]; then
+      printf 'State:    paused\n'
+    else
+      printf 'State:    playing\n'
+    fi
+
+    return 0
+  fi
+
+  printf 'Duration: %s\n' "$(format_duration "$duration")"
+
+  state=$(mpv_pause_state 2>/dev/null || true)
+
+  case "$state" in
+    true)
+      printf 'State:    paused\n'
+      ;;
+
+    false)
+      printf 'State:    playing\n'
+      ;;
+  esac
 }
 
 
 cmd_pause() {
- cleanup_stale
+  cleanup_stale
 
- worker_alive || exit 0
+  if [[ -f "$LIVE_PAUSED_FILE" ]]; then
+    exit 0
+  fi
 
- ipc '{
-  "command": [
-   "set_property",
-   "pause",
-   true
-  ]
- }' || true
+  worker_alive || exit 0
+
+  if current_is_live; then
+    pause_live_worker
+    exit 0
+  fi
+
+  ipc '{
+    "command": [
+      "set_property",
+      "pause",
+      true
+    ]
+  }' || die "failed to pause mpv"
 }
 
 
 cmd_resume() {
- cleanup_stale
+  cleanup_stale
 
- worker_alive || exit 0
+  if [[ -f "$LIVE_PAUSED_FILE" && -f "$CURRENT_FILE" ]]; then
+    local url
+    local loop
 
- ipc '{
-  "command": [
-   "set_property",
-   "pause",
-   false
-  ]
- }' || true
+    url=$(jaq -r '.url // empty' "$CURRENT_FILE")
+    loop=$(jaq -r 'if .loop then 1 else 0 end' "$CURRENT_FILE")
+
+    [[ -n "$url" ]] || exit 0
+
+    rm -f "$LIVE_PAUSED_FILE"
+
+    start_playback "$url" "$loop"
+    exit 0
+  fi
+
+  worker_alive || exit 0
+
+  ipc '{
+    "command": [
+      "set_property",
+      "pause",
+      false
+    ]
+  }' || die "failed to resume mpv"
 }
 
 
 cmd_toggle() {
- cleanup_stale
+  cleanup_stale
 
- worker_alive || exit 0
+  if [[ -f "$LIVE_PAUSED_FILE" && -f "$CURRENT_FILE" ]]; then
+    cmd_resume
+    exit 0
+  fi
 
- ipc '{
-  "command": [
-   "cycle",
-   "pause"
-  ]
- }' || true
+  worker_alive || exit 0
+
+  if current_is_live; then
+    cmd_pause
+    exit 0
+  fi
+
+  ipc '{
+    "command": [
+      "cycle",
+      "pause"
+    ]
+  }' || die "failed to toggle mpv pause state"
 }
 
 
 cmd_again() {
- cleanup_stale
+  cleanup_stale
 
- #
- # If the current playback is still alive, restart from the beginning
- # and unpause it.
- #
- if worker_alive; then
-  ipc '{
-   "command": [
-    "seek",
-    0,
-    "absolute"
-   ]
-  }' || true
+  if [[ -f "$LIVE_PAUSED_FILE" && -f "$CURRENT_FILE" ]]; then
+    cmd_resume
+    exit 0
+  fi
 
-  ipc '{
-   "command": [
-    "set_property",
-    "pause",
-    false
-   ]
-  }' || true
+  if worker_alive; then
+    if current_is_live; then
+      local url
+      local loop
 
-  exit 0
- fi
+      url=$(jaq -r '.url // empty' "$CURRENT_FILE")
+      loop=$(jaq -r 'if .loop then 1 else 0 end' "$CURRENT_FILE")
 
- #
- # Nothing is currently running. Replay the previous URL.
- #
- [[ -s "$LAST_FILE" ]] || exit 0
+      [[ -n "$url" ]] || exit 0
 
- local url
- url=$(jaq -r '.url // empty' "$LAST_FILE")
+      start_playback "$url" "$loop"
+      exit 0
+    fi
 
- [[ -n "$url" ]] || exit 0
+    ipc '{
+      "command": [
+        "seek",
+        0,
+        "absolute"
+      ]
+    }' || die "failed to restart mpv playback"
 
- start_playback "$url" 0
+    ipc '{
+      "command": [
+        "set_property",
+        "pause",
+        false
+      ]
+    }' || die "failed to resume mpv"
+
+    exit 0
+  fi
+
+  [[ -s "$LAST_FILE" ]] || exit 0
+
+  local url
+  url=$(jaq -r '.url // empty' "$LAST_FILE")
+
+  [[ -n "$url" ]] || exit 0
+
+  start_playback "$url" 0
+}
+
+
+cmd_quit() {
+  cleanup_stale
+
+  if worker_alive; then
+    printf 'quit-%s-%s\n' "$$" "$RANDOM" >"$SESSION_FILE"
+    kill_worker
+  fi
+
+  rm -f \
+    "$WORKER_PID" \
+    "$SOCKET" \
+    "$SESSION_FILE" \
+    "$CURRENT_FILE" \
+    "$LIVE_PAUSED_FILE"
 }
 
 
@@ -614,7 +831,7 @@ cmd_again() {
 # ---------------------------------------------------------------------------
 
 usage() {
- cat <<EOF
+  cat <<EOF
 Usage:
   $PROGRAM search [-l|--loop] <keyword>
   $PROGRAM play   [-l|--loop] <youtube-url>
@@ -624,38 +841,59 @@ Usage:
   $PROGRAM resume
   $PROGRAM toggle
   $PROGRAM again
+  $PROGRAM quit
 
 Commands:
   search
-   Search YouTube and display indexed results.
-   Select an index to start audio-only playback.
+    Search YouTube and display indexed results.
+    Select an index to start audio-only playback.
 
   play
-   Play audio from the specified YouTube video URL.
+    Play audio from the specified YouTube video URL.
 
   now
-   Display the current video's URL, title and duration.
-   Does nothing if nothing is playing.
+    Display the current video's URL, title, duration and state.
 
   pause
-   Pause current playback.
-   Does nothing if nothing is playing.
+    Normal video:
+      Pause at the current position.
+
+    YouTube Live:
+      Disconnect from the live stream while retaining its URL.
 
   resume
-   Resume current playback.
-   Does nothing if nothing is playing.
+    Normal video:
+      Resume from the paused position.
+
+    YouTube Live:
+      Reconnect to the stream at the current live position.
 
   toggle
-   Toggle between play and pause.
-   Does nothing if nothing is playing.
+    Toggle playback state.
+
+    For YouTube Live this switches between connected and disconnected.
 
   again
-   Restart the current video from the beginning.
-   If nothing is currently running, replay the previous URL.
+    Normal video:
+      Restart from the beginning.
+
+    YouTube Live:
+      Reconnect to the current live position.
+
+    If no playback is active:
+      Replay the previous URL.
+
+  quit
+    Terminate current playback completely.
+
+    Current playback state is discarded, but the previous URL is retained
+    for use by 'again'.
 
 Options:
   -l, --loop
-   Loop the selected video indefinitely.
+    Loop a normal video indefinitely.
+
+    This has no practical effect on an active YouTube Live stream.
 
 Examples:
   $PROGRAM search "bill evans"
@@ -665,8 +903,11 @@ Examples:
   $PROGRAM play --loop 'https://www.youtube.com/watch?v=...'
 
   $PROGRAM now
+  $PROGRAM pause
+  $PROGRAM resume
   $PROGRAM toggle
   $PROGRAM again
+  $PROGRAM quit
 EOF
 }
 
@@ -676,84 +917,89 @@ EOF
 # ---------------------------------------------------------------------------
 
 main() {
- local command="${1:-}"
+  local command="${1:-}"
 
- #
- # Internal worker. Never invoke the package installer from here.
- #
- if [[ "$command" == "__worker" ]]; then
-  shift
+  if [[ "$command" == "__worker" ]]; then
+    shift
 
-  (($# == 4)) || exit 1
+    (($# == 5)) || exit 1
 
-  worker "$@"
-  exit $?
- fi
+    worker "$@"
+    exit $?
+  fi
 
- case "$command" in
-  -h|--help|help|"")
-   usage
-   exit 0
-   ;;
- esac
+  case "$command" in
+    -h|--help|help|"")
+      usage
+      exit 0
+      ;;
+  esac
 
- ensure_dependencies
+  ensure_dependencies
 
- case "$command" in
-  search)
-   shift
-   cmd_search "$@"
-   ;;
+  case "$command" in
+    search)
+      shift
+      cmd_search "$@"
+      ;;
 
-  play)
-   shift
-   cmd_play "$@"
-   ;;
+    play)
+      shift
+      cmd_play "$@"
+      ;;
 
-  now)
-   shift
-   (($# == 0)) ||
-    die "usage: $PROGRAM now"
+    now)
+      shift
+      (($# == 0)) ||
+        die "usage: $PROGRAM now"
 
-   cmd_now
-   ;;
+      cmd_now
+      ;;
 
-  pause)
-   shift
-   (($# == 0)) ||
-    die "usage: $PROGRAM pause"
+    pause)
+      shift
+      (($# == 0)) ||
+        die "usage: $PROGRAM pause"
 
-   cmd_pause
-   ;;
+      cmd_pause
+      ;;
 
-  resume)
-   shift
-   (($# == 0)) ||
-    die "usage: $PROGRAM resume"
+    resume)
+      shift
+      (($# == 0)) ||
+        die "usage: $PROGRAM resume"
 
-   cmd_resume
-   ;;
+      cmd_resume
+      ;;
 
-  toggle)
-   shift
-   (($# == 0)) ||
-    die "usage: $PROGRAM toggle"
+    toggle)
+      shift
+      (($# == 0)) ||
+        die "usage: $PROGRAM toggle"
 
-   cmd_toggle
-   ;;
+      cmd_toggle
+      ;;
 
-  again)
-   shift
-   (($# == 0)) ||
-    die "usage: $PROGRAM again"
+    again)
+      shift
+      (($# == 0)) ||
+        die "usage: $PROGRAM again"
 
-   cmd_again
-   ;;
+      cmd_again
+      ;;
 
-  *)
-   die "unknown command: $command"
-   ;;
- esac
+    quit)
+      shift
+      (($# == 0)) ||
+        die "usage: $PROGRAM quit"
+
+      cmd_quit
+      ;;
+
+    *)
+      die "unknown command: $command"
+      ;;
+  esac
 }
 
 
