@@ -14,7 +14,7 @@ CURRENT_FILE="${STATE_DIR}/current.json"
 LAST_FILE="${STATE_DIR}/last.json"
 LIVE_PAUSED_FILE="${STATE_DIR}/live-paused"
 
-SEARCH_LIMIT=10
+SEARCH_LIMIT="${SEARCH_LIMIT:-10}"
 
 mkdir -p "$STATE_DIR"
 
@@ -942,6 +942,12 @@ Commands:
 Options:
   -l, --loop
     Loop a normal video indefinitely for search/play.
+
+Variables:
+  SEARCH_LIMIT
+    The number of serach limit used for search/random.
+
+    Default: 10
 
 Examples:
   $PROGRAM search "bill evans"
