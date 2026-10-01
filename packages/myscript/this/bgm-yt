@@ -232,8 +232,6 @@ except json.JSONDecodeError as exc:
 request_id = 1
 request["request_id"] = request_id
 
-# mpv JSON IPC requires exactly one JSON message per line.
-# Do not send embedded newlines.
 message = json.dumps(
   request,
   separators=(",", ":"),
@@ -272,7 +270,6 @@ try:
     except json.JSONDecodeError:
       continue
 
-    # Ignore asynchronous events and unrelated responses.
     if response.get("request_id") != request_id:
       continue
 
@@ -594,6 +591,55 @@ cmd_search() {
 }
 
 
+cmd_random() {
+  (($# > 0)) ||
+    die "usage: $PROGRAM random <keyword>"
+
+  local keyword="$*"
+
+  local results
+  results=$(
+    yt-dlp \
+      --flat-playlist \
+      --quiet \
+      --no-warnings \
+      --print '%(id)s	%(title)s' \
+      "ytsearch${SEARCH_LIMIT}:${keyword}"
+  ) || die "YouTube search failed"
+
+  [[ -n "$results" ]] ||
+    die "no search results"
+
+  local -a ids=()
+  local -a titles=()
+
+  local id
+  local title
+
+  while IFS=$'\t' read -r id title; do
+    [[ -n "$id" ]] || continue
+
+    ids+=("$id")
+    titles+=("$title")
+  done <<<"$results"
+
+  local count="${#ids[@]}"
+
+  ((count > 0)) ||
+    die "no search results"
+
+  local selected_index=$((RANDOM % count))
+  local selected_id="${ids[$selected_index]}"
+  local selected_title="${titles[$selected_index]}"
+
+  printf 'Selected: %s\n' "$selected_title"
+
+  start_playback \
+    "https://www.youtube.com/watch?v=${selected_id}" \
+    0
+}
+
+
 cmd_play() {
   local loop=0
 
@@ -834,6 +880,7 @@ usage() {
   cat <<EOF
 Usage:
   $PROGRAM search [-l|--loop] <keyword>
+  $PROGRAM random <keyword>
   $PROGRAM play   [-l|--loop] <youtube-url>
 
   $PROGRAM now
@@ -847,6 +894,9 @@ Commands:
   search
     Search YouTube and display indexed results.
     Select an index to start audio-only playback.
+
+  random
+    Search YouTube and randomly select one of the matching results.
 
   play
     Play audio from the specified YouTube video URL.
@@ -891,13 +941,14 @@ Commands:
 
 Options:
   -l, --loop
-    Loop a normal video indefinitely.
-
-    This has no practical effect on an active YouTube Live stream.
+    Loop a normal video indefinitely for search/play.
 
 Examples:
   $PROGRAM search "bill evans"
   $PROGRAM search --loop "rain ambience"
+
+  $PROGRAM random "bill evans"
+  $PROGRAM random "ambient rain"
 
   $PROGRAM play 'https://www.youtube.com/watch?v=...'
   $PROGRAM play --loop 'https://www.youtube.com/watch?v=...'
@@ -941,6 +992,11 @@ main() {
     search)
       shift
       cmd_search "$@"
+      ;;
+
+    random)
+      shift
+      cmd_random "$@"
       ;;
 
     play)
