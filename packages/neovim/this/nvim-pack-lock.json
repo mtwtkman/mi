@@ -21,7 +21,7 @@
       "src": "https://github.com/sindrets/diffview.nvim"
     },
     "gitlinker.nvim": {
-      "rev": "a1b74070bbd5e50128190c85b09f1431ea5fbd83",
+      "rev": "1fa9fc0c384a57b5e3ee8b454a4e61c987c06eb1",
       "src": "https://github.com/linrongbin16/gitlinker.nvim"
     },
     "gitsigns.nvim": {
@@ -34,7 +34,7 @@
       "version": "10.0.0 - 11.0.0"
     },
     "neogit": {
-      "rev": "c51a1dc7e0e0f40c4c396a2b1ceaa44b44e96032",
+      "rev": "70708be9664b7fcdd010eb07bdc3ebc9311c2027",
       "src": "https://github.com/NeogitOrg/neogit"
     },
     "nvim-cmp": {

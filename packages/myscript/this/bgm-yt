@@ -1,0 +1,760 @@
+#!/usr/bin/env bash
+
+set -uo pipefail
+
+PROGRAM="bgm-yt"
+
+RUNTIME_BASE="${XDG_RUNTIME_DIR:-/tmp}"
+STATE_DIR="${RUNTIME_BASE}/${PROGRAM}-${UID}"
+
+SOCKET="${STATE_DIR}/mpv.sock"
+WORKER_PID="${STATE_DIR}/worker.pid"
+SESSION_FILE="${STATE_DIR}/session"
+CURRENT_FILE="${STATE_DIR}/current.json"
+LAST_FILE="${STATE_DIR}/last.json"
+
+SEARCH_LIMIT=10
+
+mkdir -p "$STATE_DIR"
+
+
+# ---------------------------------------------------------------------------
+# Common utilities
+# ---------------------------------------------------------------------------
+
+die() {
+ printf '%s: %s\n' "$PROGRAM" "$*" >&2
+ exit 1
+}
+
+
+# ---------------------------------------------------------------------------
+# Dependency management
+# ---------------------------------------------------------------------------
+
+declare -A COMMAND_PACKAGES=(
+ [mpv]="mpv"
+ [yt-dlp]="yt-dlp"
+ [jaq]="jaq"
+ [notify-send]="libnotify"
+ [python3]="python"
+ [setsid]="util-linux"
+)
+
+
+ensure_dependencies() {
+ local cmd package
+ local -A missing_packages=()
+
+ for cmd in "${!COMMAND_PACKAGES[@]}"; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+   package="${COMMAND_PACKAGES[$cmd]}"
+   missing_packages["$package"]=1
+  fi
+ done
+
+ if ((${#missing_packages[@]} == 0)); then
+  return 0
+ fi
+
+ local -a packages=()
+
+ for package in "${!missing_packages[@]}"; do
+  packages+=("$package")
+ done
+
+ printf '%s: missing required packages:\n' "$PROGRAM" >&2
+
+ for package in "${packages[@]}"; do
+  printf '  - %s\n' "$package" >&2
+ done
+
+ if [[ ! -r /dev/tty ]]; then
+  die "cannot ask for installation confirmation without a terminal"
+ fi
+
+ printf '\nInstall missing packages? [y/N] ' >/dev/tty
+
+ local answer
+ read -r answer </dev/tty || exit 1
+
+ case "$answer" in
+  y|Y|yes|YES|Yes)
+   ;;
+  *)
+   printf '%s: installation cancelled\n' "$PROGRAM" >&2
+   exit 1
+   ;;
+ esac
+
+ if command -v paru >/dev/null 2>&1; then
+  paru -S --needed "${packages[@]}" ||
+   die "package installation failed"
+
+ elif command -v pacman >/dev/null 2>&1; then
+  if ((EUID == 0)); then
+   pacman -S --needed "${packages[@]}" ||
+    die "package installation failed"
+  else
+   if ! command -v sudo >/dev/null 2>&1; then
+    die "paru is unavailable and sudo is required to run pacman"
+   fi
+
+   sudo pacman -S --needed "${packages[@]}" ||
+    die "package installation failed"
+  fi
+
+ else
+  die "neither paru nor pacman is available"
+ fi
+
+ for cmd in "${!COMMAND_PACKAGES[@]}"; do
+  command -v "$cmd" >/dev/null 2>&1 ||
+   die "required command is still unavailable after installation: $cmd"
+ done
+}
+
+
+# ---------------------------------------------------------------------------
+# Process / state management
+# ---------------------------------------------------------------------------
+
+worker_alive() {
+ [[ -f "$WORKER_PID" ]] || return 1
+
+ local pid
+ pid=$(<"$WORKER_PID")
+
+ [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+ kill -0 "$pid" 2>/dev/null || return 1
+
+ if [[ -r "/proc/$pid/cmdline" ]]; then
+  tr '\0' ' ' <"/proc/$pid/cmdline" |
+   grep -Fq -- "__worker" ||
+   return 1
+ fi
+
+ return 0
+}
+
+
+cleanup_stale() {
+ if worker_alive; then
+  return 0
+ fi
+
+ rm -f \
+  "$WORKER_PID" \
+  "$SOCKET" \
+  "$SESSION_FILE" \
+  "$CURRENT_FILE"
+}
+
+
+hard_stop() {
+ cleanup_stale
+
+ worker_alive || return 0
+
+ local pid
+ pid=$(<"$WORKER_PID")
+
+ # Invalidate the old worker before terminating it.
+ printf 'replaced-%s-%s\n' "$$" "$RANDOM" >"$SESSION_FILE"
+
+ # The worker runs in its own session/process group.
+ kill -TERM -- "-$pid" 2>/dev/null || true
+
+ local _
+ for _ in {1..20}; do
+  kill -0 "$pid" 2>/dev/null || break
+  sleep 0.05
+ done
+
+ kill -KILL -- "-$pid" 2>/dev/null || true
+
+ rm -f \
+  "$WORKER_PID" \
+  "$SOCKET" \
+  "$CURRENT_FILE"
+}
+
+
+# ---------------------------------------------------------------------------
+# mpv IPC
+# ---------------------------------------------------------------------------
+
+ipc() {
+ local json="$1"
+
+ [[ -S "$SOCKET" ]] || return 1
+
+ python3 - "$SOCKET" "$json" <<'PY'
+import socket
+import sys
+
+socket_path = sys.argv[1]
+message = sys.argv[2].encode("utf-8") + b"\n"
+
+sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+
+try:
+ sock.connect(socket_path)
+ sock.sendall(message)
+finally:
+ sock.close()
+PY
+}
+
+
+# ---------------------------------------------------------------------------
+# Metadata
+# ---------------------------------------------------------------------------
+
+get_metadata() {
+ local url="$1"
+
+ yt-dlp \
+  --no-playlist \
+  --quiet \
+  --no-warnings \
+  --dump-single-json \
+  "$url"
+}
+
+
+format_duration() {
+ local seconds="$1"
+
+ if [[ ! "$seconds" =~ ^[0-9]+$ ]]; then
+  printf 'unknown\n'
+  return
+ fi
+
+ if ((seconds >= 3600)); then
+  printf '%02d:%02d:%02d\n' \
+   $((seconds / 3600)) \
+   $(((seconds % 3600) / 60)) \
+   $((seconds % 60))
+ else
+  printf '%02d:%02d\n' \
+   $((seconds / 60)) \
+   $((seconds % 60))
+ fi
+}
+
+
+# ---------------------------------------------------------------------------
+# Playback
+# ---------------------------------------------------------------------------
+
+start_playback() {
+ local url="$1"
+ local loop="$2"
+
+ local metadata
+
+ metadata=$(get_metadata "$url") ||
+  die "failed to retrieve YouTube metadata"
+
+ local canonical_url
+ local title
+ local duration
+
+ canonical_url=$(
+  jaq -r '
+   .webpage_url //
+   .original_url //
+   empty
+  ' <<<"$metadata"
+ )
+
+ title=$(
+  jaq -r '
+   .title //
+   "(unknown title)"
+  ' <<<"$metadata"
+ )
+
+ duration=$(
+  jaq -r '
+   (.duration // 0) | floor
+  ' <<<"$metadata"
+ )
+
+ [[ -n "$canonical_url" ]] ||
+  canonical_url="$url"
+
+ #
+ # Resolve metadata before replacing the current playback.
+ # An invalid new URL therefore does not interrupt the existing BGM.
+ #
+ hard_stop
+
+ local session
+ session="$$_$(date +%s%N)_${RANDOM}"
+
+ printf '%s\n' "$session" >"$SESSION_FILE"
+
+ jaq -n \
+  --arg url "$canonical_url" \
+  --arg title "$title" \
+  --argjson duration "$duration" \
+  --argjson loop "$loop" \
+  '{
+   url: $url,
+   title: $title,
+   duration: $duration,
+   loop: ($loop == 1)
+  }' >"$CURRENT_FILE"
+
+ cp "$CURRENT_FILE" "$LAST_FILE"
+
+ #
+ # Start the worker in its own session/process group.
+ #
+ setsid "$0" __worker \
+  "$canonical_url" \
+  "$loop" \
+  "$session" \
+  "$title" \
+  >/dev/null 2>&1 &
+
+ printf '%s\n' "$!" >"$WORKER_PID"
+}
+
+
+worker() {
+ local url="$1"
+ local loop="$2"
+ local session="$3"
+ local title="$4"
+
+ rm -f "$SOCKET"
+
+ local -a mpv_args=(
+  --no-video
+  --no-terminal
+  --really-quiet
+  --keep-open=no
+  --input-ipc-server="$SOCKET"
+  --ytdl=yes
+  --ytdl-format="bestaudio/best"
+ )
+
+ if [[ "$loop" == "1" ]]; then
+  mpv_args+=(--loop-file=inf)
+ fi
+
+ mpv "${mpv_args[@]}" "$url"
+ local status=$?
+
+ #
+ # If another playback replaced this one, the session ID will have
+ # changed. Do not clean up the new playback state or notify.
+ #
+ [[ -f "$SESSION_FILE" ]] || return "$status"
+
+ local current_session
+ current_session=$(<"$SESSION_FILE")
+
+ [[ "$current_session" == "$session" ]] ||
+  return "$status"
+
+ rm -f \
+  "$WORKER_PID" \
+  "$SOCKET" \
+  "$SESSION_FILE" \
+  "$CURRENT_FILE"
+
+ #
+ # Notify only on normal non-loop playback completion.
+ #
+ if ((status == 0)) && [[ "$loop" != "1" ]]; then
+  notify-send \
+   --app-name="$PROGRAM" \
+   "YouTube playback finished" \
+   "$title" \
+   >/dev/null 2>&1 ||
+   true
+ fi
+
+ return "$status"
+}
+
+
+# ---------------------------------------------------------------------------
+# Commands
+# ---------------------------------------------------------------------------
+
+cmd_search() {
+ local loop=0
+
+ while (($# > 0)); do
+  case "$1" in
+   -l|--loop)
+    loop=1
+    shift
+    ;;
+
+   --)
+    shift
+    break
+    ;;
+
+   -*)
+    die "unknown option for search: $1"
+    ;;
+
+   *)
+    break
+    ;;
+  esac
+ done
+
+ (($# > 0)) ||
+  die "usage: $PROGRAM search [-l|--loop] <keyword>"
+
+ local keyword="$*"
+
+ local results
+
+ results=$(
+  yt-dlp \
+   --flat-playlist \
+   --quiet \
+   --no-warnings \
+   --print '%(id)s	%(title)s' \
+   "ytsearch${SEARCH_LIMIT}:${keyword}"
+ ) || die "YouTube search failed"
+
+ [[ -n "$results" ]] ||
+  die "no search results"
+
+ local -a ids=()
+ local -a titles=()
+
+ local id
+ local title
+ local index=1
+
+ while IFS=$'\t' read -r id title; do
+  [[ -n "$id" ]] || continue
+
+  ids+=("$id")
+  titles+=("$title")
+
+  printf '%2d. %s\n' "$index" "$title"
+
+  ((index++))
+ done <<<"$results"
+
+ ((${#ids[@]} > 0)) ||
+  die "no search results"
+
+ printf '> ' >&2
+
+ local selection
+ read -r selection || exit 0
+
+ [[ "$selection" =~ ^[0-9]+$ ]] ||
+  die "invalid index: $selection"
+
+ ((selection >= 1 && selection <= ${#ids[@]})) ||
+  die "index out of range"
+
+ local selected_id
+ selected_id="${ids[$((selection - 1))]}"
+
+ start_playback \
+  "https://www.youtube.com/watch?v=${selected_id}" \
+  "$loop"
+}
+
+
+cmd_play() {
+ local loop=0
+
+ while (($# > 0)); do
+  case "$1" in
+   -l|--loop)
+    loop=1
+    shift
+    ;;
+
+   --)
+    shift
+    break
+    ;;
+
+   -*)
+    die "unknown option for play: $1"
+    ;;
+
+   *)
+    break
+    ;;
+  esac
+ done
+
+ (($# == 1)) ||
+  die "usage: $PROGRAM play [-l|--loop] <youtube-url>"
+
+ start_playback "$1" "$loop"
+}
+
+
+cmd_now() {
+ cleanup_stale
+
+ worker_alive || exit 0
+ [[ -f "$CURRENT_FILE" ]] || exit 0
+
+ local url
+ local title
+ local duration
+
+ url=$(jaq -r '.url' "$CURRENT_FILE")
+ title=$(jaq -r '.title' "$CURRENT_FILE")
+ duration=$(jaq -r '.duration' "$CURRENT_FILE")
+
+ printf 'URL:   %s\n' "$url"
+ printf 'Title: %s\n' "$title"
+ printf 'Duration: %s\n' "$(format_duration "$duration")"
+}
+
+
+cmd_pause() {
+ cleanup_stale
+
+ worker_alive || exit 0
+
+ ipc '{
+  "command": [
+   "set_property",
+   "pause",
+   true
+  ]
+ }' || true
+}
+
+
+cmd_resume() {
+ cleanup_stale
+
+ worker_alive || exit 0
+
+ ipc '{
+  "command": [
+   "set_property",
+   "pause",
+   false
+  ]
+ }' || true
+}
+
+
+cmd_toggle() {
+ cleanup_stale
+
+ worker_alive || exit 0
+
+ ipc '{
+  "command": [
+   "cycle",
+   "pause"
+  ]
+ }' || true
+}
+
+
+cmd_again() {
+ cleanup_stale
+
+ #
+ # If the current playback is still alive, restart from the beginning
+ # and unpause it.
+ #
+ if worker_alive; then
+  ipc '{
+   "command": [
+    "seek",
+    0,
+    "absolute"
+   ]
+  }' || true
+
+  ipc '{
+   "command": [
+    "set_property",
+    "pause",
+    false
+   ]
+  }' || true
+
+  exit 0
+ fi
+
+ #
+ # Nothing is currently running. Replay the previous URL.
+ #
+ [[ -s "$LAST_FILE" ]] || exit 0
+
+ local url
+ url=$(jaq -r '.url // empty' "$LAST_FILE")
+
+ [[ -n "$url" ]] || exit 0
+
+ start_playback "$url" 0
+}
+
+
+# ---------------------------------------------------------------------------
+# Help
+# ---------------------------------------------------------------------------
+
+usage() {
+ cat <<EOF
+Usage:
+  $PROGRAM search [-l|--loop] <keyword>
+  $PROGRAM play   [-l|--loop] <youtube-url>
+
+  $PROGRAM now
+  $PROGRAM pause
+  $PROGRAM resume
+  $PROGRAM toggle
+  $PROGRAM again
+
+Commands:
+  search
+   Search YouTube and display indexed results.
+   Select an index to start audio-only playback.
+
+  play
+   Play audio from the specified YouTube video URL.
+
+  now
+   Display the current video's URL, title and duration.
+   Does nothing if nothing is playing.
+
+  pause
+   Pause current playback.
+   Does nothing if nothing is playing.
+
+  resume
+   Resume current playback.
+   Does nothing if nothing is playing.
+
+  toggle
+   Toggle between play and pause.
+   Does nothing if nothing is playing.
+
+  again
+   Restart the current video from the beginning.
+   If nothing is currently running, replay the previous URL.
+
+Options:
+  -l, --loop
+   Loop the selected video indefinitely.
+
+Examples:
+  $PROGRAM search "bill evans"
+  $PROGRAM search --loop "rain ambience"
+
+  $PROGRAM play 'https://www.youtube.com/watch?v=...'
+  $PROGRAM play --loop 'https://www.youtube.com/watch?v=...'
+
+  $PROGRAM now
+  $PROGRAM toggle
+  $PROGRAM again
+EOF
+}
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+main() {
+ local command="${1:-}"
+
+ #
+ # Internal worker. Never invoke the package installer from here.
+ #
+ if [[ "$command" == "__worker" ]]; then
+  shift
+
+  (($# == 4)) || exit 1
+
+  worker "$@"
+  exit $?
+ fi
+
+ case "$command" in
+  -h|--help|help|"")
+   usage
+   exit 0
+   ;;
+ esac
+
+ ensure_dependencies
+
+ case "$command" in
+  search)
+   shift
+   cmd_search "$@"
+   ;;
+
+  play)
+   shift
+   cmd_play "$@"
+   ;;
+
+  now)
+   shift
+   (($# == 0)) ||
+    die "usage: $PROGRAM now"
+
+   cmd_now
+   ;;
+
+  pause)
+   shift
+   (($# == 0)) ||
+    die "usage: $PROGRAM pause"
+
+   cmd_pause
+   ;;
+
+  resume)
+   shift
+   (($# == 0)) ||
+    die "usage: $PROGRAM resume"
+
+   cmd_resume
+   ;;
+
+  toggle)
+   shift
+   (($# == 0)) ||
+    die "usage: $PROGRAM toggle"
+
+   cmd_toggle
+   ;;
+
+  again)
+   shift
+   (($# == 0)) ||
+    die "usage: $PROGRAM again"
+
+   cmd_again
+   ;;
+
+  *)
+   die "unknown command: $command"
+   ;;
+ esac
+}
+
+
+main "$@"
