@@ -13,6 +13,7 @@ SESSION_FILE="${STATE_DIR}/session"
 CURRENT_FILE="${STATE_DIR}/current.json"
 LAST_FILE="${STATE_DIR}/last.json"
 LIVE_PAUSED_FILE="${STATE_DIR}/live-paused"
+RADIO_FILE="${STATE_DIR}/radio.tsv"
 
 SEARCH_LIMIT="${SEARCH_LIMIT:-10}"
 
@@ -26,6 +27,12 @@ mkdir -p "$STATE_DIR"
 die() {
   printf '%s: %s\n' "$PROGRAM" "$*" >&2
   exit 1
+}
+
+
+validate_search_limit() {
+  [[ "$SEARCH_LIMIT" =~ ^[1-9][0-9]*$ ]] ||
+    die "SEARCH_LIMIT must be a positive integer"
 }
 
 
@@ -138,7 +145,8 @@ cleanup_stale() {
   rm -f \
     "$WORKER_PID" \
     "$SOCKET" \
-    "$SESSION_FILE"
+    "$SESSION_FILE" \
+    "$RADIO_FILE"
 
   if [[ -f "$LIVE_PAUSED_FILE" && -f "$CURRENT_FILE" ]]; then
     return 0
@@ -183,7 +191,8 @@ hard_stop() {
     "$SOCKET" \
     "$SESSION_FILE" \
     "$CURRENT_FILE" \
-    "$LIVE_PAUSED_FILE"
+    "$LIVE_PAUSED_FILE" \
+    "$RADIO_FILE"
 }
 
 
@@ -200,6 +209,14 @@ pause_live_worker() {
     "$WORKER_PID" \
     "$SOCKET" \
     "$SESSION_FILE"
+}
+
+
+session_is_current() {
+  local expected="$1"
+
+  [[ -f "$SESSION_FILE" ]] || return 1
+  [[ "$(<"$SESSION_FILE")" == "$expected" ]]
 }
 
 
@@ -321,7 +338,7 @@ mpv_pause_state() {
 
 
 # ---------------------------------------------------------------------------
-# Metadata
+# YouTube metadata / search
 # ---------------------------------------------------------------------------
 
 get_metadata() {
@@ -333,6 +350,18 @@ get_metadata() {
     --no-warnings \
     --dump-single-json \
     "$url"
+}
+
+
+search_youtube() {
+  local keyword="$1"
+
+  yt-dlp \
+    --flat-playlist \
+    --quiet \
+    --no-warnings \
+    --print '%(id)s	%(title)s' \
+    "ytsearch${SEARCH_LIMIT}:${keyword}"
 }
 
 
@@ -361,6 +390,45 @@ current_is_live() {
   [[ -f "$CURRENT_FILE" ]] || return 1
 
   [[ "$(jaq -r '.is_live // false' "$CURRENT_FILE")" == "true" ]]
+}
+
+
+# ---------------------------------------------------------------------------
+# State
+# ---------------------------------------------------------------------------
+
+write_current_state() {
+  local url="$1"
+  local title="$2"
+  local duration="$3"
+  local loop="$4"
+  local is_live="$5"
+  local mode="$6"
+  local keyword="${7:-}"
+
+  jaq -n \
+    --arg url "$url" \
+    --arg title "$title" \
+    --argjson duration "$duration" \
+    --argjson loop "$loop" \
+    --argjson is_live "$is_live" \
+    --arg mode "$mode" \
+    --arg keyword "$keyword" \
+    '{
+      url: $url,
+      title: $title,
+      duration: $duration,
+      loop: ($loop == 1),
+      is_live: $is_live,
+      mode: $mode
+    }
+    + if $keyword != "" then
+        { keyword: $keyword }
+      else
+        {}
+      end' >"$CURRENT_FILE"
+
+  cp "$CURRENT_FILE" "$LAST_FILE"
 }
 
 
@@ -418,21 +486,13 @@ start_playback() {
 
   printf '%s\n' "$session" >"$SESSION_FILE"
 
-  jaq -n \
-    --arg url "$canonical_url" \
-    --arg title "$title" \
-    --argjson duration "$duration" \
-    --argjson loop "$loop" \
-    --argjson is_live "$is_live" \
-    '{
-      url: $url,
-      title: $title,
-      duration: $duration,
-      loop: ($loop == 1),
-      is_live: $is_live
-    }' >"$CURRENT_FILE"
-
-  cp "$CURRENT_FILE" "$LAST_FILE"
+  write_current_state \
+    "$canonical_url" \
+    "$title" \
+    "$duration" \
+    "$loop" \
+    "$is_live" \
+    "single"
 
   setsid "$0" __worker \
     "$canonical_url" \
@@ -473,12 +533,7 @@ worker() {
   mpv "${mpv_args[@]}" "$url"
   local status=$?
 
-  [[ -f "$SESSION_FILE" ]] || return "$status"
-
-  local current_session
-  current_session=$(<"$SESSION_FILE")
-
-  [[ "$current_session" == "$session" ]] ||
+  session_is_current "$session" ||
     return "$status"
 
   rm -f \
@@ -500,6 +555,166 @@ worker() {
   fi
 
   return "$status"
+}
+
+
+# ---------------------------------------------------------------------------
+# Radio
+# ---------------------------------------------------------------------------
+
+start_radio() {
+  local keyword="$1"
+
+  local results
+  results=$(search_youtube "$keyword") ||
+    die "YouTube search failed"
+
+  [[ -n "$results" ]] ||
+    die "no search results"
+
+  hard_stop
+
+  printf '%s\n' "$results" >"$RADIO_FILE"
+
+  local count
+  count=$(grep -c . "$RADIO_FILE" || true)
+
+  ((count > 0)) ||
+    die "no search results"
+
+  local session
+  session="radio-$$_$(date +%s%N)_${RANDOM}"
+
+  printf '%s\n' "$session" >"$SESSION_FILE"
+
+  setsid "$0" __radio_worker \
+    "$session" \
+    "$keyword" \
+    >/dev/null 2>&1 &
+
+  printf '%s\n' "$!" >"$WORKER_PID"
+
+  printf 'Radio: %s (%d candidates)\n' "$keyword" "$count"
+}
+
+
+radio_worker() {
+  local session="$1"
+  local keyword="$2"
+
+  while session_is_current "$session"; do
+    [[ -s "$RADIO_FILE" ]] || break
+
+    local -a ids=()
+
+    local id
+    local title
+
+    while IFS=$'\t' read -r id title; do
+      [[ -n "$id" ]] || continue
+      ids+=("$id")
+    done <"$RADIO_FILE"
+
+    local count="${#ids[@]}"
+
+    ((count > 0)) || break
+
+    local selected_index=$((RANDOM % count))
+    local selected_id="${ids[$selected_index]}"
+    local url="https://www.youtube.com/watch?v=${selected_id}"
+
+    local metadata
+    if ! metadata=$(get_metadata "$url"); then
+      sleep 1
+      continue
+    fi
+
+    session_is_current "$session" ||
+      break
+
+    local canonical_url
+    local current_title
+    local duration
+    local is_live
+
+    canonical_url=$(
+      jaq -r '
+        .webpage_url //
+        .original_url //
+        empty
+      ' <<<"$metadata"
+    )
+
+    current_title=$(
+      jaq -r '
+        .title //
+        "(unknown title)"
+      ' <<<"$metadata"
+    )
+
+    duration=$(
+      jaq -r '
+        (.duration // 0) | floor
+      ' <<<"$metadata"
+    )
+
+    is_live=$(
+      jaq -r '
+        .is_live // false
+      ' <<<"$metadata"
+    )
+
+    [[ -n "$canonical_url" ]] ||
+      canonical_url="$url"
+
+    #
+    # Radio is intended for finite tracks.
+    # Skip active live streams.
+    #
+    if [[ "$is_live" == "true" ]]; then
+      sleep 1
+      continue
+    fi
+
+    write_current_state \
+      "$canonical_url" \
+      "$current_title" \
+      "$duration" \
+      0 \
+      false \
+      "radio" \
+      "$keyword"
+
+    rm -f "$SOCKET"
+
+    local -a mpv_args=(
+      --no-config
+      --no-video
+      --no-terminal
+      --really-quiet
+      --keep-open=no
+      --input-ipc-server="$SOCKET"
+      --ytdl=yes
+      --ytdl-format="bestaudio/best"
+    )
+
+    mpv "${mpv_args[@]}" "$canonical_url" || true
+
+    rm -f "$SOCKET"
+
+    session_is_current "$session" ||
+      break
+  done
+
+  if session_is_current "$session"; then
+    rm -f \
+      "$WORKER_PID" \
+      "$SOCKET" \
+      "$SESSION_FILE" \
+      "$CURRENT_FILE" \
+      "$LIVE_PAUSED_FILE" \
+      "$RADIO_FILE"
+  fi
 }
 
 
@@ -538,14 +753,8 @@ cmd_search() {
   local keyword="$*"
 
   local results
-  results=$(
-    yt-dlp \
-      --flat-playlist \
-      --quiet \
-      --no-warnings \
-      --print '%(id)s	%(title)s' \
-      "ytsearch${SEARCH_LIMIT}:${keyword}"
-  ) || die "YouTube search failed"
+  results=$(search_youtube "$keyword") ||
+    die "YouTube search failed"
 
   [[ -n "$results" ]] ||
     die "no search results"
@@ -598,14 +807,8 @@ cmd_random() {
   local keyword="$*"
 
   local results
-  results=$(
-    yt-dlp \
-      --flat-playlist \
-      --quiet \
-      --no-warnings \
-      --print '%(id)s	%(title)s' \
-      "ytsearch${SEARCH_LIMIT}:${keyword}"
-  ) || die "YouTube search failed"
+  results=$(search_youtube "$keyword") ||
+    die "YouTube search failed"
 
   [[ -n "$results" ]] ||
     die "no search results"
@@ -637,6 +840,16 @@ cmd_random() {
   start_playback \
     "https://www.youtube.com/watch?v=${selected_id}" \
     0
+}
+
+
+cmd_radio() {
+  (($# > 0)) ||
+    die "usage: $PROGRAM radio <keyword>"
+
+  local keyword="$*"
+
+  start_radio "$keyword"
 }
 
 
@@ -687,15 +900,28 @@ cmd_now() {
   local title
   local duration
   local is_live
+  local mode
   local state
 
   url=$(jaq -r '.url' "$CURRENT_FILE")
   title=$(jaq -r '.title' "$CURRENT_FILE")
   duration=$(jaq -r '.duration' "$CURRENT_FILE")
   is_live=$(jaq -r '.is_live // false' "$CURRENT_FILE")
+  mode=$(jaq -r '.mode // "single"' "$CURRENT_FILE")
 
   printf 'URL:      %s\n' "$url"
   printf 'Title:    %s\n' "$title"
+
+  if [[ "$mode" == "radio" ]]; then
+    local keyword
+    keyword=$(jaq -r '.keyword // empty' "$CURRENT_FILE")
+
+    printf 'Mode:     radio\n'
+
+    if [[ -n "$keyword" ]]; then
+      printf 'Keyword:  %s\n' "$keyword"
+    fi
+  fi
 
   if [[ "$is_live" == "true" ]]; then
     printf 'Duration: LIVE\n'
@@ -868,7 +1094,8 @@ cmd_quit() {
     "$SOCKET" \
     "$SESSION_FILE" \
     "$CURRENT_FILE" \
-    "$LIVE_PAUSED_FILE"
+    "$LIVE_PAUSED_FILE" \
+    "$RADIO_FILE"
 }
 
 
@@ -881,6 +1108,7 @@ usage() {
 Usage:
   $PROGRAM search [-l|--loop] <keyword>
   $PROGRAM random <keyword>
+  $PROGRAM radio  <keyword>
   $PROGRAM play   [-l|--loop] <youtube-url>
 
   $PROGRAM now
@@ -896,7 +1124,14 @@ Commands:
     Select an index to start audio-only playback.
 
   random
-    Search YouTube and randomly select one of the matching results.
+    Search YouTube and randomly select one matching result.
+
+  radio
+    Search YouTube once and continuously play random tracks from the
+    SEARCH_LIMIT result set.
+
+    A new candidate is selected after each track finishes.
+    The same track may be selected consecutively.
 
   play
     Play audio from the specified YouTube video URL.
@@ -905,14 +1140,14 @@ Commands:
     Display the current video's URL, title, duration and state.
 
   pause
-    Normal video:
+    Normal video / radio:
       Pause at the current position.
 
     YouTube Live:
       Disconnect from the live stream while retaining its URL.
 
   resume
-    Normal video:
+    Normal video / radio:
       Resume from the paused position.
 
     YouTube Live:
@@ -924,8 +1159,8 @@ Commands:
     For YouTube Live this switches between connected and disconnected.
 
   again
-    Normal video:
-      Restart from the beginning.
+    Normal video / radio:
+      Restart the current track from the beginning.
 
     YouTube Live:
       Reconnect to the current live position.
@@ -936,6 +1171,8 @@ Commands:
   quit
     Terminate current playback completely.
 
+    Radio mode is also terminated.
+
     Current playback state is discarded, but the previous URL is retained
     for use by 'again'.
 
@@ -945,7 +1182,9 @@ Options:
 
 Variables:
   SEARCH_LIMIT
-    The number of serach limit used for search/random.
+    Number of YouTube search results used by search/random/radio.
+
+    Radio keeps this result set for the lifetime of the radio session.
 
     Default: 10
 
@@ -954,7 +1193,9 @@ Examples:
   $PROGRAM search --loop "rain ambience"
 
   $PROGRAM random "bill evans"
-  $PROGRAM random "ambient rain"
+
+  $PROGRAM radio "bill evans"
+  SEARCH_LIMIT=30 $PROGRAM radio "jazz piano"
 
   $PROGRAM play 'https://www.youtube.com/watch?v=...'
   $PROGRAM play --loop 'https://www.youtube.com/watch?v=...'
@@ -985,6 +1226,15 @@ main() {
     exit $?
   fi
 
+  if [[ "$command" == "__radio_worker" ]]; then
+    shift
+
+    (($# == 2)) || exit 1
+
+    radio_worker "$@"
+    exit $?
+  fi
+
   case "$command" in
     -h|--help|help|"")
       usage
@@ -993,6 +1243,7 @@ main() {
   esac
 
   ensure_dependencies
+  validate_search_limit
 
   case "$command" in
     search)
@@ -1003,6 +1254,11 @@ main() {
     random)
       shift
       cmd_random "$@"
+      ;;
+
+    radio)
+      shift
+      cmd_radio "$@"
       ;;
 
     play)
