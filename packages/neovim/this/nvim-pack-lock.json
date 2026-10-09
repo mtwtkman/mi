@@ -21,7 +21,7 @@
       "src": "https://github.com/sindrets/diffview.nvim"
     },
     "gitlinker.nvim": {
-      "rev": "a4f59e3e76aa772965251e3accd45788483fafd5",
+      "rev": "cc6a52ee2b5d3639ce5c5d6c97bcc8e98d1c5980",
       "src": "https://github.com/linrongbin16/gitlinker.nvim"
     },
     "gitsigns.nvim": {
