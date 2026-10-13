@@ -25,7 +25,7 @@
       "src": "https://github.com/linrongbin16/gitlinker.nvim"
     },
     "gitsigns.nvim": {
-      "rev": "aa6cc2d7addb288cfd79a05ac257695d5ff61deb",
+      "rev": "fd780920613e541cbdfac41bf711583ed49f9249",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "haskell-tools.nvim": {
@@ -34,7 +34,7 @@
       "version": "10.0.0 - 11.0.0"
     },
     "neogit": {
-      "rev": "70708be9664b7fcdd010eb07bdc3ebc9311c2027",
+      "rev": "fb6a56256174e28d8bb1c05a3172712d5c7b0ec5",
       "src": "https://github.com/NeogitOrg/neogit"
     },
     "nvim-cmp": {
