@@ -250,7 +250,7 @@ default_floating_border normal
 
 bindsym $mod+Shift+w exec foot -e nmtui
 
-exec foot
 exec firefox
+exec foot
 exec_always kanshi
 exec sway-audio-idle-inhibit
