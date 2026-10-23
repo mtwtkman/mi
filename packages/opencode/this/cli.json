@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "plugins": ["-opencode.notifications"],
+  "keybinds": {
+    "session.page.up": "pageup,ctrl+b",
+    "session.page.down": "pagedown,ctrl+f",
+    "input.move.left": "left",
+    "input.move.right": "right",
+    "session.background": false
+  }
+}
