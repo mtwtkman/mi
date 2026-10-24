@@ -7,5 +7,8 @@
     "input.move.left": "left",
     "input.move.right": "right",
     "session.background": false
+  },
+  "session": {
+    "sidebar": "hide"
   }
 }
