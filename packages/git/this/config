@@ -53,3 +53,9 @@
 
 [alias]
   adog = log --all --decorate --oneline --graph
+[credential "https://github.com"]
+	helper = 
+	helper = !/home/me/work/dev/.distrobox/home/.local/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/home/me/work/dev/.distrobox/home/.local/bin/gh auth git-credential
