@@ -11,10 +11,10 @@ Run **inside** a Distrobox with its own HOME (recommended):
 MI_PROFILE=container ./mi deploy
 ```
 
-By default this deploys only `neovim` and `tmux`. To select packages explicitly:
+By default this deploys only the `git` and `opencode` configuration packages. The requested command-line tools `fzf` and `ripgrep` are not Mi configuration packages; install those binaries separately using the container's package manager. tmux is intentionally omitted because it runs on the host. To select additional configuration packages explicitly:
 
 ```bash
-MI_PROFILE=container MI_PACKAGES="git neovim tmux opencode" ./mi deploy
+MI_PROFILE=container MI_PACKAGES="git opencode neovim" ./mi deploy
 ```
 
 The container profile defaults to `MI_DEPLOY_MODE=copy`. To override the
@@ -38,7 +38,7 @@ unexpected package-manager changes. The normal host profile is unchanged.
 - Copy mode is not a merge/sync operation; local modifications are backed up
   when source and destination differ.
 - `MI_PACKAGES` is a space-separated list of directory names under `packages/`.
-- Host-specific packages such as `sway`, `foot`, and `waybar` are excluded
+- Host-specific packages such as `sway`, `foot`, `tmux`, and `waybar` are excluded
   by default, but may be opted into deliberately.
 
 ## Tests
