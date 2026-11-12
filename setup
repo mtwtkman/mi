@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env bash
 if ! command -v "git" &> /dev/null; then
   echo "Mi requires \`git\`. Please install it."
-  exit 0
+  exit 1
 fi
 
 local_dir="${HOME}/.local"
@@ -29,4 +29,4 @@ popd &> /dev/null
 pushd "${dest}" &> /dev/null
 ./mi install
 popd &> /dev/null
-source "$HOME/.bash_profile"
+echo "Restart your shell or source ~/.bash_profile to load updated settings."

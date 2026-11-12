@@ -4,7 +4,7 @@ here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
 function install_paru()
 {
   currentdir=$(pwd)
-  sudo pacman -Sy --noconfirm --needed base-devel
+  sudo pacman -Syu --noconfirm --needed base-devel
   workdir="/tmp/paru_build"
   mkdir $workdir
   cd $workdir
@@ -16,8 +16,8 @@ function install_paru()
 }
 
 install_command="
-  ! command -v "paru" >/dev/null && eval \$(install_paru)
-  paru -Sy --noconfirm \
+  command -v paru >/dev/null || install_paru
+  paru -Syu --noconfirm \
     bash \
     bash-completion \
     bash-language-server \
@@ -34,7 +34,7 @@ install_command="
     kanshi \
     libnotify \
     lua \
-    luarocks
+    luarocks \
     make \
     mako \
     man-db \

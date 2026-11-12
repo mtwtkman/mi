@@ -1,25 +1,5 @@
 #!/bin/bash
-show()
-{
-  eval "${MI_ECHO_ASCII_CHARA} \"\\033[0;\${1}\\033[0m\""
-}
-
-red()
-{
-  show "31m${1}"
-}
-
-green()
-{
-  show "32m${1}"
-}
-
-yellow()
-{
-  show "33m${1}"
-}
-
-blue()
-{
-  show "34m${1}"
-}
+red()    { printf '\033[31m%s\033[0m\n' "$1"; }
+green()  { printf '\033[32m%s\033[0m\n' "$1"; }
+yellow() { printf '\033[33m%s\033[0m\n' "$1"; }
+blue()   { printf '\033[34m%s\033[0m\n' "$1"; }
