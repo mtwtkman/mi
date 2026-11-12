@@ -16,8 +16,13 @@ deploy_settings()
   for target in *
   do
     blue "Deploy ${target} configs."
-    bash "${here}/../modules/deploy.sh" "${target}"
-    green "Done."
+    if bash "${here}/../modules/deploy.sh" "${target}"; then
+      green "Done."
+    else
+      red "Failed to deploy ${target}."
+      popd &> /dev/null
+      return 1
+    fi
   done
   popd &> /dev/null
   green "Done."
@@ -31,7 +36,7 @@ perform()
   target_command="${4}"
   case "${target_command}" in
     install)
-      install_basic_packages "${install_command}"
+      install_basic_packages "${install_command}" || return 1
       deploy_settings
       ;;
     deploy) deploy_settings;;
