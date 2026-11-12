@@ -177,8 +177,10 @@ if command -v "poi" &> /dev/null; then
 fi
 
 # SSH
-if systemctl --user status ssh-agent | rg running &> /dev/null; then
-  export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+# Use the shared host agent; never start an agent from .bashrc.
+# Do not override forwarded agent sockets inside Distrobox.
+if [[ "$(uname -s)" == Linux && -z "${CONTAINER_ID:-}" && -n "${XDG_RUNTIME_DIR:-}" ]]; then
+  export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.sock"
 fi
 
 # TMUX
