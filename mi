@@ -23,6 +23,10 @@ here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 
 source "${here}/modules/message.sh"
 
+if [ "${1:-}" = sweep ]; then
+  exec bash "${here}/modules/sweep.sh"
+fi
+
 bash "${here}/modules/prepare.sh" || exit 1
 
 if [ "${MI_PROFILE:-host}" = container ]; then

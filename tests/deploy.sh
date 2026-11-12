@@ -140,6 +140,9 @@ mkdir -p "$tmp/fake-bin" "$tmp/runtime"
 cat > "$tmp/fake-bin/systemctl" <<'MOCK'
 #!/bin/bash
 printf '%s\n' "$*" >> "$MI_SYSTEMCTL_LOG"
+case "$*" in
+  '--user is-enabled --quiet ssh-agent.service'|'--user is-active --quiet ssh-agent.service') exit 1 ;;
+esac
 MOCK
 chmod +x "$tmp/fake-bin/systemctl"
 export MI_SYSTEMCTL_LOG="$tmp/systemctl.log"
@@ -149,7 +152,42 @@ export HOME="$tmp/activation-home"
 export XDG_CONFIG_HOME="$HOME/.config"
 bash "$repo/modules/linux_user.sh"
 grep -qx -- '--user daemon-reload' "$MI_SYSTEMCTL_LOG"
-grep -qx -- '--user enable --now ssh-agent.service' "$MI_SYSTEMCTL_LOG"
+grep -qx -- '--user enable ssh-agent.service' "$MI_SYSTEMCTL_LOG"
+grep -qx -- '--user start ssh-agent.service' "$MI_SYSTEMCTL_LOG"
+# Repeated activation must not reload or re-enable an already active unit.
+cat > "$tmp/fake-bin/systemctl" <<'MOCK'
+#!/bin/bash
+printf '%s\n' "$*" >> "$MI_SYSTEMCTL_LOG"
+case "$*" in
+  '--user is-enabled --quiet ssh-agent.service'|'--user is-active --quiet ssh-agent.service') exit 0 ;;
+esac
+MOCK
+chmod +x "$tmp/fake-bin/systemctl"
+: > "$MI_SYSTEMCTL_LOG"
+bash "$repo/modules/linux_user.sh"
+! grep -Eq 'daemon-reload| enable | start ' "$MI_SYSTEMCTL_LOG"
+
+# Sweep must list only Mi-managed backups and require interactive confirmation.
+export HOME="$tmp/sweep-home"
+export XDG_CONFIG_HOME="$HOME/.config"
+mkdir -p "$HOME/.config" "$HOME/.unrelated"
+printf 'original\n' > "$HOME/.bashrc.mi.bk"
+printf 'untouched\n' > "$HOME/.unrelated/custom.mi.bk"
+if bash "$repo/mi" sweep </dev/null; then
+  echo 'FAIL: noninteractive sweep succeeded without confirmation' >&2
+  exit 1
+fi
+test -f "$HOME/.bashrc.mi.bk"
+test -f "$HOME/.unrelated/custom.mi.bk"
+# Simulate a terminal to verify both rejection and explicit acceptance.
+if command -v script >/dev/null 2>&1; then
+  printf 'n\n' | script -q -e -c "bash '$repo/mi' sweep" /dev/null >/dev/null
+  test -f "$HOME/.bashrc.mi.bk"
+  printf 'y\n' | script -q -e -c "bash '$repo/mi' sweep" /dev/null >/dev/null
+  test ! -e "$HOME/.bashrc.mi.bk"
+  test -f "$HOME/.unrelated/custom.mi.bk"
+fi
+
 # A custom user unit must never be replaced.
 unset MI_PROFILE MI_PACKAGES
 export HOME="$tmp/custom-home"
