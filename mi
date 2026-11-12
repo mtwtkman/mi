@@ -19,7 +19,7 @@ case "${ostype}" in
     exit 1
 esac
 
-here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
+here="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 source "${here}/modules/message.sh"
 
@@ -39,23 +39,14 @@ fi
 
 distro="${DISTRO:-autodetect}"
 
-function fetch_os_name_from_os_release()
-{
-  IFS="=" read -ra value <<< $(grep '^NAME' /etc/os-release | tr "[:upper:]" "[:lower:]")
-  echo "${value[1]}"
-}
-
-if [ "${distro}" = "autodetect" ]; then
-  if [ -e "/etc/os-release" ]; then
-    distro="$(fetch_os_name_from_os_release)"
-  elif command -v sw_vers >/dev/null 2>&1; then
-    distro="macos"
-  elif [ "${ostype}" = "android" ]; then
-    echo 'NO DISTRO'
-    exit 0
-  fi
-  if [ -z "${distro}" ]; then
-    red "Cannot detected OS name."
+if [ "$distro" = autodetect ]; then
+  if [ "$ostype" = darwin ]; then
+    distro=macos
+  elif [ -r /etc/os-release ]; then
+    # ID and ID_LIKE are machine-readable; NAME is a display label.
+    distro="$(. /etc/os-release; printf '%s %s' "${ID:-}" "${ID_LIKE:-}")"
+  else
+    red "Cannot detect OS distribution."
     exit 1
   fi
 fi
@@ -68,7 +59,7 @@ case "${distro}" in
   *debian*|*ubuntu*) cmd="${here}/distro/debian.sh";;
   *)
     red "No definition for ${distro}."
-    exit 0
+    exit 1
     ;;
 esac
 

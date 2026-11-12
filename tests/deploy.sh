@@ -128,6 +128,28 @@ if bash "$repo/mi" deploy; then
 fi
 unset MI_PACKAGES
 
+# Shared package selection must agree across deploy and sweep.
+source "$repo/modules/select_packages.sh"
+export MI_PROFILE=container
+unset MI_PACKAGES
+mi_select_packages "$repo"
+test "${packages[*]}" = 'git opencode'
+export MI_PACKAGES='neovim git'
+mi_select_packages "$repo"
+test "${packages[*]}" = 'neovim git'
+export MI_PACKAGES='does-not-exist'
+if mi_select_packages "$repo"; then
+  echo 'FAIL: invalid package selection accepted' >&2
+  exit 1
+fi
+unset MI_PACKAGES
+
+# Invalid package selection must also be rejected by sweep.
+MI_PACKAGES='does-not-exist' bash "$repo/mi" sweep >/dev/null 2>&1 && {
+  echo 'FAIL: sweep accepted an invalid package' >&2
+  exit 1
+}
+
 # Container profile must never invoke package managers.
 if bash "$repo/mi" install; then
   echo 'FAIL: container install unexpectedly succeeded' >&2
