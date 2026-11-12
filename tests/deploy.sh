@@ -170,7 +170,7 @@ if [[ "${1:-}" == clone ]]; then
   mkdir -p "$HOME/.local/mi"
   cat > "$HOME/.local/mi/mi" <<'MI'
 #!/usr/bin/env bash
-printf '%s\\n' "$*" > "$HOME/setup-command"
+printf '%s\n' "$*" > "$HOME/setup-command"
 MI
   chmod +x "$HOME/.local/mi/mi"
 else
