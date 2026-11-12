@@ -115,6 +115,14 @@ if bash "$repo/mi" deploy; then
 fi
 test -f "$HOME/.config/opencode/mi-regression-test"
 
+# Invalid package selections must fail through the top-level CLI.
+export MI_PACKAGES="does-not-exist"
+if bash "$repo/mi" deploy; then
+  echo 'FAIL: unknown package unexpectedly succeeded' >&2
+  exit 1
+fi
+unset MI_PACKAGES
+
 # Container profile must never invoke package managers.
 if bash "$repo/mi" install; then
   echo 'FAIL: container install unexpectedly succeeded' >&2
