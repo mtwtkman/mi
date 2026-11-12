@@ -79,4 +79,46 @@ test -L "$broken.mi.bk"
 test "$(readlink "$broken.mi.bk")" = "$tmp/nonexistent-target"
 test "$(readlink "$broken")" = "$source_file"
 
+# Container profile: deploy independent copies, not symlinks.
+container_home="$tmp/container-home"
+mkdir -p "$container_home"
+export HOME="$container_home"
+export XDG_CONFIG_HOME="$HOME/.config"
+export MI_PROFILE=container
+unset MI_PACKAGES MI_DEPLOY_MODE
+bash "$repo/mi" deploy
+test -d "$HOME/.config/nvim"
+test ! -L "$HOME/.config/nvim"
+test -d "$HOME/.config/tmux"
+test ! -L "$HOME/.config/tmux"
+test ! -e "$HOME/.config/foot"
+test ! -e "$HOME/.bashrc"
+bash "$repo/mi" deploy
+test ! -e "$HOME/.config/nvim.mi.bk"
+
+# Opt-in package selection, including a 'files' package.
+export MI_PACKAGES="git"
+bash "$repo/mi" deploy
+test -d "$HOME/.config/git"
+test ! -L "$HOME/.config/git"
+
+# A modified file is backed up, and a second conflicting change is rejected.
+unset MI_PACKAGES
+printf 'modified\n' > "$HOME/.config/nvim/mi-regression-test"
+bash "$repo/mi" deploy
+test -d "$HOME/.config/nvim.mi.bk"
+test -f "$HOME/.config/nvim.mi.bk/mi-regression-test"
+printf 'modified again\n' > "$HOME/.config/nvim/mi-regression-test"
+if bash "$repo/mi" deploy; then
+  echo 'FAIL: existing container backup was overwritten' >&2
+  exit 1
+fi
+test -f "$HOME/.config/nvim/mi-regression-test"
+
+# Container profile must never invoke package managers.
+if bash "$repo/mi" install; then
+  echo 'FAIL: container install unexpectedly succeeded' >&2
+  exit 1
+fi
+
 echo 'All Mi deployment regression tests passed.'
