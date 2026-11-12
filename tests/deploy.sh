@@ -133,7 +133,7 @@ source "$repo/modules/select_packages.sh"
 export MI_PROFILE=container
 unset MI_PACKAGES
 mi_select_packages "$repo"
-test "${packages[*]}" = 'git opencode'
+test "${packages[*]}" = 'git opencode neovim'
 export MI_PACKAGES='neovim git'
 mi_select_packages "$repo"
 test "${packages[*]}" = 'neovim git'
