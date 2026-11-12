@@ -6,6 +6,8 @@ tmp="$(mktemp -d)"
 trap 'rm -rf -- "$tmp"' EXIT
 mkdir -p "$tmp/bin" "$tmp/home"
 export HOME="$tmp/home"
+# Keep deployment confined to the temporary HOME; do not manage host user services.
+export MI_PROFILE=container
 export MI_TEST_LOG="$tmp/commands.log"
 
 cat > "$tmp/bin/sudo" <<'MOCK'
