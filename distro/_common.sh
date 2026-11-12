@@ -1,6 +1,7 @@
 #!/bin/bash
-here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
+here="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${here}/../modules/message.sh"
+source "${here}/../modules/select_packages.sh"
 
 install_basic_packages()
 {
@@ -12,33 +13,19 @@ install_basic_packages()
 deploy_settings()
 {
   blue "Deploy configs."
-  pushd "${here}/../packages" &> /dev/null
   local target
-  local -a targets=()
-  if [ -n "${MI_PACKAGES:-}" ]; then
-    read -r -a targets <<< "${MI_PACKAGES}"
-  elif [ "${MI_PROFILE:-host}" = container ]; then
-    targets=(git opencode)
-  else
-    targets=(*)
-  fi
-  for target in "${targets[@]}"
+  local -a packages=()
+  mi_select_packages "$here/.." || return 1
+  for target in "${packages[@]}"
   do
-    if [[ ! "$target" =~ ^[a-zA-Z0-9_-]+$ ]] || [ ! -d "${here}/../packages/${target}" ]; then
-      red "Invalid or unknown package: ${target}"
-      popd &> /dev/null
-      return 1
-    fi
     blue "Deploy ${target} configs."
     if bash "${here}/../modules/deploy.sh" "${target}"; then
       green "Done."
     else
       red "Failed to deploy ${target}."
-      popd &> /dev/null
       return 1
     fi
   done
-  popd &> /dev/null
   if [ "$(uname -s)" = Linux ] && [ "${MI_PROFILE:-host}" != container ]; then
     bash "${here}/../modules/linux_user.sh" || return 1
   fi
