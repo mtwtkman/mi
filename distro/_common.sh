@@ -24,6 +24,11 @@ deploy_settings()
   fi
   for target in "${targets[@]}"
   do
+    if [[ ! "$target" =~ ^[a-zA-Z0-9_-]+$ ]] || [ ! -d "${here}/../packages/${target}" ]; then
+      red "Invalid or unknown package: ${target}"
+      popd &> /dev/null
+      return 1
+    fi
     blue "Deploy ${target} configs."
     if bash "${here}/../modules/deploy.sh" "${target}"; then
       green "Done."
