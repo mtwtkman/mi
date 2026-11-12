@@ -140,6 +140,9 @@ mkdir -p "$tmp/fake-bin" "$tmp/runtime"
 cat > "$tmp/fake-bin/systemctl" <<'MOCK'
 #!/bin/bash
 printf '%s\n' "$*" >> "$MI_SYSTEMCTL_LOG"
+case "$*" in
+  '--user is-enabled --quiet ssh-agent.service'|'--user is-active --quiet ssh-agent.service') exit 1 ;;
+esac
 MOCK
 chmod +x "$tmp/fake-bin/systemctl"
 export MI_SYSTEMCTL_LOG="$tmp/systemctl.log"
