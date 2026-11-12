@@ -32,4 +32,6 @@ jobs:
 
       - name: Run deployment regression tests
         shell: bash
-        run: bash tests/deploy.sh
+        run: |
+          bash tests/deploy.sh
+          bash tests/install.sh

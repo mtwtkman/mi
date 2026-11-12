@@ -1,25 +1,28 @@
 #!/bin/bash
-here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
+here="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
-install_latest_neovim=$(cat <<EOF
-  working_dir="/tmp/install-neovim"
-  pushd "${working_dir}"
-  curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz
-  tar xzvf nvim-linux-arm64.tar.gz
-  mv nvim-linux-arm64 ~/.local/nvim
-  ln -s ~/.local/nvim/bin/nvim ~/.local/bin/nvim
-  popd
-EOF
-)
+# Use a function instead of interpolating the installer source into an eval string.
+mi_install_packages() {
+  sudo apt update || return
+  sudo apt upgrade -y || return
+  sudo apt install -y git build-essential || return
 
-install_command="
-  sudo apt update
-  sudo apt upgrade -y
-  sudo apt install -y git
-  yes "" | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  sudo apt install -y build-essential
+  local brew_bin
+  if command -v brew >/dev/null 2>&1; then
+    brew_bin="$(command -v brew)"
+  else
+    brew_bin="/home/linuxbrew/.linuxbrew/bin/brew"
+    if [[ ! -x "$brew_bin" ]]; then
+      # Preserve failures from either the download or the installer.
+      (set -o pipefail; curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | NONINTERACTIVE=1 /bin/bash) || return
+    fi
+    if [[ ! -x "$brew_bin" ]]; then
+      printf 'Homebrew installation did not create %s\n' "$brew_bin" >&2
+      return 1
+    fi
+  fi
 
-  brew install \
+  "$brew_bin" install \
     bash \
     bat \
     podman \
@@ -35,9 +38,11 @@ install_command="
     nnn \
     ripgrep \
     tmux
-"
-update_command="sudo apt update && sudo apt upgrade -y; brew update && brew upgrade"
-purge_command="sudo apt autoclean && sudo apt autopuge; brew autoremove"
+}
+
+install_command=""
+update_command="sudo apt update && sudo apt upgrade -y && brew update && brew upgrade"
+purge_command="sudo apt autoclean && sudo apt autopurge && brew autoremove"
 
 source "${here}/_common.sh"
-perform "${install_command}" "${update_command}" "${purge_command}" "${1}"
+perform "${install_command}" "${update_command}" "${purge_command}" "${1:-}"

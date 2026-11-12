@@ -7,7 +7,11 @@ install_basic_packages()
 {
   install_command="${1}"
   blue "Install basic packages."
-  eval "${install_command}"
+  if declare -F mi_install_packages >/dev/null; then
+    mi_install_packages
+  else
+    eval "${install_command}"
+  fi
 }
 
 deploy_settings()

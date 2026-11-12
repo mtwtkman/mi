@@ -28,9 +28,9 @@ popd &> /dev/null
 
 pushd "${dest}" &> /dev/null
 if [ "${MI_PROFILE:-host}" = container ]; then
-  ./mi deploy
+  ./mi deploy || exit $?
 else
-  ./mi install
+  ./mi install || exit $?
 fi
 popd &> /dev/null
 echo "Restart your shell or source ~/.bash_profile to load updated settings."
