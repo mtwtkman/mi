@@ -27,11 +27,10 @@ for package in "${packages[@]}"; do
     exit 1
   }
   if [[ -d "$package_dir/files" ]]; then
-    for source in "$package_dir/files"/*; do
-      [[ -e "$source" || -L "$source" ]] || continue
+    while IFS= read -r -d '' source; do
       backup="$destination/${source##*/}.mi.bk"
       [[ -e "$backup" || -L "$backup" ]] && candidates+=("$backup")
-    done
+    done < <(find "$package_dir/files" -mindepth 1 -maxdepth 1 -print0)
   elif [[ -d "$package_dir/this" ]]; then
     backup="${destination}.mi.bk"
     [[ -e "$backup" || -L "$backup" ]] && candidates+=("$backup")
