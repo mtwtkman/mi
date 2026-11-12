@@ -58,4 +58,25 @@ export XDG_CONFIG_HOME="$HOME/xdg-config"
 bash "$repo/modules/deploy.sh" opencode
 test -L "$XDG_CONFIG_HOME/opencode"
 
+# Full deploy should be confined to the temporary HOME and repeatable.
+export XDG_CONFIG_HOME="$HOME/.config"
+export DISTRO=ubuntu
+bash "$repo/mi" deploy
+bash "$repo/mi" deploy
+
+test -L "$HOME/.config/nvim"
+test -L "$HOME/.config/opencode"
+test -L "$HOME/.config/git"
+test -L "$HOME/.bashrc"
+test ! -e "$HOME/.config/nvim.mi.bk"
+test ! -e "$HOME/.config/opencode.mi.bk"
+
+# A broken symlink is an existing destination and must be backed up.
+broken="$HOME/broken"
+ln -s "$tmp/nonexistent-target" "$broken"
+bash "$link" "$source_file" "$broken"
+test -L "$broken.mi.bk"
+test "$(readlink "$broken.mi.bk")" = "$tmp/nonexistent-target"
+test "$(readlink "$broken")" = "$source_file"
+
 echo 'All Mi deployment regression tests passed.'
