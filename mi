@@ -74,5 +74,7 @@ if [ -z "${cmd}" ]; then
 fi
 
 bash "${cmd}" "$@"
+status=$?
 unset MI_ABSPATH_GETTER
 unset MI_ECHO_ASCII_CHARA
+exit "$status"
