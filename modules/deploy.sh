@@ -10,8 +10,12 @@ dest="$(bash ./location)"
 
 create_link()
 {
-  bash "${here}/make_link.sh" "$1" "$2"
-  green "Deployed symlink of $1 to $2"
+  if [ "${MI_DEPLOY_MODE:-link}" = copy ]; then
+    bash "${here}/make_copy.sh" "$1" "$2"
+  else
+    bash "${here}/make_link.sh" "$1" "$2"
+  fi
+  green "Deployed ${MI_DEPLOY_MODE:-link} of $1 to $2"
 }
 
 if [ -d "files" ]; then
