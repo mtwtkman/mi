@@ -43,12 +43,20 @@ if MI_FAIL_BREW=1 bash "$repo/distro/debian.sh" install >/dev/null; then
 fi
 
 # setup must preserve the failing mi exit status, not return its final echo status.
-mkdir -p "$HOME/.local/mi"
-cat > "$HOME/.local/mi/mi" <<'MOCK'
+cat > "$tmp/bin/git" <<'MOCK'
+#!/usr/bin/env bash
+if [[ "${1:-}" == clone ]]; then
+  mkdir -p "$HOME/.local/mi"
+  cat > "$HOME/.local/mi/mi" <<'SCRIPT'
 #!/usr/bin/env bash
 exit 42
+SCRIPT
+  chmod +x "$HOME/.local/mi/mi"
+else
+  exit 1
+fi
 MOCK
-chmod +x "$HOME/.local/mi/mi"
+chmod +x "$tmp/bin/git"
 set +e
 bash "$repo/setup" >/dev/null
 status=$?
