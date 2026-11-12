@@ -79,4 +79,54 @@ test -L "$broken.mi.bk"
 test "$(readlink "$broken.mi.bk")" = "$tmp/nonexistent-target"
 test "$(readlink "$broken")" = "$source_file"
 
+# Container profile: deploy independent copies, not symlinks.
+container_home="$tmp/container-home"
+mkdir -p "$container_home"
+export HOME="$container_home"
+export XDG_CONFIG_HOME="$HOME/.config"
+export MI_PROFILE=container
+unset MI_PACKAGES MI_DEPLOY_MODE
+bash "$repo/mi" deploy
+test -d "$HOME/.config/git"
+test ! -L "$HOME/.config/git"
+test -d "$HOME/.config/opencode"
+test ! -L "$HOME/.config/opencode"
+test ! -e "$HOME/.config/foot"
+test ! -e "$HOME/.bashrc"
+bash "$repo/mi" deploy
+test ! -e "$HOME/.config/opencode.mi.bk"
+
+# Opt-in package selection for an additional 'this' package.
+export MI_PACKAGES="neovim"
+bash "$repo/mi" deploy
+test -d "$HOME/.config/nvim"
+test ! -L "$HOME/.config/nvim"
+
+# A modified file is backed up, and a second conflicting change is rejected.
+unset MI_PACKAGES
+printf 'modified\n' > "$HOME/.config/opencode/mi-regression-test"
+bash "$repo/mi" deploy
+test -d "$HOME/.config/opencode.mi.bk"
+test -f "$HOME/.config/opencode.mi.bk/mi-regression-test"
+printf 'modified again\n' > "$HOME/.config/opencode/mi-regression-test"
+if bash "$repo/mi" deploy; then
+  echo 'FAIL: existing container backup was overwritten' >&2
+  exit 1
+fi
+test -f "$HOME/.config/opencode/mi-regression-test"
+
+# Invalid package selections must fail through the top-level CLI.
+export MI_PACKAGES="does-not-exist"
+if bash "$repo/mi" deploy; then
+  echo 'FAIL: unknown package unexpectedly succeeded' >&2
+  exit 1
+fi
+unset MI_PACKAGES
+
+# Container profile must never invoke package managers.
+if bash "$repo/mi" install; then
+  echo 'FAIL: container install unexpectedly succeeded' >&2
+  exit 1
+fi
+
 echo 'All Mi deployment regression tests passed.'

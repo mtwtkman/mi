@@ -13,8 +13,22 @@ deploy_settings()
 {
   blue "Deploy configs."
   pushd "${here}/../packages" &> /dev/null
-  for target in *
+  local target
+  local -a targets=()
+  if [ -n "${MI_PACKAGES:-}" ]; then
+    read -r -a targets <<< "${MI_PACKAGES}"
+  elif [ "${MI_PROFILE:-host}" = container ]; then
+    targets=(git opencode)
+  else
+    targets=(*)
+  fi
+  for target in "${targets[@]}"
   do
+    if [[ ! "$target" =~ ^[a-zA-Z0-9_-]+$ ]] || [ ! -d "${here}/../packages/${target}" ]; then
+      red "Invalid or unknown package: ${target}"
+      popd &> /dev/null
+      return 1
+    fi
     blue "Deploy ${target} configs."
     if bash "${here}/../modules/deploy.sh" "${target}"; then
       green "Done."
