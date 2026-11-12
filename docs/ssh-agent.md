@@ -5,19 +5,16 @@ Mi installs `~/.config/systemd/user/ssh-agent.service` regardless of
 whether the distribution uses Arch or Debian packaging.
 
 The service listens at `%t/ssh-agent.sock` (typically
-`$XDG_RUNTIME_DIR/ssh-agent.sock`). It is **not** enabled or started
-automatically: this avoids disrupting an existing agent or starting
-services during CI and provisioning.
+`$XDG_RUNTIME_DIR/ssh-agent.sock`). Mi **automatically enables and starts** the unit when a systemd user manager is available. It never kills existing SSH agents or replaces a different existing unit. Without a systemd user manager, installation succeeds but activation is skipped.
 
-Enable it on the host:
+To activate manually if the user manager was unavailable during deployment:
 
 ```bash
 systemctl --user daemon-reload
 systemctl --user enable --now ssh-agent.service
 ```
 
-Expose the stable socket to host shells in your login environment
-(for Bash, e.g. `~/.bash_profile` or a suitable shell startup file):
+Mi’s managed host `.bashrc` exports the stable socket automatically (and leaves forwarded sockets unchanged inside containers):
 
 ```bash
 export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.sock"
