@@ -23,7 +23,15 @@ here="$(eval "${MI_ABSPATH_GETTER} $(dirname ${BASH_SOURCE[0]})")"
 
 source "${here}/modules/message.sh"
 
-bash "${here}/modules/prepare.sh"
+bash "${here}/modules/prepare.sh" || exit 1
+
+if [ "${MI_PROFILE:-host}" = container ]; then
+  export MI_DEPLOY_MODE="${MI_DEPLOY_MODE:-copy}"
+  if [ "${1:-}" != deploy ]; then
+    red "Container profile supports deploy only; package management is disabled."
+    exit 1
+  fi
+fi
 
 distro="${DISTRO:-autodetect}"
 
