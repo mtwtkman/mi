@@ -68,6 +68,10 @@ test -L "$HOME/.config/nvim"
 test -L "$HOME/.config/opencode"
 test -L "$HOME/.config/git"
 test -L "$HOME/.bashrc"
+grep -Fq 'export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.sock"' "$HOME/.bashrc"
+! grep -Eq 'eval.*ssh-agent' "$HOME/.bashrc"
+test -f "$HOME/.config/systemd/user/ssh-agent.service"
+grep -Fq "ExecStart=/usr/bin/ssh-agent -D -a %t/ssh-agent.sock" "$HOME/.config/systemd/user/ssh-agent.service"
 test ! -e "$HOME/.config/nvim.mi.bk"
 test ! -e "$HOME/.config/opencode.mi.bk"
 
@@ -93,6 +97,7 @@ test -d "$HOME/.config/opencode"
 test ! -L "$HOME/.config/opencode"
 test ! -e "$HOME/.config/foot"
 test ! -e "$HOME/.bashrc"
+test ! -e "$HOME/.config/systemd/user/ssh-agent.service"
 bash "$repo/mi" deploy
 test ! -e "$HOME/.config/opencode.mi.bk"
 
@@ -129,4 +134,31 @@ if bash "$repo/mi" install; then
   exit 1
 fi
 
+# Exercise auto-activation using a fake systemctl, never the CI host manager.
+unset MI_PROFILE MI_PACKAGES
+mkdir -p "$tmp/fake-bin" "$tmp/runtime"
+cat > "$tmp/fake-bin/systemctl" <<'MOCK'
+#!/bin/bash
+printf '%s\n' "$*" >> "$MI_SYSTEMCTL_LOG"
+MOCK
+chmod +x "$tmp/fake-bin/systemctl"
+export MI_SYSTEMCTL_LOG="$tmp/systemctl.log"
+export XDG_RUNTIME_DIR="$tmp/runtime"
+export PATH="$tmp/fake-bin:$PATH"
+export HOME="$tmp/activation-home"
+export XDG_CONFIG_HOME="$HOME/.config"
+bash "$repo/modules/linux_user.sh"
+grep -qx -- '--user daemon-reload' "$MI_SYSTEMCTL_LOG"
+grep -qx -- '--user enable --now ssh-agent.service' "$MI_SYSTEMCTL_LOG"
+# A custom user unit must never be replaced.
+unset MI_PROFILE MI_PACKAGES
+export HOME="$tmp/custom-home"
+export XDG_CONFIG_HOME="$HOME/.config"
+mkdir -p "$XDG_CONFIG_HOME/systemd/user"
+printf 'custom unit\n' > "$XDG_CONFIG_HOME/systemd/user/ssh-agent.service"
+if bash "$repo/modules/linux_user.sh"; then
+  echo 'FAIL: custom SSH agent unit was overwritten or accepted' >&2
+  exit 1
+fi
+grep -qx 'custom unit' "$XDG_CONFIG_HOME/systemd/user/ssh-agent.service"
 echo 'All Mi deployment regression tests passed.'
