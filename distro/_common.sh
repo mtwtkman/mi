@@ -39,6 +39,9 @@ deploy_settings()
     fi
   done
   popd &> /dev/null
+  if [ "$(uname -s)" = Linux ] && [ "${MI_PROFILE:-host}" != container ]; then
+    bash "${here}/../modules/linux_user.sh" || return 1
+  fi
   green "Done."
 }
 
