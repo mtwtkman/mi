@@ -3,23 +3,10 @@ set -euo pipefail
 repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 candidates=()
 
-# Only inspect backup paths corresponding to configured Mi package destinations.
-if [[ -n "${MI_PACKAGES:-}" ]]; then
-  read -r -a packages <<< "${MI_PACKAGES}"
-elif [[ "${MI_PROFILE:-host}" == container ]]; then
-  packages=(git opencode)
-else
-  packages=()
-  for package_dir in "$repo"/packages/*; do
-    [[ -d "$package_dir" ]] && packages+=("${package_dir##*/}")
-  done
-fi
+source "$repo/modules/select_packages.sh"
+mi_select_packages "$repo"
 
 for package in "${packages[@]}"; do
-  if [[ ! "$package" =~ ^[a-zA-Z0-9_-]+$ || ! -d "$repo/packages/$package" ]]; then
-    printf 'Invalid or unknown package: %s\n' "$package" >&2
-    exit 1
-  fi
   package_dir="$repo/packages/$package"
   destination="$(cd -- "$package_dir" && bash ./location)"
   [[ -n "$destination" && "$destination" == /* ]] || {
