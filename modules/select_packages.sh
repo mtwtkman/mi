@@ -8,7 +8,7 @@ mi_select_packages() {
   if [[ -n "${MI_PACKAGES:-}" ]]; then
     read -r -a packages <<< "${MI_PACKAGES}"
   elif [[ "${MI_PROFILE:-host}" == container ]]; then
-    packages=(git opencode)
+    packages=(git opencode neovim)
   else
     for package_dir in "$repo"/packages/*; do
       [[ -d "$package_dir" ]] && packages+=("${package_dir##*/}")
