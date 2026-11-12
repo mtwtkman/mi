@@ -68,7 +68,7 @@ test -L "$HOME/.config/nvim"
 test -L "$HOME/.config/opencode"
 test -L "$HOME/.config/git"
 test -L "$HOME/.bashrc"
-test ! -e "$HOME/.config/opencode.mi.bk"
+test ! -e "$HOME/.config/nvim.mi.bk"
 test ! -e "$HOME/.config/opencode.mi.bk"
 
 # A broken symlink is an existing destination and must be backed up.
@@ -96,7 +96,7 @@ test ! -e "$HOME/.bashrc"
 bash "$repo/mi" deploy
 test ! -e "$HOME/.config/opencode.mi.bk"
 
-# Opt-in package selection, including a 'files' package.
+# Opt-in package selection for an additional 'this' package.
 export MI_PACKAGES="neovim"
 bash "$repo/mi" deploy
 test -d "$HOME/.config/nvim"
