@@ -135,6 +135,7 @@ if bash "$repo/mi" install; then
 fi
 
 # Exercise auto-activation using a fake systemctl, never the CI host manager.
+unset MI_PROFILE MI_PACKAGES
 mkdir -p "$tmp/fake-bin" "$tmp/runtime"
 cat > "$tmp/fake-bin/systemctl" <<'MOCK'
 #!/bin/bash
