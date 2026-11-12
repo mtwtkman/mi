@@ -68,6 +68,8 @@ test -L "$HOME/.config/nvim"
 test -L "$HOME/.config/opencode"
 test -L "$HOME/.config/git"
 test -L "$HOME/.bashrc"
+test -f "$HOME/.config/systemd/user/ssh-agent.service"
+grep -Fq "ExecStart=/usr/bin/ssh-agent -D -a %t/ssh-agent.sock" "$HOME/.config/systemd/user/ssh-agent.service"
 test ! -e "$HOME/.config/nvim.mi.bk"
 test ! -e "$HOME/.config/opencode.mi.bk"
 
@@ -93,6 +95,7 @@ test -d "$HOME/.config/opencode"
 test ! -L "$HOME/.config/opencode"
 test ! -e "$HOME/.config/foot"
 test ! -e "$HOME/.bashrc"
+test ! -e "$HOME/.config/systemd/user/ssh-agent.service"
 bash "$repo/mi" deploy
 test ! -e "$HOME/.config/opencode.mi.bk"
 
@@ -129,4 +132,15 @@ if bash "$repo/mi" install; then
   exit 1
 fi
 
+# A custom user unit must never be replaced.
+unset MI_PROFILE MI_PACKAGES
+export HOME="$tmp/custom-home"
+export XDG_CONFIG_HOME="$HOME/.config"
+mkdir -p "$XDG_CONFIG_HOME/systemd/user"
+printf 'custom unit\n' > "$XDG_CONFIG_HOME/systemd/user/ssh-agent.service"
+if bash "$repo/modules/linux_user.sh"; then
+  echo 'FAIL: custom SSH agent unit was overwritten or accepted' >&2
+  exit 1
+fi
+grep -qx 'custom unit' "$XDG_CONFIG_HOME/systemd/user/ssh-agent.service"
 echo 'All Mi deployment regression tests passed.'
