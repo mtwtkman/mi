@@ -68,7 +68,7 @@ test -L "$HOME/.config/nvim"
 test -L "$HOME/.config/opencode"
 test -L "$HOME/.config/git"
 test -L "$HOME/.bashrc"
-test ! -e "$HOME/.config/nvim.mi.bk"
+test ! -e "$HOME/.config/opencode.mi.bk"
 test ! -e "$HOME/.config/opencode.mi.bk"
 
 # A broken symlink is an existing destination and must be backed up.
@@ -87,33 +87,33 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export MI_PROFILE=container
 unset MI_PACKAGES MI_DEPLOY_MODE
 bash "$repo/mi" deploy
-test -d "$HOME/.config/nvim"
-test ! -L "$HOME/.config/nvim"
-test -d "$HOME/.config/tmux"
-test ! -L "$HOME/.config/tmux"
+test -d "$HOME/.config/git"
+test ! -L "$HOME/.config/git"
+test -d "$HOME/.config/opencode"
+test ! -L "$HOME/.config/opencode"
 test ! -e "$HOME/.config/foot"
 test ! -e "$HOME/.bashrc"
 bash "$repo/mi" deploy
-test ! -e "$HOME/.config/nvim.mi.bk"
+test ! -e "$HOME/.config/opencode.mi.bk"
 
 # Opt-in package selection, including a 'files' package.
-export MI_PACKAGES="git"
+export MI_PACKAGES="neovim"
 bash "$repo/mi" deploy
-test -d "$HOME/.config/git"
-test ! -L "$HOME/.config/git"
+test -d "$HOME/.config/nvim"
+test ! -L "$HOME/.config/nvim"
 
 # A modified file is backed up, and a second conflicting change is rejected.
 unset MI_PACKAGES
-printf 'modified\n' > "$HOME/.config/nvim/mi-regression-test"
+printf 'modified\n' > "$HOME/.config/opencode/mi-regression-test"
 bash "$repo/mi" deploy
-test -d "$HOME/.config/nvim.mi.bk"
-test -f "$HOME/.config/nvim.mi.bk/mi-regression-test"
-printf 'modified again\n' > "$HOME/.config/nvim/mi-regression-test"
+test -d "$HOME/.config/opencode.mi.bk"
+test -f "$HOME/.config/opencode.mi.bk/mi-regression-test"
+printf 'modified again\n' > "$HOME/.config/opencode/mi-regression-test"
 if bash "$repo/mi" deploy; then
   echo 'FAIL: existing container backup was overwritten' >&2
   exit 1
 fi
-test -f "$HOME/.config/nvim/mi-regression-test"
+test -f "$HOME/.config/opencode/mi-regression-test"
 
 # Container profile must never invoke package managers.
 if bash "$repo/mi" install; then
