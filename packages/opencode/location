@@ -1,2 +1,2 @@
 #!/bin/sh
-echo "/home/me/.config/opencode"
+printf '%s\n' "${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
