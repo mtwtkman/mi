@@ -18,7 +18,7 @@ deploy_settings()
   if [ -n "${MI_PACKAGES:-}" ]; then
     read -r -a targets <<< "${MI_PACKAGES}"
   elif [ "${MI_PROFILE:-host}" = container ]; then
-    targets=(neovim tmux)
+    targets=(git opencode)
   else
     targets=(*)
   fi
