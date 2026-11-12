@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if ! command -v "git" &> /dev/null; then
-  echo "Mi requires \`git\`. Please install it."
+  echo "Mi requires `git`. Please install it."
   exit 1
 fi
 
@@ -27,6 +27,10 @@ git clone https://github.com/mtwtkman/mi.git
 popd &> /dev/null
 
 pushd "${dest}" &> /dev/null
-./mi install
+if [ "${MI_PROFILE:-host}" = container ]; then
+  ./mi deploy
+else
+  ./mi install
+fi
 popd &> /dev/null
 echo "Restart your shell or source ~/.bash_profile to load updated settings."

@@ -161,4 +161,31 @@ if bash "$repo/modules/linux_user.sh"; then
   exit 1
 fi
 grep -qx 'custom unit' "$XDG_CONFIG_HOME/systemd/user/ssh-agent.service"
+# The bootstrap script must deploy (not install) in container mode.
+# Mock git clone to avoid network access and observe the invoked command.
+mkdir -p "$tmp/setup-bin"
+cat > "$tmp/setup-bin/git" <<'MOCK'
+#!/usr/bin/env bash
+if [[ "${1:-}" == clone ]]; then
+  mkdir -p "$HOME/.local/mi"
+  cat > "$HOME/.local/mi/mi" <<'MI'
+#!/usr/bin/env bash
+printf '%s\n' "$*" > "$HOME/setup-command"
+MI
+  chmod +x "$HOME/.local/mi/mi"
+else
+  exit 1
+fi
+MOCK
+chmod +x "$tmp/setup-bin/git"
+export PATH="$tmp/setup-bin:$PATH"
+export HOME="$tmp/setup-container-home"
+mkdir -p "$HOME"
+MI_PROFILE=container bash "$repo/setup"
+grep -qx deploy "$HOME/setup-command"
+export HOME="$tmp/setup-host-home"
+mkdir -p "$HOME"
+bash "$repo/setup"
+grep -qx install "$HOME/setup-command"
+
 echo 'All Mi deployment regression tests passed.'
