@@ -5,7 +5,7 @@ FALSE=0
 
 function is_boxable()
 {
-  [[ -e "box" ]] && [[ -e "distrobox.ini" ]] && echo $TRUE || echo $FALSE
+  [[ -f "boxkit.ini" ]] && [[ -f "box" ]] && echo $TRUE || echo $FALSE
 }
 
 function climb()
