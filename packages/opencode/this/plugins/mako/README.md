@@ -29,9 +29,10 @@ Tests (Node is installed on the host):
 node --test ~/.config/opencode/plugins/mako/runtime.test.mjs
 ```
 
-Preview a real notification and sound:
+Preview a real notification and sound from the plugin directory:
 
 ```sh
+cd ~/.config/opencode/plugins/mako
 node --input-type=module -e \
   'import { desktopNotify } from "./runtime.mjs"; await desktopNotify("completed", "Notification test")'
 ```
