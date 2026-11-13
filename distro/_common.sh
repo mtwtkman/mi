@@ -54,11 +54,13 @@ perform()
     deploy) deploy_settings;;
     update)
       local failed=0
+      blue "Updating system packages."
       if ! eval "${update_command}"; then
         red "Package update failed."
         failed=1
       fi
       if [[ "${MI_PROFILE:-host}" != container ]]; then
+        blue "Updating Boxkit (Git checkout)."
         if ! mi_boxkit_update; then
           red "Boxkit update failed."
           failed=1
