@@ -1,16 +1,8 @@
 import { execFile } from "node:child_process"
-import { existsSync } from "node:fs"
 import { promisify } from "node:util"
 import { setTimeout as delay } from "node:timers/promises"
 
 const execute = promisify(execFile)
-const bridge = "/usr/bin/distrobox-host-exec"
-
-function host(command, args) {
-  return existsSync("/run/.containerenv") && existsSync(bridge)
-    ? execute(bridge, [command, ...args], { timeout: 10000 })
-    : execute(command, args, { timeout: 10000 })
-}
 
 export async function desktopNotify(kind, title) {
   const action = kind === "action-required"
@@ -20,7 +12,7 @@ export async function desktopNotify(kind, title) {
   const body = title ? `${message}\n${title}` : message
   // Explicitly play one sound; don't also ask the notification daemon to play it.
   const results = await Promise.allSettled([
-    host("notify-send", [
+    execute("notify-send", [
       "--app-name=OpenCode",
       `--category=opencode.${kind}`,
       `--urgency=${action ? "normal" : "low"}`,
@@ -29,7 +21,7 @@ export async function desktopNotify(kind, title) {
       "--icon=dialog-information",
       "--", "OpenCode", body,
     ]),
-    host("canberra-gtk-play", ["-i", action ? "dialog-warning" : "complete"]),
+    execute("canberra-gtk-play", ["-i", action ? "dialog-warning" : "complete"]),
   ])
   const errors = results.filter((result) => result.status === "rejected")
   if (errors.length) throw new AggregateError(errors.map((result) => result.reason), "Desktop alert failed")

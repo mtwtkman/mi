@@ -21,7 +21,6 @@ export MI_ENTER_BOX_LOG="$tmp/enter-box.log"
 grep -qx 'e' "$MI_ENTER_BOX_LOG"
 
 rm "$MI_ENTER_BOX_LOG" "$tmp/project/boxkit.ini"
-printf '[legacy]\n' > "$tmp/project/distrobox.ini"
 output="$(
   cd "$tmp/project/src/nested"
   bash "$repo/packages/myscript/this/enter-box"
