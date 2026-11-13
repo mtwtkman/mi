@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process"
 import { promisify } from "node:util"
 import { setTimeout as delay } from "node:timers/promises"
+import { fileURLToPath } from "node:url"
 
 const execute = promisify(execFile)
 
@@ -21,7 +22,10 @@ export async function desktopNotify(kind, title) {
       "--icon=dialog-information",
       "--", "OpenCode", body,
     ]),
-    execute("canberra-gtk-play", ["-i", action ? "dialog-warning" : "complete"]),
+    execute("canberra-gtk-play", [
+      "-f",
+      fileURLToPath(new URL(`./sounds/${action ? "action-required" : "completed"}.wav`, import.meta.url)),
+    ]),
   ])
   const errors = results.filter((result) => result.status === "rejected")
   if (errors.length) throw new AggregateError(errors.map((result) => result.reason), "Desktop alert failed")
