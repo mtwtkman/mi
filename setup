@@ -15,6 +15,10 @@ dest="${local_dir}/mi"
 
 if [ -d "${dest}" ]; then
   if [ -z "${force}" ]; then
+    if [ "${MI_PROFILE:-host}" = container ]; then
+      bash "${dest}/mi" deploy
+      exit $?
+    fi
     pushd "${dest}"
     echo "Here is your setting collection at ${dest}. bye."
     exit 0
