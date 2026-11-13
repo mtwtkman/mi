@@ -2,6 +2,7 @@
 here="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${here}/../modules/message.sh"
 source "${here}/../modules/select_packages.sh"
+source "${here}/../modules/boxkit.sh"
 
 install_basic_packages()
 {
@@ -45,11 +46,17 @@ perform()
   case "${target_command}" in
     install)
       install_basic_packages "${install_command}" || return 1
+      if [[ "${MI_PROFILE:-host}" != container ]]; then
+        mi_boxkit_install || return 1
+      fi
       deploy_settings
       ;;
     deploy) deploy_settings;;
     update)
-      eval "${update_command}"
+      eval "${update_command}" || return 1
+      if [[ "${MI_PROFILE:-host}" != container ]]; then
+        mi_boxkit_update || return 1
+      fi
       ;;
     purge)
       eval "${purge_command}"

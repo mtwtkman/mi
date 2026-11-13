@@ -35,4 +35,5 @@ jobs:
         run: |
           bash tests/deploy.sh
           bash tests/install.sh
+          bash tests/boxkit.sh
           bash tests/enter-box.sh
