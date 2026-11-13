@@ -8,7 +8,7 @@ trap 'rm -rf -- "$tmp"' EXIT
 mkdir -p "$tmp/project/src/nested"
 cat > "$tmp/project/box" <<'BOX'
 #!/usr/bin/env bash
-printf '%s\n' "$1" > "$MI_ENTER_BOX_LOG"
+printf '%s\n' "$@" > "$MI_ENTER_BOX_LOG"
 BOX
 chmod +x "$tmp/project/box"
 printf '[container]\n' > "$tmp/project/boxkit.ini"
@@ -19,6 +19,14 @@ export MI_ENTER_BOX_LOG="$tmp/enter-box.log"
   bash "$repo/packages/myscript/this/enter-box"
 )
 grep -qx 'e' "$MI_ENTER_BOX_LOG"
+grep -qx -- '--workdir' "$MI_ENTER_BOX_LOG"
+grep -qx '/workspace/src/nested' "$MI_ENTER_BOX_LOG"
+(
+  cd "$tmp/project"
+  bash "$repo/packages/myscript/this/enter-box"
+)
+grep -qx '/workspace' "$MI_ENTER_BOX_LOG"
+
 
 rm "$MI_ENTER_BOX_LOG" "$tmp/project/boxkit.ini"
 output="$(
