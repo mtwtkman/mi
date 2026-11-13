@@ -33,7 +33,6 @@ mi_install_packages() {
     make \
     man-db \
     neovim \
-    nnn \
     ripgrep \
     tmux
 }

@@ -7,7 +7,6 @@ mi_install_packages() {
     bash \
     bash-completion \
     bash-language-server \
-    bat \
     fd \
     fzf \
     gcc \
@@ -16,13 +15,11 @@ mi_install_packages() {
     make \
     man-db \
     neovim \
-    nnn \
     openssh \
     docker \
     docker-compose \
     ripgrep \
-    tmux \
-    trash
+    tmux
 }
 
 mi_update_packages() {

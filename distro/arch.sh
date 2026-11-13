@@ -1,7 +1,7 @@
 #!/bin/bash
 here="$(readlink -m $(dirname ${BASH_SOURCE[0]}))"
 
-function install_paru()
+install_paru()
 {
   currentdir=$(pwd)
   sudo pacman -S --noconfirm --needed base-devel
@@ -23,7 +23,6 @@ mi_install_packages() {
     bash-language-server \
     crun \
     foot \
-    flatpak \
     podman \
     podman-compose \
     fd \
@@ -38,7 +37,6 @@ mi_install_packages() {
     mako \
     man-db \
     neovim \
-    nnn \
     openssh \
     rebuild-detector \
     ripgrep \
