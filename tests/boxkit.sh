@@ -50,14 +50,15 @@ grep -Fqx -- "-C $HOME/.local/share/boxkit pull --ff-only" "$MI_BOXKIT_GIT_LOG"
 source "$repo/distro/_common.sh"
 deploy_settings() { :; }
 install_basic_packages() { :; }
+mi_update_packages() { :; }
 : > "$MI_BOXKIT_GIT_LOG"
-perform ':' ':' ':' deploy
+perform deploy
 [[ ! -s "$MI_BOXKIT_GIT_LOG" ]]
 
 # Both install and update invoke the same shared helper on the host.
-perform ':' ':' ':' install
+perform install
 [[ ! -s "$MI_BOXKIT_GIT_LOG" ]]
-perform ':' ':' ':' update
+perform update
 grep -q '^\-C .* pull --ff-only$' "$MI_BOXKIT_GIT_LOG"
 
 # Refuse to overwrite unrelated binaries/symlinks.
