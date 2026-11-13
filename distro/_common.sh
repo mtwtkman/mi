@@ -53,10 +53,18 @@ perform()
       ;;
     deploy) deploy_settings;;
     update)
-      eval "${update_command}" || return 1
-      if [[ "${MI_PROFILE:-host}" != container ]]; then
-        mi_boxkit_update || return 1
+      local failed=0
+      if ! eval "${update_command}"; then
+        red "Package update failed."
+        failed=1
       fi
+      if [[ "${MI_PROFILE:-host}" != container ]]; then
+        if ! mi_boxkit_update; then
+          red "Boxkit update failed."
+          failed=1
+        fi
+      fi
+      return "$failed"
       ;;
     purge)
       eval "${purge_command}"
