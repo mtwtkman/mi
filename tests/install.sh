@@ -44,6 +44,29 @@ if MI_FAIL_BREW=1 bash "$repo/distro/debian.sh" install >/dev/null; then
   exit 1
 fi
 
+# Arch install must install only Mi's selected packages, not update unrelated AUR
+# packages (such as a locally installed, currently unbuildable howdy-git).
+cat > "$tmp/bin/paru" <<'MOCK'
+#!/usr/bin/env bash
+printf 'paru %s\n' "$*" >> "$MI_TEST_LOG"
+MOCK
+cat > "$tmp/bin/checkrebuild" <<'MOCK'
+#!/usr/bin/env bash
+printf 'checkrebuild %s\n' "$*" >> "$MI_TEST_LOG"
+MOCK
+chmod +x "$tmp/bin/paru" "$tmp/bin/checkrebuild"
+: > "$MI_TEST_LOG"
+bash "$repo/distro/arch.sh" install >/dev/null
+grep -q '^paru -S --needed --noconfirm bash bash-completion ' "$MI_TEST_LOG"
+! grep -q '^paru -Syu' "$MI_TEST_LOG"
+! grep -q 'howdy-git' "$MI_TEST_LOG"
+
+# Update retains an explicit, system-wide upgrade and rebuild check.
+: > "$MI_TEST_LOG"
+bash "$repo/distro/arch.sh" update >/dev/null
+grep -qx 'paru -Syu --noconfirm' "$MI_TEST_LOG"
+grep -qx 'checkrebuild ' "$MI_TEST_LOG"
+
 # setup must preserve the failing mi exit status, not return its final echo status.
 cat > "$tmp/bin/git" <<'MOCK'
 #!/usr/bin/env bash
