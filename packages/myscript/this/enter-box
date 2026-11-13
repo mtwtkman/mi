@@ -1,32 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-TRUE=1
-FALSE=0
-
-function is_boxable()
-{
-  [[ -f "boxkit.ini" ]] && [[ -f "box" ]] && echo $TRUE || echo $FALSE
-}
-
-function climb()
-{
-  cd ../
-}
-
-here=$(pwd)
-found=$FALSE
-depth=0
-
-while ([ $found == $FALSE ] && [ "$(pwd)" != "/" ]); do
-  found=$(is_boxable)
-  [[ $found == $FALSE ]] && depth=$((depth + 1)) && climb
+# Find the nearest Boxkit project without changing the caller's directory.
+here="$(pwd -P)"
+root="$here"
+while [[ "$root" != / ]]; do
+  if [[ -f "$root/boxkit.ini" && -f "$root/box" ]]; then
+    relative="${here#"$root"}"
+    relative="${relative#/}"
+    workdir=/workspace
+    [[ -z "$relative" ]] || workdir="/workspace/$relative"
+    exec "$root/box" e --workdir "$workdir"
+  fi
+  root="$(dirname -- "$root")"
 done
 
-[ $found == $FALSE ] && echo "box cannot be found" && exit 0
-
-cd "${here}"
-path=""
-for i in $(seq 1 ${depth}); do
-  path="../${path}"
-done
-./${path}box e
+printf '%s\n' 'box cannot be found'
