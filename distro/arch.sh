@@ -15,8 +15,8 @@ function install_paru()
   /bin/rm -rf $workdir
 }
 
-install_command="
-  command -v paru >/dev/null || install_paru
+mi_install_packages() {
+  command -v paru >/dev/null || install_paru || return 1
   paru -S --needed --noconfirm \
     bash \
     bash-completion \
@@ -48,9 +48,15 @@ install_command="
     ttf-hack-nerd \
     unzip \
     wl-clipboard
-"
-update_command="paru -Syu --noconfirm && checkrebuild"
-purge_command="paru -c --noconfirm"
+}
+
+mi_update_packages() {
+  paru -Syu --noconfirm && checkrebuild
+}
+
+mi_purge_packages() {
+  paru -c --noconfirm
+}
 
 source "${here}/_common.sh"
-perform "${install_command}" "${update_command}" "${purge_command}" "${1}"
+perform "${1:-}"
