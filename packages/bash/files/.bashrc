@@ -44,7 +44,6 @@ alias mi="pushd ${MI_HOME}"
 alias miup="mi && ./mi update && popd"
 alias miclean="mi && ./mi purge && popd"
 alias micl="miclean"
-alias boxkit="curl https://raw.githubusercontent.com/mtwtkman/boxkit/main/boxkit | sh -s"
 
 ### TOOL ###
 # DISTROBOX
