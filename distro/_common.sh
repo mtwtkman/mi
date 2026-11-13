@@ -6,13 +6,8 @@ source "${here}/../modules/boxkit.sh"
 
 install_basic_packages()
 {
-  install_command="${1}"
   blue "Install basic packages."
-  if declare -F mi_install_packages >/dev/null; then
-    mi_install_packages
-  else
-    eval "${install_command}"
-  fi
+  mi_install_packages
 }
 
 deploy_settings()
@@ -39,13 +34,10 @@ deploy_settings()
 
 perform()
 {
-  install_command="${1}"
-  update_command="${2}"
-  purge_command="${3}"
-  target_command="${4}"
+  local target_command="${1}"
   case "${target_command}" in
     install)
-      install_basic_packages "${install_command}" || return 1
+      install_basic_packages || return 1
       if [[ "${MI_PROFILE:-host}" != container ]]; then
         mi_boxkit_install || return 1
       fi
@@ -55,7 +47,7 @@ perform()
     update)
       local failed=0
       blue "Updating system packages."
-      if ! eval "${update_command}"; then
+      if ! mi_update_packages; then
         red "Package update failed."
         failed=1
       fi
@@ -69,7 +61,7 @@ perform()
       return "$failed"
       ;;
     purge)
-      eval "${purge_command}"
+      mi_purge_packages
       ;;
     *)
       red "Available commands are: install,deploy,update,purge"
