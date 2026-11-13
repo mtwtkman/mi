@@ -53,35 +53,4 @@ update_command="paru -Syu --noconfirm && checkrebuild"
 purge_command="paru -c --noconfirm"
 
 source "${here}/_common.sh"
-
-# A failing AUR package must not prevent independently managed tools from
-# updating. Preserve a failing exit status after attempting every stage.
-arch_update()
-{
-  local failed=0
-
-  if paru -Syu --noconfirm; then
-    if ! checkrebuild; then
-      red "checkrebuild failed."
-      failed=1
-    fi
-  else
-    red "Package update failed."
-    failed=1
-  fi
-
-  if [[ "${MI_PROFILE:-host}" != container ]]; then
-    if ! mi_boxkit_update; then
-      red "Boxkit update failed."
-      failed=1
-    fi
-  fi
-
-  return "$failed"
-}
-
-if [[ "${1}" == update ]]; then
-  arch_update
-else
-  perform "${install_command}" "${update_command}" "${purge_command}" "${1}"
-fi
+perform "${install_command}" "${update_command}" "${purge_command}" "${1}"
