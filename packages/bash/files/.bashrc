@@ -134,17 +134,6 @@ if command -v "mise" &> /dev/null; then
   eval "$(mise activate bash)"
 fi
 
-# NNN
-if command -v "nnn" &> /dev/null; then
-  export NNN_OPTS="adeH"
-  export NNN_PLUG="f:finder;p:fzplug"
-  export NO_COLOR=1
-
-  if command -v "chafa" &> /dev/null; then
-    export NNN_PREVIEWIMGPROG="chafa -f sixels"
-  fi
-fi
-
 # NVIM
 if command -v "nvim" &> /dev/null; then
   export EDITOR="nvim"
@@ -200,6 +189,7 @@ if [[ -n "$SSH_CONNECTION" ]]; then
 fi
 
 # EXTRA
+export NO_COLOR=1
 extra_bashrc="${HOME}/.bashrc.extra"
 [[ -e "${extra_bashrc}" ]] && source "${extra_bashrc}"
 
