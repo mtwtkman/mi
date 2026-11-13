@@ -88,4 +88,10 @@ status=$?
 set -e
 [[ "$status" -eq 42 ]] || { echo "FAIL: setup returned $status instead of 42" >&2; exit 1; }
 
+# The shell must resolve the installed Boxkit binary, not a legacy curl|sh alias.
+if grep -Eq '^[[:space:]]*alias[[:space:]]+boxkit=' "$repo/packages/bash/files/.bashrc"; then
+  echo 'FAIL: legacy boxkit alias masks the installed executable' >&2
+  exit 1
+fi
+
 echo 'All Mi installer regression tests passed.'
