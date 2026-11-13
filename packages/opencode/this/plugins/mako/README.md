@@ -1,8 +1,11 @@
 # Local OpenCode desktop notifications (V2)
 
 Globally discovered server plugin; works even with the TUI unfocused or closed
-while the OpenCode service continues running. In Distrobox, desktop commands
-are forwarded to the host using `distrobox-host-exec`.
+while the OpenCode service continues running. Desktop commands execute locally
+in the OpenCode process environment. For Boxkit containers, enable session
+D-Bus forwarding and install `libnotify` plus `libcanberra` in the container;
+notification delivery requires the host session bus. Audio playback additionally
+requires a working audio backend in the container and may be unavailable.
 
 - Main session `session.execution.succeeded`: green mako popup (2 seconds),
   Freedesktop `complete` sound.
@@ -23,12 +26,12 @@ notification plugin. Server plugins reload automatically on config changes.
 Tests (Node is installed on the host):
 
 ```sh
-distrobox-host-exec node --test ~/.config/opencode/plugins/mako/runtime.test.mjs
+node --test ~/.config/opencode/plugins/mako/runtime.test.mjs
 ```
 
 Preview a real notification and sound:
 
 ```sh
-distrobox-host-exec node --input-type=module -e \
-  'import { desktopNotify } from "file:///home/me/work/dev/.distrobox/home/.config/opencode/plugins/mako/runtime.mjs"; await desktopNotify("completed", "Notification test")'
+node --input-type=module -e \
+  'import { desktopNotify } from "./runtime.mjs"; await desktopNotify("completed", "Notification test")'
 ```
