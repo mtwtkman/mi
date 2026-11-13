@@ -27,7 +27,6 @@ mi_install_packages() {
     bat \
     podman \
     podman-compose \
-    distrobox \
     fd \
     fzf \
     gcc \

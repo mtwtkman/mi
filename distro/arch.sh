@@ -26,7 +26,6 @@ install_command="
     flatpak \
     podman \
     podman-compose \
-    distrobox \
     fd \
     fzf \
     gcc \

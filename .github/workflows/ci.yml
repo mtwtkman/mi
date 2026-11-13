@@ -35,3 +35,4 @@ jobs:
         run: |
           bash tests/deploy.sh
           bash tests/install.sh
+          bash tests/enter-box.sh
