@@ -1,7 +1,6 @@
 #!/bin/bash
 here="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
-# Use a function instead of interpolating the installer source into an eval string.
 mi_install_packages() {
   sudo apt update || return
   sudo apt upgrade -y || return
@@ -39,9 +38,13 @@ mi_install_packages() {
     tmux
 }
 
-install_command=""
-update_command="sudo apt update && sudo apt upgrade -y && brew update && brew upgrade"
-purge_command="sudo apt autoclean && sudo apt autopurge && brew autoremove"
+mi_update_packages() {
+  sudo apt update && sudo apt upgrade -y && brew update && brew upgrade
+}
+
+mi_purge_packages() {
+  sudo apt autoclean && sudo apt autopurge && brew autoremove
+}
 
 source "${here}/_common.sh"
-perform "${install_command}" "${update_command}" "${purge_command}" "${1:-}"
+perform "${1:-}"
