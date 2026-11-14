@@ -9,9 +9,13 @@ fail() {
 [[ $# -eq 1 && "$1" =~ ^[a-zA-Z0-9_-]+(,[a-zA-Z0-9_-]+)*$ ]] ||
   fail 'usage: box-midep <package1,package2,...>'
 
+# Locate the nearest Boxkit project, as enter-box does.
 root="$(pwd -P)"
+while [[ ! -f "$root/boxkit.ini" ]]; do
+  [[ "$root" != / ]] || fail 'boxkit.ini not found in current directory or its parents'
+  root="$(dirname -- "$root")"
+done
 config="$root/boxkit.ini"
-[[ -f "$config" ]] || fail "boxkit.ini not found: $config"
 
 # Read the [container] home setting without sourcing executable INI content.
 section=''
