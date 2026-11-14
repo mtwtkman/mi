@@ -111,6 +111,27 @@ test ! -e "$HOME/.config/nvim"
 MI_PACKAGES='neovim' HOME="$target_home" bash "$repo/mi" deploy
 test ! -e "$target_home/.config/nvim.mi.bk"
 
+# A relative HOME is resolved against the caller's CWD, not package directories.
+mkdir -p "$tmp/relative-root"
+(
+  cd "$tmp/relative-root"
+  MI_PACKAGES='opencode' HOME=./nested/home bash "$repo/mi" deploy
+)
+test -d "$tmp/relative-root/nested/home/.config/opencode"
+test ! -L "$tmp/relative-root/nested/home/.config/opencode"
+test ! -e "$repo/packages/opencode/nested/home/.config/opencode"
+
+# A relative spelling of the host account HOME must still be rejected.
+(
+  cd "$tmp"
+  if MI_PACKAGES='neovim' HOME=./home MI_TEST_ACCOUNT_HOME="$tmp/home" \
+    PATH="$tmp/fake-account-bin:$PATH" bash "$repo/mi" deploy; then
+    echo 'FAIL: relative alias of account HOME was accepted' >&2
+    exit 1
+  fi
+)
+test -L "$tmp/home/.config/nvim"
+
 # A selected deploy must not honor link mode or leak inherited XDG_CONFIG_HOME.
 MI_PACKAGES='git' MI_DEPLOY_MODE=link HOME="$target_home" bash "$repo/mi" deploy
 test -d "$target_home/.config/git"
