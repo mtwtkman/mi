@@ -23,17 +23,23 @@ To select packages explicitly:
 MI_PROFILE=container MI_PACKAGES="git opencode neovim" ./mi deploy
 ```
 
-To deploy from a host Mi checkout directly into a separate Boxkit HOME:
+To copy selected package configuration from a host Mi checkout into a
+separate Boxkit HOME:
 
 ```bash
-./mi deploy --home /path/to/.boxkit/home --mode copy neovim git
+MI_PACKAGES="neovim git" HOME=./.boxkit/home ./mi deploy
 ```
 
-The `--home` option sets HOME and XDG_CONFIG_HOME for deployment only and
-suppresses host user-service activation. Explicit package selection also
-suppresses service activation. The target path must be absolute; the caller
-must have write permission. This applies configuration files only, and does
-not install the corresponding binaries inside the container.
+When `MI_PACKAGES` is set, Mi resolves `HOME` relative to the invoking
+working directory before running any package `location` scripts. Linux
+also permits a target HOME that does not yet exist; on macOS the
+target directory must already exist. Selected packages are always copied,
+never linked, and host user-service activation is skipped. Host-mode
+deployments refuse a target HOME resolving to the account's regular HOME,
+even if its path is spelled relatively. Selected deployment sets
+`XDG_CONFIG_HOME` to `$HOME/.config` so inherited host XDG paths cannot
+redirect the copy. Only configuration files are deployed; no packages are
+installed inside the container.
 
 The container profile uses `MI_DEPLOY_MODE=copy` by default when no package
 selection is given. The default avoids references to the Mi checkout when
