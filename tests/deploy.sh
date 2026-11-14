@@ -311,6 +311,7 @@ if command -v script >/dev/null 2>&1; then
   test -e "$sweep_stamp/.unrelated/random.mi.bk.20261114T053000Z"
 fi
 
+set -x
 # Sweep must list only Mi-managed backups and require interactive confirmation.
 export HOME="$tmp/sweep-home"
 export XDG_CONFIG_HOME="$HOME/.config"
