@@ -15,7 +15,7 @@ deploy_settings()
   blue "Deploy configs."
   local target
   local -a packages=()
-  mi_select_packages "$here/.." || return 1
+  mi_select_packages "$here/.." "$@" || return 1
   for target in "${packages[@]}"
   do
     blue "Deploy ${target} configs."
@@ -26,7 +26,7 @@ deploy_settings()
       return 1
     fi
   done
-  if [ "$(uname -s)" = Linux ] && [ "${MI_PROFILE:-host}" != container ]; then
+  if [ "$(uname -s)" = Linux ] && [ "${MI_PROFILE:-host}" != container ] && [[ $# -eq 0 && -z "${MI_PACKAGES:-}" && -z "${MI_TARGET_HOME:-}" ]]; then
     bash "${here}/../modules/linux_user.sh" || return 1
   fi
   green "Done."
@@ -43,7 +43,7 @@ perform()
       fi
       deploy_settings
       ;;
-    deploy) deploy_settings;;
+    deploy) shift; deploy_settings "$@";;
     update)
       local failed=0
       blue "Updating system packages."
