@@ -30,6 +30,29 @@ fi
 # Selected packages are copied to the requested HOME, not linked to this checkout.
 # Avoid an inherited XDG_CONFIG_HOME pointing back to the invoking host.
 if [[ "${1:-}" == deploy && -n "${MI_PACKAGES:-}" ]]; then
+  if [[ "${MI_PROFILE:-host}" != container ]]; then
+    # The host account's actual HOME must never be changed from links to copies.
+    account_home=""
+    if command -v getent >/dev/null 2>&1; then
+      account_entry="$(getent passwd "$(id -u)")" || {
+        red "Cannot determine account HOME; refusing targeted host deployment."
+        exit 1
+      }
+      account_home="$(printf '%s\\n' "$account_entry" | cut -d: -f6)"
+    elif [[ "$ostype" == darwin ]] && command -v dscl >/dev/null 2>&1; then
+      account_home="$(dscl . -read "/Users/$(id -un)" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+    fi
+    if [[ -z "$account_home" ]]; then
+      red "Cannot determine account HOME; refusing targeted host deployment."
+      exit 1
+    fi
+    target_home="$(realpath -m -- "$HOME")" || exit 1
+    actual_home="$(realpath -m -- "$account_home")" || exit 1
+    if [[ "$target_home" == "$actual_home" ]]; then
+      red "MI_PACKAGES would copy settings into the host HOME. Set HOME to a separate destination."
+      exit 1
+    fi
+  fi
   export MI_DEPLOY_MODE=copy
   export XDG_CONFIG_HOME="$HOME/.config"
 fi
