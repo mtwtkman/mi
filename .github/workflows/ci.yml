@@ -38,3 +38,4 @@ jobs:
           bash tests/boxkit.sh
           bash tests/enter-box.sh
           bash tests/box-midep.sh
+          bash tests/help.sh

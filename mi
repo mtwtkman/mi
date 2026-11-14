@@ -1,4 +1,60 @@
 #!/bin/bash
+show_help() {
+  cat <<'HELP'
+Usage: mi <command>
+       mi --help
+
+Commands:
+  deploy     Deploy managed configuration files.
+  install    Install system packages and deploy configuration (host only).
+  update     Update system packages and managed tools (host only).
+  purge      Remove unneeded system packages (host only).
+  sweep      Review and optionally delete Mi .mi.bk backup files.
+  --help     Show this help message.
+
+Environment:
+  MI_PROFILE        host (default) or container.
+                    container permits deploy only and defaults to copying
+                    git, opencode and neovim configuration.
+  MI_PACKAGES       Space-separated Mi configuration package names.
+                    Overrides the default selection for deploy and sweep.
+                    During deploy, a nonempty selection forces copy mode,
+                    resets XDG_CONFIG_HOME to $HOME/.config, and skips host
+                    user-service activation. Host deployment refuses to
+                    copy into the account's normal HOME.
+  HOME              Deployment destination root, interpreted by each
+                    package's location script. With MI_PACKAGES set on
+                    deploy, relative HOME is resolved from the current
+                    directory before any package changes directory.
+  MI_DEPLOY_MODE    link (default host) or copy (default container).
+                    A selected deploy (MI_PACKAGES set) always uses copy,
+                    regardless of this variable.
+  XDG_CONFIG_HOME   Optional XDG configuration destination for packages
+                    that use it; ignored on selected deploys, where it is
+                    set to $HOME/.config.
+  DISTRO            Override distribution detection (e.g. arch, ubuntu,
+                    debian, macos). Primarily useful for testing.
+
+Examples:
+  mi deploy
+  MI_PROFILE=container mi deploy
+  MI_PACKAGES="neovim git" HOME=./.boxkit/home mi deploy
+  MI_PACKAGES="neovim git" mi sweep
+
+Notes:
+  - Package names in MI_PACKAGES are separated by spaces, not commas.
+  - Selected copy deployments can back up existing destinations as .mi.bk.
+  - Run 'box-midep neovim,git' inside a Boxkit project for automatic HOME
+    discovery (box-midep uses comma-separated package names).
+HELP
+}
+
+# Help must be side-effect free, regardless of HOME, profile, or distro.
+if [[ $# -eq 1 && ( "$1" == --help || "$1" == -h || "$1" == help ) ]]; then
+  show_help
+  exit 0
+fi
+
 # Detect OS without relying on GNU-only uname -o.
 case "$(uname -s)" in
   Linux) ostype=linux ;;
