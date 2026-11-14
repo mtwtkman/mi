@@ -38,7 +38,7 @@ if [[ "${1:-}" == deploy && -n "${MI_PACKAGES:-}" ]]; then
         red "Cannot determine account HOME; refusing targeted host deployment."
         exit 1
       }
-      account_home="$(printf '%s\\n' "$account_entry" | cut -d: -f6)"
+      account_home="$(cut -d: -f6 <<< "$account_entry")"
     elif [[ "$ostype" == darwin ]] && command -v dscl >/dev/null 2>&1; then
       account_home="$(dscl . -read "/Users/$(id -un)" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
     fi
