@@ -9,7 +9,8 @@ Commands:
   install    Install system packages and deploy configuration (host only).
   update     Update system packages and managed tools (host only).
   purge      Remove unneeded system packages (host only).
-  sweep      Review and optionally delete all Mi backup generations.
+  sweep      Review and delete Mi backups (all packages by default).
+             Use --force to skip interactive confirmation.
   --help     Show this help message.
 
 Environment:
@@ -17,7 +18,8 @@ Environment:
                     container permits deploy only and defaults to copying
                     git, opencode and neovim configuration.
   MI_PACKAGES       Space-separated Mi configuration package names.
-                    Overrides the default selection for deploy and sweep.
+                    Overrides the default selection for deploy and restricts
+                    sweep to the specified packages.
                     During deploy, a nonempty selection forces copy mode,
                     resets XDG_CONFIG_HOME to $HOME/.config, and skips host
                     user-service activation. Host deployment refuses to
@@ -39,6 +41,7 @@ Examples:
   mi deploy
   MI_PROFILE=container mi deploy
   MI_PACKAGES="neovim git" HOME=./.boxkit/home mi deploy
+  mi sweep --force
   MI_PACKAGES="neovim git" mi sweep
   MI_PACKAGES="neovim git" HOME=./.boxkit/home mi sweep
 
