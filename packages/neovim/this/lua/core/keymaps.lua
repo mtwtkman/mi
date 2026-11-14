@@ -1,6 +1,7 @@
 local terminal = require("core.terminal")
 local neogit = require("neogit")
 local qf_finder = require("local_plugins.quickfix.app.finder")
+local window_wrap = require("local_plugins.window_wrap")
 
 vim.keymap.set("n", "<ESC><ESC>", ":<C-u>nohlsearch<CR>", { silent = true })
 vim.keymap.set("n", "<leader>cf", ":CopyCurrentFileRelativePath<CR>", { silent = true })
@@ -28,3 +29,7 @@ vim.keymap.set("n", "<leader>b", qf_finder.find_recent_buffers, { silent = true 
 vim.keymap.set("n", "<leader>/", qf_finder.buffer_search, { silent = true })
 vim.keymap.set("n", "<leader>o", qf_finder.find_files, { silent = true })
 vim.keymap.set("n", "<leader>gc", neogit.open, { silent = true })
+vim.keymap.set("n", "<C-w>h", function() window_wrap.wrap_wincmd("h") end, { silent = true })
+vim.keymap.set("n", "<C-w>j", function() window_wrap.wrap_wincmd("j") end, { silent = true })
+vim.keymap.set("n", "<C-w>k", function() window_wrap.wrap_wincmd("k") end, { silent = true })
+vim.keymap.set("n", "<C-w>l", function() window_wrap.wrap_wincmd("l") end, { silent = true })
