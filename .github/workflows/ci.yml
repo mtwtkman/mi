@@ -39,3 +39,4 @@ jobs:
           bash tests/enter-box.sh
           bash tests/box-midep.sh
           bash tests/help.sh
+          bash tests/backup-conflict.sh
