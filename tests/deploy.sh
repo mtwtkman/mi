@@ -22,21 +22,25 @@ test "$(readlink "$destination")" = "$source_file"
 bash "$link" "$source_file" "$destination"
 test ! -e "$destination.mi.bk"
 
-# Existing user files must be backed up.
+# Existing user files are preserved in timestamped backups.
 rm -- "$destination"
 printf 'original\n' > "$destination"
 bash "$link" "$source_file" "$destination"
-grep -qx original "$destination.mi.bk"
+shopt -s nullglob
+backups=("$destination".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 1
+grep -qx original "${backups[0]}"
 
-# Existing backups must never be overwritten.
+# An existing legacy backup never blocks a new deployment.
 rm -- "$destination"
 printf 'new user file\n' > "$destination"
-if bash "$link" "$source_file" "$destination"; then
-  echo 'FAIL: overwrote an existing backup' >&2
-  exit 1
-fi
-grep -qx original "$destination.mi.bk"
-grep -qx 'new user file' "$destination"
+printf 'legacy\n' > "$destination.mi.bk"
+bash "$link" "$source_file" "$destination"
+backups=("$destination".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 2
+grep -qx legacy "$destination.mi.bk"
+test -L "$destination"
+test "$(readlink "$destination")" = "$source_file"
 
 # Missing source is an error.
 if bash "$link" "$tmp/missing" "$tmp/absent"; then
@@ -175,18 +179,18 @@ bash "$repo/mi" deploy
 test -d "$HOME/.config/nvim"
 test ! -L "$HOME/.config/nvim"
 
-# A modified file is backed up, and a second conflicting change is rejected.
+# Modified copy deployments generate timestamped backups without conflicts.
 unset MI_PACKAGES
 printf 'modified\n' > "$HOME/.config/opencode/mi-regression-test"
 bash "$repo/mi" deploy
-test -d "$HOME/.config/opencode.mi.bk"
-test -f "$HOME/.config/opencode.mi.bk/mi-regression-test"
+backups=("$HOME/.config/opencode".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 1
+test -f "${backups[0]}/mi-regression-test"
 printf 'modified again\n' > "$HOME/.config/opencode/mi-regression-test"
-if bash "$repo/mi" deploy; then
-  echo 'FAIL: existing container backup was overwritten' >&2
-  exit 1
-fi
-test -f "$HOME/.config/opencode/mi-regression-test"
+bash "$repo/mi" deploy
+backups=("$HOME/.config/opencode".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 2
+test ! -e "$HOME/.config/opencode/mi-regression-test"
 
 # Invalid package selections must fail through the top-level CLI.
 export MI_PACKAGES="does-not-exist"
