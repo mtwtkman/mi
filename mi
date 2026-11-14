@@ -27,6 +27,44 @@ if [ "${1:-}" = sweep ]; then
   exec bash "${here}/modules/sweep.sh"
 fi
 
+# Parse deploy-only options before preparing target directories.
+deploy_args=()
+if [[ "${1:-}" == deploy ]]; then
+  shift
+  while (($#)); do
+    case "$1" in
+      --home)
+        if (($# < 2)) || [[ -z "$2" || "$2" != /* ]]; then
+          red "--home requires an absolute directory path."
+          exit 1
+        fi
+        export MI_TARGET_HOME=1
+        export HOME="$2"
+        # XDG_CONFIG_HOME from the invoking host must not escape the target HOME.
+        export XDG_CONFIG_HOME="$HOME/.config"
+        shift 2
+        ;;
+      --mode)
+        if (($# < 2)) || [[ "$2" != copy && "$2" != link ]]; then
+          red "--mode must be copy or link."
+          exit 1
+        fi
+        export MI_DEPLOY_MODE="$2"
+        shift 2
+        ;;
+      --*)
+        red "Unknown deploy option: $1"
+        exit 1
+        ;;
+      *)
+        deploy_args+=("$1")
+        shift
+        ;;
+    esac
+  done
+  set -- deploy "${deploy_args[@]}"
+fi
+
 bash "${here}/modules/prepare.sh" || exit 1
 
 if [ "${MI_PROFILE:-host}" = container ]; then
