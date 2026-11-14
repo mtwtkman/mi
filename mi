@@ -46,8 +46,8 @@ Notes:
   - Package names in MI_PACKAGES are separated by spaces, not commas.
   - Deploy backups use .mi.bk.<UTC timestamp>; sweep also finds
     legacy backups and all timestamped generations.
-  - Run 'box-midep neovim,git' inside a Boxkit project for automatic HOME
-    discovery (box-midep uses comma-separated package names).
+  - Run 'box-midep neovim,git' or 'box-misweep neovim,git' inside a
+    Boxkit project for automatic HOME discovery (comma-separated names).
 HELP
 }
 

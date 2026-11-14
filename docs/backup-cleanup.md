@@ -16,11 +16,14 @@ Numeric suffixes prevent collisions within one second. Existing legacy
 ```bash
 mi sweep
 MI_PACKAGES="neovim git" HOME=./.boxkit/home mi sweep
+box-misweep neovim,git
 ```
 
 `mi sweep` selects all backup generations (`.mi.bk` and `.mi.bk.*`)
 associated with each selected package destination. The obsolete `--full`
 option is not accepted.
+
+`box-misweep` may be run from any subdirectory of a Boxkit project. It finds the nearest `boxkit.ini`, reads `[container] home`, requires that directory to exist, and runs `mi sweep` with comma-separated package names converted to `MI_PACKAGES`. As with `mi sweep`, deletion always requires interactive confirmation.
 
 `MI_PACKAGES` restricts the command to selected packages. If unset,
 `MI_PROFILE=container` selects container defaults, while host mode selects
