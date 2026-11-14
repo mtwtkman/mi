@@ -28,8 +28,11 @@ collect() {
   fi
   # Glob is confined to locations derived from Mi packages, not a recursive search.
   for backup in "$prefix".*; do
-    [[ -e "$backup" || -L "$backup" ]] && candidates+=("$backup")
+    if [[ -e "$backup" || -L "$backup" ]]; then
+      candidates+=("$backup")
+    fi
   done
+  return 0
 }
 
 for package in "${packages[@]}"; do
