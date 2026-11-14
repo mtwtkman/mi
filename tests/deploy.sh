@@ -263,7 +263,7 @@ chmod +x "$tmp/fake-bin/systemctl"
 bash "$repo/modules/linux_user.sh"
 ! grep -Eq 'daemon-reload| enable | start ' "$MI_SYSTEMCTL_LOG"
 
-# Sweep recognizes both legacy and timestamped backups for selected packages.
+# Sweep uses Mi package location, supports target HOME and --full generations.
 sweep_stamp="$tmp/sweep-timestamp-home"
 mkdir -p "$sweep_stamp/.config"
 printf 'legacy\n' > "$sweep_stamp/.config/nvim.mi.bk"
@@ -271,18 +271,46 @@ printf 'history\n' > "$sweep_stamp/.config/nvim.mi.bk.1"
 printf 'timestamp\n' > "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
 printf 'collision\n' > "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1"
 printf 'unrelated\n' > "$sweep_stamp/.config/nvim.mi.bk.invalid"
+printf 'other-package\n' > "$sweep_stamp/.config/git.mi.bk.20261114T053000Z"
+mkdir -p "$sweep_stamp/.unrelated"
+printf 'outside\n' > "$sweep_stamp/.unrelated/random.mi.bk.20261114T053000Z"
+
 if MI_PACKAGES=neovim HOME="$sweep_stamp" bash "$repo/mi" sweep </dev/null >"$tmp/sweep-preview.log" 2>&1; then
   echo 'FAIL: sweep without confirmation succeeded' >&2
   exit 1
 fi
-grep -Fq 'Mi backups to delete (4)' "$tmp/sweep-preview.log"
+grep -Fq 'Mi backups to delete (1)' "$tmp/sweep-preview.log"
+! grep -Fq 'nvim.mi.bk.20261114' "$tmp/sweep-preview.log"
+
+# Caller-relative HOME is resolved before packages/neovim/location runs.
+(
+  cd "$tmp"
+  if MI_PACKAGES=neovim HOME=./sweep-timestamp-home \
+      XDG_CONFIG_HOME="$tmp/host-xdg" bash "$repo/mi" sweep --full \
+      </dev/null >"$tmp/sweep-full-preview.log" 2>&1; then
+    echo 'FAIL: sweep --full without confirmation succeeded' >&2
+    exit 1
+  fi
+)
+grep -Fq 'Mi backups to delete (5)' "$tmp/sweep-full-preview.log"
+grep -Fq "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1" "$tmp/sweep-full-preview.log"
+! grep -Fq "$sweep_stamp/.config/git.mi.bk." "$tmp/sweep-full-preview.log"
+! grep -Fq "$sweep_stamp/.unrelated/random.mi.bk." "$tmp/sweep-full-preview.log"
+
+# Reject unsupported arguments; leave files untouched.
+if MI_PACKAGES=neovim HOME="$sweep_stamp" bash "$repo/mi" sweep --unknown >/dev/null 2>&1; then
+  echo 'FAIL: unknown sweep option succeeded' >&2
+  exit 1
+fi
 if command -v script >/dev/null 2>&1; then
-  printf 'y\n' | script -q -e -c "env MI_PACKAGES=neovim HOME='$sweep_stamp' bash '$repo/mi' sweep" /dev/null >/dev/null
+  printf 'y\n' | script -q -e -c "env MI_PACKAGES=neovim HOME='$sweep_stamp' bash '$repo/mi' sweep --full" /dev/null >/dev/null
   test ! -e "$sweep_stamp/.config/nvim.mi.bk"
   test ! -e "$sweep_stamp/.config/nvim.mi.bk.1"
   test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
   test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1"
-  test -e "$sweep_stamp/.config/nvim.mi.bk.invalid"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.invalid"
+  test -e "$sweep_stamp/.config/git.mi.bk.20261114T053000Z"
+  test -e "$sweep_stamp/.unrelated/random.mi.bk.20261114T053000Z"
 fi
 
 # Sweep must list only Mi-managed backups and require interactive confirmation.
