@@ -1,24 +1,31 @@
 # Backup cleanup
 
-Run `./mi sweep` to list `.mi.bk` backups corresponding to the currently selected Mi package destinations. The command asks for explicit `y` confirmation before permanently deleting files or directories. Any other response cancels deletion. Non-interactive invocation refuses to delete.
+Mi creates a backup only when a deployment would replace an existing destination
+(file, directory, or symlink). Backups use UTC timestamps, for example:
 
-The command works for both host and `MI_PROFILE=container` deployments. `MI_PACKAGES` can restrict the package selection. Unrelated files with a `.mi.bk` suffix outside Mi-managed destinations are not scanned.
+```text
+nvim.mi.bk.20261114T053000Z
+nvim.mi.bk.20261114T053000Z.1
+```
 
-## Conflicting backups during deploy
+The numeric suffix avoids collisions when multiple deployments occur in the
+same second. Backups are created without prompts, so non-interactive
+deployments (including `box-midep`) can proceed. Identical copies and
+already-correct symlinks remain no-ops.
 
-When a destination needs updating and `.mi.bk` already exists, `mi deploy`
-asks for one of the following actions on an interactive terminal:
+Previously created `.mi.bk` backups and `.mi.bk.N` rotated backups are
+retained without modification.
 
-- `r`: preserve the existing backup as `.mi.bk.1`, `.mi.bk.2`, etc.
-  (first available suffix), then move the current destination to `.mi.bk`.
-- `o`: permanently delete the existing `.mi.bk` (file, directory, or link),
-  then move the current destination into its place.
-- `c`, Enter, or any other response: cancel without changing either path.
+## Cleanup
 
-Without a terminal, Mi stops rather than silently removing or rotating an
-existing backup. If the destination is already an identical copy (or the
-correct symlink), no new backup or prompt is needed.
+Run `./mi sweep` to review Mi backups for the selected package destinations.
+It includes legacy `.mi.bk`, numbered legacy backups, and timestamped
+backups, including timestamp collision suffixes. Only matching Mi-managed
+destination names are considered; unrelated files are ignored.
 
-`mi sweep` continues to target the most recent `.mi.bk` files only.
-Rotated `.mi.bk.N` backups are intentionally retained for manual review
-and cleanup.
+`mi sweep` asks for explicit `y` confirmation before permanently deleting
+all listed files and directories. Any other response cancels deletion.
+Non-interactive invocation refuses to delete.
+
+The command works for both host and `MI_PROFILE=container` deployments.
+`MI_PACKAGES` can restrict the package selection.
