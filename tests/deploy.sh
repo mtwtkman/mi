@@ -299,7 +299,9 @@ for opt in --full --unknown; do
   fi
 done
 if command -v script >/dev/null 2>&1; then
-  printf 'y\n' | script -q -e -c "env MI_PACKAGES=neovim HOME='$sweep_stamp' bash '$repo/mi' sweep" /dev/null >/dev/null
+  printf 'y\n' | script -q -e -c "env MI_PACKAGES=neovim HOME='$sweep_stamp' bash '$repo/mi' sweep" /dev/null >"$tmp/sweep-tty.log"
+  cat "$tmp/sweep-tty.log"
+  ls -la "$sweep_stamp/.config"
   test ! -e "$sweep_stamp/.config/nvim.mi.bk"
   test ! -e "$sweep_stamp/.config/nvim.mi.bk.1"
   test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
