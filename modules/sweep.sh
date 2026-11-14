@@ -2,7 +2,12 @@
 set -euo pipefail
 
 repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-[[ $# -eq 0 ]] || { printf 'Usage: mi sweep\n' >&2; exit 1; }
+force=false
+if [[ ${1:-} == --force || ${1:-} == -f ]]; then
+  force=true
+  shift
+fi
+[[ $# -eq 0 ]] || { printf 'Usage: mi sweep [-f|--force]\n' >&2; exit 1; }
 
 # Resolve HOME before location scripts change directories. For selected
 # sweeps, keep inherited host XDG_CONFIG_HOME out of the target HOME.
@@ -18,7 +23,7 @@ fi
 
 candidates=()
 source "$repo/modules/select_packages.sh"
-mi_select_packages "$repo"
+mi_select_packages "$repo" all
 
 collect() {
   local prefix="$1" backup
@@ -58,15 +63,17 @@ fi
 
 printf 'Mi backups to delete (%d):\n' "${#candidates[@]}"
 printf '  %s\n' "${candidates[@]}"
-if [[ ! -t 0 ]]; then
-  printf 'Interactive confirmation required; nothing deleted.\n' >&2
-  exit 1
-fi
-printf 'Delete these backups permanently? [y/N] '
-read -r reply || exit 1
-if [[ "$reply" != y && "$reply" != Y ]]; then
-  printf 'Cancelled; nothing deleted.\n'
-  exit 0
+if [[ "$force" != true ]]; then
+  if [[ ! -t 0 ]]; then
+    printf 'Interactive confirmation required; nothing deleted.\n' >&2
+    exit 1
+  fi
+  printf 'Delete these backups permanently? [y/N] '
+  read -r reply || exit 1
+  if [[ "$reply" != y && "$reply" != Y ]]; then
+    printf 'Cancelled; nothing deleted.\n'
+    exit 0
+  fi
 fi
 for backup in "${candidates[@]}"; do
   rm -rf -- "$backup"

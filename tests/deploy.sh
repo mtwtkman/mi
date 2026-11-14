@@ -330,6 +330,29 @@ if command -v script >/dev/null 2>&1; then
   test -f "$HOME/.unrelated/custom.mi.bk"
 fi
 
+# Sweep defaults to all packages even when the container profile is selected.
+# Force mode must work noninteractively while staying confined to Mi locations.
+force_home="$tmp/sweep-force-home"
+mkdir -p "$force_home/.config" "$force_home/.unrelated"
+printf 'nvim backup\n' > "$force_home/.config/nvim.mi.bk.20261115T000000Z"
+printf 'git backup\n' > "$force_home/.config/git.mi.bk.20261115T000000Z"
+printf 'unmanaged\n' > "$force_home/.unrelated/unknown.mi.bk.20261115T000000Z"
+MI_PROFILE=container HOME="$force_home" XDG_CONFIG_HOME="$force_home/.config" \
+  bash "$repo/mi" sweep --force </dev/null >"$tmp/sweep-force.log"
+grep -Fq "$force_home/.config/nvim.mi.bk.20261115T000000Z" "$tmp/sweep-force.log"
+grep -Fq "$force_home/.config/git.mi.bk.20261115T000000Z" "$tmp/sweep-force.log"
+test ! -e "$force_home/.config/nvim.mi.bk.20261115T000000Z"
+test ! -e "$force_home/.config/git.mi.bk.20261115T000000Z"
+test -f "$force_home/.unrelated/unknown.mi.bk.20261115T000000Z"
+
+# An explicit package selection must still be respected by -f.
+printf 'nvim backup\n' > "$force_home/.config/nvim.mi.bk.20261115T000000Z"
+printf 'git backup\n' > "$force_home/.config/git.mi.bk.20261115T000000Z"
+MI_PACKAGES=neovim HOME="$force_home" XDG_CONFIG_HOME="$tmp/host-xdg" \
+  bash "$repo/mi" sweep -f </dev/null >/dev/null
+test ! -e "$force_home/.config/nvim.mi.bk.20261115T000000Z"
+test -f "$force_home/.config/git.mi.bk.20261115T000000Z"
+
 # A custom user unit must never be replaced.
 unset MI_PROFILE MI_PACKAGES
 export HOME="$tmp/custom-home"
