@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+fail() {
+  printf 'box-midep: %s\n' "$*" >&2
+  exit 1
+}
+
+[[ $# -eq 1 && "$1" =~ ^[a-zA-Z0-9_-]+(,[a-zA-Z0-9_-]+)*$ ]] ||
+  fail 'usage: box-midep <package1,package2,...>'
+
+# Locate the nearest Boxkit project, as enter-box does.
+root="$(pwd -P)"
+while [[ ! -f "$root/boxkit.ini" ]]; do
+  [[ "$root" != / ]] || fail 'boxkit.ini not found in current directory or its parents'
+  root="$(dirname -- "$root")"
+done
+config="$root/boxkit.ini"
+
+# Read the [container] home setting without sourcing executable INI content.
+section=''
+home=''
+while IFS= read -r line || [[ -n "$line" ]]; do
+  line="${line#"${line%%[![:space:]]*}"}"
+  line="${line%"${line##*[![:space:]]}"}"
+  [[ -z "$line" || "$line" == \#* || "$line" == \;* ]] && continue
+  if [[ "$line" =~ ^\[([a-z_]+)\]$ ]]; then
+    section="${BASH_REMATCH[1]}"
+    continue
+  fi
+  [[ "$line" == *=* ]] || fail "invalid boxkit.ini line: $line"
+  key="${line%%=*}"
+  key="${key%"${key##*[![:space:]]}"}"
+  value="${line#*=}"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  if [[ "$section" == container && "$key" == home ]]; then
+    home="$value"
+  fi
+done < "$config"
+
+[[ -n "$home" ]] || fail 'missing [container] home setting in boxkit.ini'
+[[ "$home" != /* && "$home" != *..* ]] ||
+  fail 'container.home must be a project-relative path without ".."'
+
+destination="$(readlink -m -- "$root/$home")" ||
+  fail "cannot resolve container HOME: $home"
+[[ -d "$destination" ]] || fail "container HOME directory not found: $destination"
+command -v mi >/dev/null 2>&1 || fail 'mi command not found in PATH'
+
+MI_PACKAGES="${1//,/ }" HOME="$destination" mi deploy
