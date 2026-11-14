@@ -75,6 +75,35 @@ grep -Fq "ExecStart=/usr/bin/ssh-agent -D -a %t/ssh-agent.sock" "$HOME/.config/s
 test ! -e "$HOME/.config/nvim.mi.bk"
 test ! -e "$HOME/.config/opencode.mi.bk"
 
+# CLI selection and alternate HOME must not touch unrelated packages or services.
+unset MI_PROFILE MI_PACKAGES MI_DEPLOY_MODE MI_TARGET_HOME
+export HOME="$tmp/source-home"
+export XDG_CONFIG_HOME="$HOME/.config"
+mkdir -p "$HOME"
+target_home="$tmp/target-home"
+bash "$repo/mi" deploy --home "$target_home" --mode copy neovim
+test -d "$target_home/.config/nvim"
+test ! -L "$target_home/.config/nvim"
+test ! -e "$target_home/.config/git"
+test ! -e "$target_home/.config/systemd/user/ssh-agent.service"
+test ! -e "$HOME/.config/nvim"
+bash "$repo/mi" deploy --home "$target_home" --mode copy neovim
+test ! -e "$target_home/.config/nvim.mi.bk"
+
+# CLI arguments have priority over the MI_PACKAGES environment setting.
+MI_PACKAGES='does-not-exist' bash "$repo/mi" deploy --home "$target_home" --mode copy git
+test -d "$target_home/.config/git"
+test ! -L "$target_home/.config/git"
+
+if bash "$repo/mi" deploy --home relative/path neovim; then
+  echo 'FAIL: accepted relative target HOME' >&2
+  exit 1
+fi
+if bash "$repo/mi" deploy --home "$target_home" does-not-exist; then
+  echo 'FAIL: accepted unknown CLI package' >&2
+  exit 1
+fi
+
 # A broken symlink is an existing destination and must be backed up.
 broken="$HOME/broken"
 ln -s "$tmp/nonexistent-target" "$broken"
