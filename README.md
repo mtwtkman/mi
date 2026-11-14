@@ -12,6 +12,7 @@ curl https://raw.githubusercontent.com/mtwtkman/mi/main/setup | bash -s
 
 ```sh
 ./mi deploy   # Deploy managed configuration
+MI_PACKAGES="neovim git" HOME=/path/to/container/home ./mi deploy  # Copy selected configs
 ./mi install  # Install configured packages and deploy
 ./mi update   # Update installed packages and managed tools
 ./mi sweep    # Review and remove Mi backup files (confirmation required)

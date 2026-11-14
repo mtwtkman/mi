@@ -27,6 +27,50 @@ if [ "${1:-}" = sweep ]; then
   exec bash "${here}/modules/sweep.sh"
 fi
 
+# Selected packages are copied to the requested HOME, not linked to this checkout.
+# Avoid an inherited XDG_CONFIG_HOME pointing back to the invoking host.
+if [[ "${1:-}" == deploy && -n "${MI_PACKAGES:-}" ]]; then
+  # Resolve HOME before package location scripts change their working directory.
+  # In particular, HOME=./path is relative to the invoking directory.
+  if [[ "$ostype" == linux ]]; then
+    HOME="$(readlink -m -- "$HOME")" || exit 1
+  else
+    HOME="$(realpath "$HOME")" || {
+      red "Cannot resolve target HOME: $HOME"
+      exit 1
+    }
+  fi
+  export HOME
+  if [[ "${MI_PROFILE:-host}" != container ]]; then
+    # The host account's actual HOME must never be changed from links to copies.
+    account_home=""
+    if command -v getent >/dev/null 2>&1; then
+      account_entry="$(getent passwd "$(id -u)")" || {
+        red "Cannot determine account HOME; refusing targeted host deployment."
+        exit 1
+      }
+      account_home="$(cut -d: -f6 <<< "$account_entry")"
+    elif [[ "$ostype" == darwin ]] && command -v dscl >/dev/null 2>&1; then
+      account_home="$(dscl . -read "/Users/$(id -un)" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+    fi
+    if [[ -z "$account_home" ]]; then
+      red "Cannot determine account HOME; refusing targeted host deployment."
+      exit 1
+    fi
+    if [[ "$ostype" == linux ]]; then
+      actual_home="$(readlink -m -- "$account_home")" || exit 1
+    else
+      actual_home="$(realpath "$account_home")" || exit 1
+    fi
+    if [[ "$HOME" == "$actual_home" ]]; then
+      red "MI_PACKAGES would copy settings into the host HOME. Set HOME to a separate destination."
+      exit 1
+    fi
+  fi
+  export MI_DEPLOY_MODE=copy
+  export XDG_CONFIG_HOME="$HOME/.config"
+fi
+
 bash "${here}/modules/prepare.sh" || exit 1
 
 if [ "${MI_PROFILE:-host}" = container ]; then

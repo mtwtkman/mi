@@ -26,7 +26,7 @@ deploy_settings()
       return 1
     fi
   done
-  if [ "$(uname -s)" = Linux ] && [ "${MI_PROFILE:-host}" != container ]; then
+  if [ "$(uname -s)" = Linux ] && [ "${MI_PROFILE:-host}" != container ] && [[ -z "${MI_PACKAGES:-}" ]]; then
     bash "${here}/../modules/linux_user.sh" || return 1
   fi
   green "Done."
