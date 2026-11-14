@@ -323,7 +323,7 @@ test -f "$HOME/.bashrc.mi.bk"
 test -f "$HOME/.unrelated/custom.mi.bk"
 # Simulate a terminal to verify both rejection and explicit acceptance.
 if command -v script >/dev/null 2>&1; then
-  printf 'n\n' | script -q -e -c "env MI_PACKAGES=bash bash '$repo/mi' sweep" /dev/null >"$tmp/sweep-cancel.log" || { cat "$tmp/sweep-cancel.log"; exit 1; }
+  printf 'n\n' | script -q -e -c "env MI_PACKAGES=bash bash '$repo/mi' sweep" /dev/null >/dev/null
   test -f "$HOME/.bashrc.mi.bk"
   printf 'y\n' | script -q -e -c "env MI_PACKAGES=bash bash '$repo/mi' sweep" /dev/null >/dev/null
   test ! -e "$HOME/.bashrc.mi.bk"
