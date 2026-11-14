@@ -345,11 +345,11 @@ test ! -e "$force_home/.config/nvim.mi.bk.20261115T000000Z"
 test ! -e "$force_home/.config/git.mi.bk.20261115T000000Z"
 test -f "$force_home/.unrelated/unknown.mi.bk.20261115T000000Z"
 
-# An explicit package selection must still be respected by --force.
+# An explicit package selection must still be respected by -f.
 printf 'nvim backup\n' > "$force_home/.config/nvim.mi.bk.20261115T000000Z"
 printf 'git backup\n' > "$force_home/.config/git.mi.bk.20261115T000000Z"
 MI_PACKAGES=neovim HOME="$force_home" XDG_CONFIG_HOME="$tmp/host-xdg" \
-  bash "$repo/mi" sweep --force </dev/null >/dev/null
+  bash "$repo/mi" sweep -f </dev/null >/dev/null
 test ! -e "$force_home/.config/nvim.mi.bk.20261115T000000Z"
 test -f "$force_home/.config/git.mi.bk.20261115T000000Z"
 
