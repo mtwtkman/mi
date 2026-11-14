@@ -1,31 +1,39 @@
 # Backup cleanup
 
-Mi creates a backup only when a deployment would replace an existing destination
-(file, directory, or symlink). Backups use UTC timestamps, for example:
+Mi creates backup generations when a deployment replaces an existing
+destination. The current naming scheme uses a UTC timestamp:
 
 ```text
 nvim.mi.bk.20261114T053000Z
 nvim.mi.bk.20261114T053000Z.1
 ```
 
-The numeric suffix avoids collisions when multiple deployments occur in the
-same second. Backups are created without prompts, so non-interactive
-deployments (including `box-midep`) can proceed. Identical copies and
-already-correct symlinks remain no-ops.
+Numeric suffixes prevent collisions within one second. Existing legacy
+`.mi.bk` and `.mi.bk.N` files remain untouched during deployment.
 
-Previously created `.mi.bk` backups and `.mi.bk.N` rotated backups are
-retained without modification.
+## Cleanup commands
 
-## Cleanup
+```bash
+mi sweep
+mi sweep --full
+MI_PACKAGES="neovim git" HOME=./.boxkit/home mi sweep --full
+```
 
-Run `./mi sweep` to review Mi backups for the selected package destinations.
-It includes legacy `.mi.bk`, numbered legacy backups, and timestamped
-backups, including timestamp collision suffixes. Only matching Mi-managed
-destination names are considered; unrelated files are ignored.
+- `mi sweep` only selects the original unsuffixed `.mi.bk` files.
+- `mi sweep --full` additionally selects `.mi.bk.*` for each Mi-managed
+  destination, including timestamped and legacy numbered backups.
+- `MI_PACKAGES` restricts both commands to selected packages. If unset,
+  `MI_PROFILE=container` selects the container defaults and host mode selects
+  all packages.
+- `HOME` may be absolute or relative to the directory where Mi is invoked.
+  In selected-package or full sweeps, `XDG_CONFIG_HOME` is set to
+  `$HOME/.config` to avoid accidentally using an inherited host XDG path.
 
-`mi sweep` asks for explicit `y` confirmation before permanently deleting
-all listed files and directories. Any other response cancels deletion.
-Non-interactive invocation refuses to delete.
+Both commands derive destination paths from each selected
+`packages/<package>/location`, and only look for backup filenames associated
+with those destinations. They **do not recursively delete arbitrary backups
+throughout HOME**.
 
-The command works for both host and `MI_PROFILE=container` deployments.
-`MI_PACKAGES` can restrict the package selection.
+Mi lists all candidates and requires explicit interactive `y` confirmation
+before deleting them. Any other answer cancels; non-interactive invocation
+never deletes backups. Existing deployed configuration files are not deleted.
