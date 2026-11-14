@@ -30,6 +30,17 @@ fi
 # Selected packages are copied to the requested HOME, not linked to this checkout.
 # Avoid an inherited XDG_CONFIG_HOME pointing back to the invoking host.
 if [[ "${1:-}" == deploy && -n "${MI_PACKAGES:-}" ]]; then
+  # Resolve HOME before package location scripts change their working directory.
+  # In particular, HOME=./path is relative to the invoking directory.
+  if [[ "$ostype" == linux ]]; then
+    HOME="$(readlink -m -- "$HOME")" || exit 1
+  else
+    HOME="$(realpath "$HOME")" || {
+      red "Cannot resolve target HOME: $HOME"
+      exit 1
+    }
+  fi
+  export HOME
   if [[ "${MI_PROFILE:-host}" != container ]]; then
     # The host account's actual HOME must never be changed from links to copies.
     account_home=""
@@ -47,13 +58,11 @@ if [[ "${1:-}" == deploy && -n "${MI_PACKAGES:-}" ]]; then
       exit 1
     fi
     if [[ "$ostype" == linux ]]; then
-      target_home="$(readlink -m -- "$HOME")" || exit 1
       actual_home="$(readlink -m -- "$account_home")" || exit 1
     else
-      target_home="$(realpath "$HOME")" || exit 1
       actual_home="$(realpath "$account_home")" || exit 1
     fi
-    if [[ "$target_home" == "$actual_home" ]]; then
+    if [[ "$HOME" == "$actual_home" ]]; then
       red "MI_PACKAGES would copy settings into the host HOME. Set HOME to a separate destination."
       exit 1
     fi
