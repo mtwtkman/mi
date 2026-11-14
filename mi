@@ -46,8 +46,13 @@ if [[ "${1:-}" == deploy && -n "${MI_PACKAGES:-}" ]]; then
       red "Cannot determine account HOME; refusing targeted host deployment."
       exit 1
     fi
-    target_home="$(realpath -m -- "$HOME")" || exit 1
-    actual_home="$(realpath -m -- "$account_home")" || exit 1
+    if [[ "$ostype" == linux ]]; then
+      target_home="$(readlink -m -- "$HOME")" || exit 1
+      actual_home="$(readlink -m -- "$account_home")" || exit 1
+    else
+      target_home="$(realpath "$HOME")" || exit 1
+      actual_home="$(realpath "$account_home")" || exit 1
+    fi
     if [[ "$target_home" == "$actual_home" ]]; then
       red "MI_PACKAGES would copy settings into the host HOME. Set HOME to a separate destination."
       exit 1
