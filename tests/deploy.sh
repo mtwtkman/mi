@@ -151,8 +151,10 @@ fi
 broken="$HOME/broken"
 ln -s "$tmp/nonexistent-target" "$broken"
 bash "$link" "$source_file" "$broken"
-test -L "$broken.mi.bk"
-test "$(readlink "$broken.mi.bk")" = "$tmp/nonexistent-target"
+broken_backups=("$broken".mi.bk.????????T??????Z*)
+test "${#broken_backups[@]}" -eq 1
+test -L "${broken_backups[0]}"
+test "$(readlink "${broken_backups[0]}")" = "$tmp/nonexistent-target"
 test "$(readlink "$broken")" = "$source_file"
 
 # Container profile: deploy independent copies, not symlinks.
