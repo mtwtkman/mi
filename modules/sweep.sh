@@ -2,23 +2,17 @@
 set -euo pipefail
 
 repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-full=false
-case "${1:-}" in
-  '') ;;
-  --full) full=true; shift ;;
-  *) printf 'Usage: mi sweep [--full]\n' >&2; exit 1 ;;
-esac
-[[ $# -eq 0 ]] || { printf 'Usage: mi sweep [--full]\n' >&2; exit 1; }
+[[ $# -eq 0 ]] || { printf 'Usage: mi sweep\n' >&2; exit 1; }
 
-# Resolve HOME before location scripts change directories. In a selected or
-# full sweep, keep inherited host XDG_CONFIG_HOME out of the target HOME.
+# Resolve HOME before location scripts change directories. For selected
+# sweeps, keep inherited host XDG_CONFIG_HOME out of the target HOME.
 if [[ "$(uname -s)" == Darwin ]]; then
   HOME="$(realpath "$HOME")" || exit 1
 else
   HOME="$(readlink -m -- "$HOME")" || exit 1
 fi
 export HOME
-if [[ "$full" == true || -n "${MI_PACKAGES:-}" ]]; then
+if [[ -n "${MI_PACKAGES:-}" ]]; then
   export XDG_CONFIG_HOME="$HOME/.config"
 fi
 
@@ -28,13 +22,11 @@ mi_select_packages "$repo"
 
 collect() {
   local prefix="$1" backup
-  # The ordinary sweep only selects the original unsuffixed backup.
+  # Include legacy and timestamped backups for this managed destination.
   if [[ -e "$prefix" || -L "$prefix" ]]; then
     candidates+=("$prefix")
   fi
-  [[ "$full" == true ]] || return 0
-  # --full also handles timestamped and legacy numbered backups. Glob is
-  # confined to locations derived from Mi packages, never a recursive search.
+  # Glob is confined to locations derived from Mi packages, not a recursive search.
   for backup in "$prefix".*; do
     [[ -e "$backup" || -L "$backup" ]] && candidates+=("$backup")
   done
