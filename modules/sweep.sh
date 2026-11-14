@@ -3,11 +3,11 @@ set -euo pipefail
 
 repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 force=false
-if [[ ${1:-} == --force ]]; then
+if [[ ${1:-} == --force || ${1:-} == -f ]]; then
   force=true
   shift
 fi
-[[ $# -eq 0 ]] || { printf 'Usage: mi sweep [--force]\n' >&2; exit 1; }
+[[ $# -eq 0 ]] || { printf 'Usage: mi sweep [-f|--force]\n' >&2; exit 1; }
 
 # Resolve HOME before location scripts change directories. For selected
 # sweeps, keep inherited host XDG_CONFIG_HOME out of the target HOME.
