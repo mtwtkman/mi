@@ -55,6 +55,35 @@ grep -Fxq "HOME=$tmp/project/.boxkit/custom-home" "$MI_BOX_MIDEP_LOG"
 grep -Fxq 'MI_PACKAGES=neovim git' "$MI_BOX_MIDEP_LOG"
 grep -Fxq 'COMMAND=deploy' "$MI_BOX_MIDEP_LOG"
 
+# Discover boxkit.ini from arbitrarily nested subdirectories.
+mkdir -p "$tmp/project/src/nested/deeper"
+(
+  cd "$tmp/project/src/nested/deeper"
+  bash "$script" git,neovim
+)
+grep -Fxq "HOME=$tmp/project/.boxkit/custom-home" "$MI_BOX_MIDEP_LOG"
+grep -Fxq 'MI_PACKAGES=git neovim' "$MI_BOX_MIDEP_LOG"
+grep -Fxq 'COMMAND=deploy' "$MI_BOX_MIDEP_LOG"
+
+# Prefer the nearest Boxkit configuration when projects are nested.
+mkdir -p "$tmp/project/src/nested/.boxkit/inner-home"
+printf '[container]\nhome = .boxkit/inner-home\n' > "$tmp/project/src/nested/boxkit.ini"
+(
+  cd "$tmp/project/src/nested/deeper"
+  bash "$script" neovim
+)
+grep -Fxq "HOME=$tmp/project/src/nested/.boxkit/inner-home" "$MI_BOX_MIDEP_LOG"
+grep -Fxq 'MI_PACKAGES=neovim' "$MI_BOX_MIDEP_LOG"
+rm "$tmp/project/src/nested/boxkit.ini"
+
+# A failed lookup from outside the project must not invoke Mi.
+mkdir -p "$tmp/unrelated/deep"
+(
+  cd "$tmp/unrelated/deep"
+  check_error 'boxkit.ini not found' bash "$script" neovim
+)
+
+
 (
   cd "$tmp/project"
   check_error 'usage:' bash "$script" 'neovim,,git'
