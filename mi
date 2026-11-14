@@ -9,7 +9,7 @@ Commands:
   install    Install system packages and deploy configuration (host only).
   update     Update system packages and managed tools (host only).
   purge      Remove unneeded system packages (host only).
-  sweep      Review and optionally delete Mi .mi.bk backup files.
+  sweep      Review and optionally delete Mi backups (--full: all generations).
   --help     Show this help message.
 
 Environment:
@@ -40,10 +40,12 @@ Examples:
   MI_PROFILE=container mi deploy
   MI_PACKAGES="neovim git" HOME=./.boxkit/home mi deploy
   MI_PACKAGES="neovim git" mi sweep
+  MI_PACKAGES="neovim git" HOME=./.boxkit/home mi sweep --full
 
 Notes:
   - Package names in MI_PACKAGES are separated by spaces, not commas.
-  - Selected copy deployments can back up existing destinations as .mi.bk.
+  - Deploy backups use .mi.bk.<UTC timestamp>; sweep --full also finds
+    legacy backups and all timestamped generations.
   - Run 'box-midep neovim,git' inside a Boxkit project for automatic HOME
     discovery (box-midep uses comma-separated package names).
 HELP
@@ -80,7 +82,8 @@ here="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${here}/modules/message.sh"
 
 if [ "${1:-}" = sweep ]; then
-  exec bash "${here}/modules/sweep.sh"
+  shift
+  exec bash "${here}/modules/sweep.sh" "$@"
 fi
 
 # Selected packages are copied to the requested HOME, not linked to this checkout.
