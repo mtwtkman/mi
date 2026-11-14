@@ -15,12 +15,27 @@ for package in "${packages[@]}"; do
   }
   if [[ -d "$package_dir/files" ]]; then
     while IFS= read -r -d '' source; do
-      backup="$destination/${source##*/}.mi.bk"
-      [[ -e "$backup" || -L "$backup" ]] && candidates+=("$backup")
+      prefix="$destination/${source##*/}.mi.bk"
+      for backup in "$prefix" "$prefix".*; do
+        [[ -e "$backup" || -L "$backup" ]] || continue
+        suffix="${backup#"$prefix"}"
+        # Legacy unsuffixed backups and numeric rotations, plus timestamps.
+        if [[ -z "$suffix" || "$suffix" =~ ^\.[0-9]+$ ||
+              "$suffix" =~ ^\.[0-9]{8}T[0-9]{6}Z(\.[0-9]+)?$ ]]; then
+          candidates+=("$backup")
+        fi
+      done
     done < <(find "$package_dir/files" -mindepth 1 -maxdepth 1 -print0)
   elif [[ -d "$package_dir/this" ]]; then
-    backup="${destination}.mi.bk"
-    [[ -e "$backup" || -L "$backup" ]] && candidates+=("$backup")
+    prefix="${destination}.mi.bk"
+    for backup in "$prefix" "$prefix".*; do
+      [[ -e "$backup" || -L "$backup" ]] || continue
+      suffix="${backup#"$prefix"}"
+      if [[ -z "$suffix" || "$suffix" =~ ^\.[0-9]+$ ||
+            "$suffix" =~ ^\.[0-9]{8}T[0-9]{6}Z(\.[0-9]+)?$ ]]; then
+        candidates+=("$backup")
+      fi
+    done
   fi
 done
 
