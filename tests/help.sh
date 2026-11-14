@@ -9,7 +9,7 @@ trap 'rm -rf -- "$tmp"' EXIT
 for flag in '' --help -h help; do
   HOME="$tmp/nonexistent-home" DISTRO=unsupported MI_PROFILE=container \
     bash "$repo/mi" ${flag:+"$flag"} > "$tmp/help"
-  grep -Fq 'Usage: mi <command>' "$tmp/help"
+  grep -Fq 'Usage: mi [command] [--help]' "$tmp/help"
   grep -Fq 'MI_PACKAGES' "$tmp/help"
   grep -Fq 'MI_PROFILE' "$tmp/help"
   grep -Fq 'MI_DEPLOY_MODE' "$tmp/help"
