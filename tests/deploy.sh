@@ -81,7 +81,7 @@ mkdir -p "$tmp/fake-account-bin"
 cat > "$tmp/fake-account-bin/getent" <<'MOCK'
 #!/usr/bin/env bash
 if [[ "${1:-}" == passwd ]]; then
-  printf 'testuser:x:%s:%s::%s:/bin/bash\\n' "$(id -u)" "$(id -g)" "$MI_TEST_ACCOUNT_HOME"
+  printf 'testuser:x:%s:%s::%s:/bin/bash\n' "$(id -u)" "$(id -g)" "$MI_TEST_ACCOUNT_HOME"
 else
   /usr/bin/getent "$@"
 fi
