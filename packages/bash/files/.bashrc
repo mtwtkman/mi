@@ -40,10 +40,6 @@ esac
 alias l="ls -CF"
 alias la="ls -A"
 alias ll="ls -alF"
-alias mi="pushd ${MI_HOME}"
-alias miup="mi && ./mi update && popd"
-alias miclean="mi && ./mi purge && popd"
-alias micl="miclean"
 
 ### TOOL ###
 # DISTROBOX
@@ -191,6 +187,7 @@ fi
 # EXTRA
 export NO_COLOR=1
 extra_bashrc="${HOME}/.bashrc.extra"
+export PATH="${MI_HOME}:${PATH}"
 [[ -e "${extra_bashrc}" ]] && source "${extra_bashrc}"
 
 [[ -d "${HOME}/.local/bin/myscript" ]] && PATH="${HOME}/.local/bin/myscript:${PATH}"
