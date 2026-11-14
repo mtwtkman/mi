@@ -285,6 +285,7 @@ printf 'outside\n' > "$sweep_stamp/.unrelated/random.mi.bk.20261114T053000Z"
     exit 1
   fi
 )
+cat "$tmp/sweep-preview.log"
 grep -Fq 'Mi backups to delete (5)' "$tmp/sweep-preview.log"
 grep -Fq "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1" "$tmp/sweep-preview.log"
 ! grep -Fq "$sweep_stamp/.config/git.mi.bk." "$tmp/sweep-preview.log"
