@@ -40,6 +40,7 @@ esac
 alias l="ls -CF"
 alias la="ls -A"
 alias ll="ls -alF"
+alias cdmi="cd ${MI_HOME}"
 
 ### TOOL ###
 # DISTROBOX
