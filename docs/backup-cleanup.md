@@ -1,5 +1,35 @@
 # Backup cleanup
 
-Run `./mi sweep` to list `.mi.bk` backups corresponding to the currently selected Mi package destinations. The command asks for explicit `y` confirmation before permanently deleting files or directories. Any other response cancels deletion. Non-interactive invocation refuses to delete.
+Mi creates backup generations when a deployment replaces an existing
+destination. The current naming scheme uses a UTC timestamp:
 
-The command works for both host and `MI_PROFILE=container` deployments. `MI_PACKAGES` can restrict the package selection. Unrelated files with a `.mi.bk` suffix outside Mi-managed destinations are not scanned.
+```text
+nvim.mi.bk.20261114T053000Z
+nvim.mi.bk.20261114T053000Z.1
+```
+
+Numeric suffixes prevent collisions within one second. Existing legacy
+`.mi.bk` and `.mi.bk.N` files remain untouched during deployment.
+
+## Cleanup
+
+```bash
+mi sweep
+MI_PACKAGES="neovim git" HOME=./.boxkit/home mi sweep
+```
+
+`mi sweep` selects all backup generations (`.mi.bk` and `.mi.bk.*`)
+associated with each selected package destination. The obsolete `--full`
+option is not accepted.
+
+`MI_PACKAGES` restricts the command to selected packages. If unset,
+`MI_PROFILE=container` selects container defaults, while host mode selects
+all packages. `HOME` may be absolute or relative to the invocation
+directory. With `MI_PACKAGES` set, `XDG_CONFIG_HOME` is reset to
+`$HOME/.config` to avoid an inherited host XDG destination.
+
+Destination paths are derived from `packages/<package>/location`, not a
+recursive search of HOME. Existing deployed configuration files are never
+deleted. Mi lists candidates and requires explicit interactive `y`
+confirmation before deletion. Any other answer cancels, and non-interactive
+invocations do not delete backups.

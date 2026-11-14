@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+trap 'printf "Test failed at line %s: %s\\n" "$LINENO" "$BASH_COMMAND" >&2' ERR
 
 repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 tmp="$(mktemp -d)"
@@ -22,21 +23,25 @@ test "$(readlink "$destination")" = "$source_file"
 bash "$link" "$source_file" "$destination"
 test ! -e "$destination.mi.bk"
 
-# Existing user files must be backed up.
+# Existing user files are preserved in timestamped backups.
 rm -- "$destination"
 printf 'original\n' > "$destination"
 bash "$link" "$source_file" "$destination"
-grep -qx original "$destination.mi.bk"
+shopt -s nullglob
+backups=("$destination".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 1
+grep -qx original "${backups[0]}"
 
-# Existing backups must never be overwritten.
+# An existing legacy backup never blocks a new deployment.
 rm -- "$destination"
 printf 'new user file\n' > "$destination"
-if bash "$link" "$source_file" "$destination"; then
-  echo 'FAIL: overwrote an existing backup' >&2
-  exit 1
-fi
-grep -qx original "$destination.mi.bk"
-grep -qx 'new user file' "$destination"
+printf 'legacy\n' > "$destination.mi.bk"
+bash "$link" "$source_file" "$destination"
+backups=("$destination".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 2
+grep -qx legacy "$destination.mi.bk"
+test -L "$destination"
+test "$(readlink "$destination")" = "$source_file"
 
 # Missing source is an error.
 if bash "$link" "$tmp/missing" "$tmp/absent"; then
@@ -147,8 +152,10 @@ fi
 broken="$HOME/broken"
 ln -s "$tmp/nonexistent-target" "$broken"
 bash "$link" "$source_file" "$broken"
-test -L "$broken.mi.bk"
-test "$(readlink "$broken.mi.bk")" = "$tmp/nonexistent-target"
+broken_backups=("$broken".mi.bk.????????T??????Z*)
+test "${#broken_backups[@]}" -eq 1
+test -L "${broken_backups[0]}"
+test "$(readlink "${broken_backups[0]}")" = "$tmp/nonexistent-target"
 test "$(readlink "$broken")" = "$source_file"
 
 # Container profile: deploy independent copies, not symlinks.
@@ -175,18 +182,18 @@ bash "$repo/mi" deploy
 test -d "$HOME/.config/nvim"
 test ! -L "$HOME/.config/nvim"
 
-# A modified file is backed up, and a second conflicting change is rejected.
+# Modified copy deployments generate timestamped backups without conflicts.
 unset MI_PACKAGES
 printf 'modified\n' > "$HOME/.config/opencode/mi-regression-test"
 bash "$repo/mi" deploy
-test -d "$HOME/.config/opencode.mi.bk"
-test -f "$HOME/.config/opencode.mi.bk/mi-regression-test"
+backups=("$HOME/.config/opencode".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 1
+test -f "${backups[0]}/mi-regression-test"
 printf 'modified again\n' > "$HOME/.config/opencode/mi-regression-test"
-if bash "$repo/mi" deploy; then
-  echo 'FAIL: existing container backup was overwritten' >&2
-  exit 1
-fi
-test -f "$HOME/.config/opencode/mi-regression-test"
+bash "$repo/mi" deploy
+backups=("$HOME/.config/opencode".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 2
+test ! -e "$HOME/.config/opencode/mi-regression-test"
 
 # Invalid package selections must fail through the top-level CLI.
 export MI_PACKAGES="does-not-exist"
@@ -257,6 +264,51 @@ chmod +x "$tmp/fake-bin/systemctl"
 bash "$repo/modules/linux_user.sh"
 ! grep -Eq 'daemon-reload| enable | start ' "$MI_SYSTEMCTL_LOG"
 
+# Sweep uses Mi package locations and removes all backup generations.
+sweep_stamp="$tmp/sweep-timestamp-home"
+mkdir -p "$sweep_stamp/.config"
+printf 'legacy\n' > "$sweep_stamp/.config/nvim.mi.bk"
+printf 'history\n' > "$sweep_stamp/.config/nvim.mi.bk.1"
+printf 'timestamp\n' > "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
+printf 'collision\n' > "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1"
+printf 'unrelated\n' > "$sweep_stamp/.config/nvim.mi.bk.invalid"
+printf 'other-package\n' > "$sweep_stamp/.config/git.mi.bk.20261114T053000Z"
+mkdir -p "$sweep_stamp/.unrelated"
+printf 'outside\n' > "$sweep_stamp/.unrelated/random.mi.bk.20261114T053000Z"
+
+# Caller-relative HOME is resolved before packages/neovim/location runs.
+(
+  cd "$tmp"
+  if MI_PACKAGES=neovim HOME=./sweep-timestamp-home \
+      XDG_CONFIG_HOME="$tmp/host-xdg" bash "$repo/mi" sweep \
+      </dev/null >"$tmp/sweep-preview.log" 2>&1; then
+    echo 'FAIL: sweep without confirmation succeeded' >&2
+    exit 1
+  fi
+)
+grep -Fq 'Mi backups to delete (5)' "$tmp/sweep-preview.log"
+grep -Fq "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1" "$tmp/sweep-preview.log"
+! grep -Fq "$sweep_stamp/.config/git.mi.bk." "$tmp/sweep-preview.log"
+! grep -Fq "$sweep_stamp/.unrelated/random.mi.bk." "$tmp/sweep-preview.log"
+
+# --full and other unsupported arguments must be rejected.
+for opt in --full --unknown; do
+  if MI_PACKAGES=neovim HOME="$sweep_stamp" bash "$repo/mi" sweep "$opt" >/dev/null 2>&1; then
+    echo "FAIL: unsupported sweep option succeeded: $opt" >&2
+    exit 1
+  fi
+done
+if command -v script >/dev/null 2>&1; then
+  printf 'y\n' | script -q -e -c "env MI_PACKAGES=neovim HOME='$sweep_stamp' bash '$repo/mi' sweep" /dev/null >"$tmp/sweep-tty.log"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.1"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.invalid"
+  test -e "$sweep_stamp/.config/git.mi.bk.20261114T053000Z"
+  test -e "$sweep_stamp/.unrelated/random.mi.bk.20261114T053000Z"
+fi
+
 # Sweep must list only Mi-managed backups and require interactive confirmation.
 export HOME="$tmp/sweep-home"
 export XDG_CONFIG_HOME="$HOME/.config"
@@ -271,9 +323,9 @@ test -f "$HOME/.bashrc.mi.bk"
 test -f "$HOME/.unrelated/custom.mi.bk"
 # Simulate a terminal to verify both rejection and explicit acceptance.
 if command -v script >/dev/null 2>&1; then
-  printf 'n\n' | script -q -e -c "bash '$repo/mi' sweep" /dev/null >/dev/null
+  printf 'n\n' | script -q -e -c "env MI_PACKAGES=bash bash '$repo/mi' sweep" /dev/null >/dev/null
   test -f "$HOME/.bashrc.mi.bk"
-  printf 'y\n' | script -q -e -c "bash '$repo/mi' sweep" /dev/null >/dev/null
+  printf 'y\n' | script -q -e -c "env MI_PACKAGES=bash bash '$repo/mi' sweep" /dev/null >/dev/null
   test ! -e "$HOME/.bashrc.mi.bk"
   test -f "$HOME/.unrelated/custom.mi.bk"
 fi

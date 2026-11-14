@@ -14,14 +14,6 @@ if [ ! -L "$dest" ] && [ -e "$dest" ] && diff -qr -- "$src" "$dest" >/dev/null 2
   exit 0
 fi
 
-if [ -e "$dest" ] || [ -L "$dest" ]; then
-  backup="${dest}.mi.bk"
-  if [ -e "$backup" ] || [ -L "$backup" ]; then
-    printf 'Backup already exists: %s\n' "$backup" >&2
-    exit 1
-  fi
-  mv -- "$dest" "$backup"
-  yellow "Create backup file for $dest as $backup"
-fi
+bash "$here/backup_existing.sh" "$dest"
 
 cp -a -- "$src" "$dest"

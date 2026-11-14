@@ -1,10 +1,39 @@
 #!/usr/bin/env bash
 set -euo pipefail
-repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-candidates=()
 
+repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+[[ $# -eq 0 ]] || { printf 'Usage: mi sweep\n' >&2; exit 1; }
+
+# Resolve HOME before location scripts change directories. For selected
+# sweeps, keep inherited host XDG_CONFIG_HOME out of the target HOME.
+if [[ "$(uname -s)" == Darwin ]]; then
+  HOME="$(realpath "$HOME")" || exit 1
+else
+  HOME="$(readlink -m -- "$HOME")" || exit 1
+fi
+export HOME
+if [[ -n "${MI_PACKAGES:-}" ]]; then
+  export XDG_CONFIG_HOME="$HOME/.config"
+fi
+
+candidates=()
 source "$repo/modules/select_packages.sh"
 mi_select_packages "$repo"
+
+collect() {
+  local prefix="$1" backup
+  # Include legacy and timestamped backups for this managed destination.
+  if [[ -e "$prefix" || -L "$prefix" ]]; then
+    candidates+=("$prefix")
+  fi
+  # Glob is confined to locations derived from Mi packages, not a recursive search.
+  for backup in "$prefix".*; do
+    if [[ -e "$backup" || -L "$backup" ]]; then
+      candidates+=("$backup")
+    fi
+  done
+  return 0
+}
 
 for package in "${packages[@]}"; do
   package_dir="$repo/packages/$package"
@@ -15,12 +44,10 @@ for package in "${packages[@]}"; do
   }
   if [[ -d "$package_dir/files" ]]; then
     while IFS= read -r -d '' source; do
-      backup="$destination/${source##*/}.mi.bk"
-      [[ -e "$backup" || -L "$backup" ]] && candidates+=("$backup")
+      collect "$destination/${source##*/}.mi.bk"
     done < <(find "$package_dir/files" -mindepth 1 -maxdepth 1 -print0)
   elif [[ -d "$package_dir/this" ]]; then
-    backup="${destination}.mi.bk"
-    [[ -e "$backup" || -L "$backup" ]] && candidates+=("$backup")
+    collect "${destination}.mi.bk"
   fi
 done
 
