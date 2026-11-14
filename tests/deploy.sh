@@ -75,6 +75,27 @@ grep -Fq "ExecStart=/usr/bin/ssh-agent -D -a %t/ssh-agent.sock" "$HOME/.config/s
 test ! -e "$HOME/.config/nvim.mi.bk"
 test ! -e "$HOME/.config/opencode.mi.bk"
 
+# A selected host deployment must refuse the real account HOME without changing links.
+# Override account lookup to simulate a conventional HOME in this isolated test.
+mkdir -p "$tmp/fake-account-bin"
+cat > "$tmp/fake-account-bin/getent" <<'MOCK'
+#!/usr/bin/env bash
+if [[ "${1:-}" == passwd ]]; then
+  printf 'testuser:x:%s:%s::%s:/bin/bash\\n' "$(id -u)" "$(id -g)" "$MI_TEST_ACCOUNT_HOME"
+else
+  /usr/bin/getent "$@"
+fi
+MOCK
+chmod +x "$tmp/fake-account-bin/getent"
+export MI_TEST_ACCOUNT_HOME="$tmp/home"
+if MI_PACKAGES='neovim' PATH="$tmp/fake-account-bin:$PATH" bash "$repo/mi" deploy; then
+  echo 'FAIL: selected copy into account HOME was accepted' >&2
+  exit 1
+fi
+test -L "$HOME/.config/nvim"
+test ! -e "$HOME/.config/nvim.mi.bk"
+unset MI_TEST_ACCOUNT_HOME
+
 # Targeted deployment must copy only selected packages into an alternate HOME.
 unset MI_PROFILE MI_PACKAGES MI_DEPLOY_MODE
 export HOME="$tmp/source-home"
