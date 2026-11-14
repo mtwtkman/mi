@@ -103,7 +103,7 @@ cat > "$tmp/bin/mi" <<'MOCK'
 exit 7
 MOCK
 chmod +x "$tmp/bin/mi"
-printf '[container]\\nhome = .boxkit/custom-home\\n' > "$tmp/project/boxkit.ini"
+printf '[container]\nhome = .boxkit/custom-home\n' > "$tmp/project/boxkit.ini"
 (
   cd "$tmp/project"
   if bash "$script" neovim; then
