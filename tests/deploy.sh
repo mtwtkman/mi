@@ -299,7 +299,7 @@ for opt in --full --unknown; do
   fi
 done
 if command -v script >/dev/null 2>&1; then
-  (printf 'y\n'; sleep 3) | script -q -e -c "env MI_PACKAGES=neovim HOME='$sweep_stamp' bash '$repo/mi' sweep" /dev/null >"$tmp/sweep-tty.log"
+  printf 'y\n' | script -q -e -c "env MI_PACKAGES=neovim HOME='$sweep_stamp' bash '$repo/mi' sweep" /dev/null >"$tmp/sweep-tty.log"
   test ! -e "$sweep_stamp/.config/nvim.mi.bk"
   test ! -e "$sweep_stamp/.config/nvim.mi.bk.1"
   test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
@@ -323,9 +323,9 @@ test -f "$HOME/.bashrc.mi.bk"
 test -f "$HOME/.unrelated/custom.mi.bk"
 # Simulate a terminal to verify both rejection and explicit acceptance.
 if command -v script >/dev/null 2>&1; then
-  (printf 'n\n'; sleep 3) | script -q -e -c "bash '$repo/mi' sweep" /dev/null >/dev/null
+  printf 'n\n' | script -q -e -c "env MI_PACKAGES=bash bash '$repo/mi' sweep" /dev/null >/dev/null
   test -f "$HOME/.bashrc.mi.bk"
-  (printf 'y\n'; sleep 3) | script -q -e -c "bash '$repo/mi' sweep" /dev/null >/dev/null
+  printf 'y\n' | script -q -e -c "env MI_PACKAGES=bash bash '$repo/mi' sweep" /dev/null >/dev/null
   test ! -e "$HOME/.bashrc.mi.bk"
   test -f "$HOME/.unrelated/custom.mi.bk"
 fi
