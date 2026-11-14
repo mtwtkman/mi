@@ -3,11 +3,12 @@
 # Caller sets repo and receives the selected packages in the 'packages' array.
 mi_select_packages() {
   local repo="${1:?Repository root required}"
+  local selection="${2:-profile}"
   local package_dir package
   packages=()
   if [[ -n "${MI_PACKAGES:-}" ]]; then
     read -r -a packages <<< "${MI_PACKAGES}"
-  elif [[ "${MI_PROFILE:-host}" == container ]]; then
+  elif [[ "$selection" != all && "${MI_PROFILE:-host}" == container ]]; then
     packages=(git opencode neovim)
   else
     for package_dir in "$repo"/packages/*; do
