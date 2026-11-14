@@ -17,10 +17,10 @@ Command-line tools such as `fzf` and `ripgrep` must be installed separately
 using the container's package manager, for example with
 `[packages] additional = ...` in `boxkit.ini`.
 
-To select packages explicitly (CLI arguments override `MI_PACKAGES`):
+To select packages explicitly:
 
 ```bash
-MI_PROFILE=container ./mi deploy git opencode neovim
+MI_PROFILE=container MI_PACKAGES="git opencode neovim" ./mi deploy
 ```
 
 To deploy from a host Mi checkout directly into a separate Boxkit HOME:
@@ -35,9 +35,9 @@ suppresses service activation. The target path must be absolute; the caller
 must have write permission. This applies configuration files only, and does
 not install the corresponding binaries inside the container.
 
-The container profile uses `MI_DEPLOY_MODE=copy` by default. An explicit
-`MI_DEPLOY_MODE=link` is available, but the default avoids references to
-the Mi checkout when it is not shared with the container.
+The container profile uses `MI_DEPLOY_MODE=copy` by default when no package
+selection is given. The default avoids references to the Mi checkout when
+it is not shared with the container.
 
 In the container profile, `install`, `update`, and `purge` are refused
 to avoid unintended package-manager operations. The host profile is unaffected.
