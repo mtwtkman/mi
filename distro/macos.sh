@@ -31,4 +31,4 @@ mi_purge_packages() {
 }
 
 source "${here}/_common.sh"
-perform "$@"
+perform "${1:-}"
