@@ -261,6 +261,28 @@ chmod +x "$tmp/fake-bin/systemctl"
 bash "$repo/modules/linux_user.sh"
 ! grep -Eq 'daemon-reload| enable | start ' "$MI_SYSTEMCTL_LOG"
 
+# Sweep recognizes both legacy and timestamped backups for selected packages.
+sweep_stamp="$tmp/sweep-timestamp-home"
+mkdir -p "$sweep_stamp/.config"
+printf 'legacy\n' > "$sweep_stamp/.config/nvim.mi.bk"
+printf 'history\n' > "$sweep_stamp/.config/nvim.mi.bk.1"
+printf 'timestamp\n' > "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
+printf 'collision\n' > "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1"
+printf 'unrelated\n' > "$sweep_stamp/.config/nvim.mi.bk.invalid"
+if MI_PACKAGES=neovim HOME="$sweep_stamp" bash "$repo/mi" sweep </dev/null >"$tmp/sweep-preview.log" 2>&1; then
+  echo 'FAIL: sweep without confirmation succeeded' >&2
+  exit 1
+fi
+grep -Fq 'Mi backups to delete (4)' "$tmp/sweep-preview.log"
+if command -v script >/dev/null 2>&1; then
+  printf 'y\n' | script -q -e -c "env MI_PACKAGES=neovim HOME='$sweep_stamp' bash '$repo/mi' sweep" /dev/null >/dev/null
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.1"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1"
+  test -e "$sweep_stamp/.config/nvim.mi.bk.invalid"
+fi
+
 # Sweep must list only Mi-managed backups and require interactive confirmation.
 export HOME="$tmp/sweep-home"
 export XDG_CONFIG_HOME="$HOME/.config"
