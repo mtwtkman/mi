@@ -1,10 +1,44 @@
 #!/usr/bin/env bash
 set -euo pipefail
-repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
-candidates=()
 
+repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+full=false
+case "${1:-}" in
+  '') ;;
+  --full) full=true; shift ;;
+  *) printf 'Usage: mi sweep [--full]\n' >&2; exit 1 ;;
+esac
+[[ $# -eq 0 ]] || { printf 'Usage: mi sweep [--full]\n' >&2; exit 1; }
+
+# Resolve HOME before location scripts change directories. In a selected or
+# full sweep, keep inherited host XDG_CONFIG_HOME out of the target HOME.
+if [[ "$(uname -s)" == Darwin ]]; then
+  HOME="$(realpath "$HOME")" || exit 1
+else
+  HOME="$(readlink -m -- "$HOME")" || exit 1
+fi
+export HOME
+if [[ "$full" == true || -n "${MI_PACKAGES:-}" ]]; then
+  export XDG_CONFIG_HOME="$HOME/.config"
+fi
+
+candidates=()
 source "$repo/modules/select_packages.sh"
 mi_select_packages "$repo"
+
+collect() {
+  local prefix="$1" backup
+  # The ordinary sweep only selects the original unsuffixed backup.
+  if [[ -e "$prefix" || -L "$prefix" ]]; then
+    candidates+=("$prefix")
+  fi
+  [[ "$full" == true ]] || return 0
+  # --full also handles timestamped and legacy numbered backups. Glob is
+  # confined to locations derived from Mi packages, never a recursive search.
+  for backup in "$prefix".*; do
+    [[ -e "$backup" || -L "$backup" ]] && candidates+=("$backup")
+  done
+}
 
 for package in "${packages[@]}"; do
   package_dir="$repo/packages/$package"
@@ -15,27 +49,10 @@ for package in "${packages[@]}"; do
   }
   if [[ -d "$package_dir/files" ]]; then
     while IFS= read -r -d '' source; do
-      prefix="$destination/${source##*/}.mi.bk"
-      for backup in "$prefix" "$prefix".*; do
-        [[ -e "$backup" || -L "$backup" ]] || continue
-        suffix="${backup#"$prefix"}"
-        # Legacy unsuffixed backups and numeric rotations, plus timestamps.
-        if [[ -z "$suffix" || "$suffix" =~ ^\.[0-9]+$ ||
-              "$suffix" =~ ^\.[0-9]{8}T[0-9]{6}Z(\.[0-9]+)?$ ]]; then
-          candidates+=("$backup")
-        fi
-      done
+      collect "$destination/${source##*/}.mi.bk"
     done < <(find "$package_dir/files" -mindepth 1 -maxdepth 1 -print0)
   elif [[ -d "$package_dir/this" ]]; then
-    prefix="${destination}.mi.bk"
-    for backup in "$prefix" "$prefix".*; do
-      [[ -e "$backup" || -L "$backup" ]] || continue
-      suffix="${backup#"$prefix"}"
-      if [[ -z "$suffix" || "$suffix" =~ ^\.[0-9]+$ ||
-            "$suffix" =~ ^\.[0-9]{8}T[0-9]{6}Z(\.[0-9]+)?$ ]]; then
-        candidates+=("$backup")
-      fi
-    done
+    collect "${destination}.mi.bk"
   fi
 done
 
