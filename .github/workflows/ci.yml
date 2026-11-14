@@ -28,7 +28,7 @@ jobs:
           set -euo pipefail
           while IFS= read -r -d '' file; do
             bash -n "$file"
-          done < <(git ls-files -z -- '*.sh' 'mi' 'setup' 'packages/*/location')
+          done < <(git ls-files -z -- '*.sh' 'mi' 'setup' 'packages/*/location' 'packages/myscript/this/box-midep')
 
       - name: Run deployment regression tests
         shell: bash
@@ -37,3 +37,4 @@ jobs:
           bash tests/install.sh
           bash tests/boxkit.sh
           bash tests/enter-box.sh
+          bash tests/box-midep.sh
