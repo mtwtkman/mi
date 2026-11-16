@@ -1,0 +1,20 @@
+#!/bin/bash
+[ $# != 1 ] && echo "Usage: mkbox <envname>" && exit 1
+envname="${1}"
+d=$(mktemp -d boxkit-envset-${envname}-XXXXX)
+echo "Fetch boxkit envset"
+git clone git@codeberg.org:mtwtkman/boxkit-envset.git --depth 1 ${d} > /dev/null 2>&1
+
+if [ ! -e "${d}/${envname}" ]; then
+  echo "${envname} is unknown environment. Available environments are:"
+  find ${d} -mindepth 1 -maxdepth 1 -type d ! -name '.*' -printf '\t%f\n'
+  echo ''
+  echo 'Abort'
+else
+  for f in boxkit.ini box_setup.sh; do
+    echo "Put ${f} in current directory"
+    mv -i ${d}/${envname}/${f} ./${f}
+  done
+fi
+
+rm -rf ${d}
