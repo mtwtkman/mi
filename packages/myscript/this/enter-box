@@ -10,7 +10,41 @@ while [[ "$root" != / ]]; do
     relative="${relative#/}"
     workdir=/workspace
     [[ -z "$relative" ]] || workdir="/workspace/$relative"
-    exec "$root/box" e --workdir "$workdir"
+
+    # Retain the failure message so only a Boxkit recreation requirement
+    # prompts the user; unrelated failures must propagate unchanged.
+    error_log="$(mktemp)"
+    trap 'rm -f -- "$error_log"' EXIT
+    if (cd "$root" && ./box e --workdir "$workdir") 2>"$error_log"; then
+      cat -- "$error_log" >&2
+      exit 0
+    else
+      status=$?
+    fi
+    cat -- "$error_log" >&2
+    if ! grep -Eq "(container configuration or socket( path)? changed|legacy container configuration or socket changed).*enter -r" "$error_log"; then
+      exit "$status"
+    fi
+
+    # Read confirmation from the controlling terminal even when input is
+    # redirected. No TTY means no implicit destructive recreation.
+    if [[ ! -r /dev/tty ]]; then
+      printf '%s\n' 'enter-box: confirmation requires a terminal; container was not recreated' >&2
+      exit "$status"
+    fi
+    printf '%s' "enter-box: recreate container in $root with ./box e -r? [y/N] " > /dev/tty
+    if ! IFS= read -r answer < /dev/tty; then
+      exit "$status"
+    fi
+    case "$answer" in
+      y|Y|yes|YES|Yes)
+        # Execute from the Boxkit root, then enter the original subdirectory.
+        # A single enter -r both recreates and enters the container.
+        cd -- "$root"
+        exec ./box e -r --workdir "$workdir"
+        ;;
+      *) exit "$status";;
+    esac
   fi
   root="$(dirname -- "$root")"
 done
