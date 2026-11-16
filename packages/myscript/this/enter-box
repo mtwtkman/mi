@@ -13,10 +13,11 @@ while [[ "$root" != / ]]; do
 
     # Retain the failure message so only a Boxkit recreation requirement
     # prompts the user; unrelated failures must propagate unchanged.
-    error_log="$(mktemp)"
-    error_pipe="$(mktemp -u)"
+    error_dir="$(mktemp -d)"
+    error_log="$error_dir/stderr"
+    error_pipe="$error_dir/pipe"
     mkfifo -- "$error_pipe"
-    trap 'rm -f -- "$error_log" "$error_pipe"' EXIT
+    trap 'rm -rf -- "$error_dir"' EXIT
     # Stream stderr while collecting it for classification after box exits.
     tee "$error_log" < "$error_pipe" >&2 &
     tee_pid=$!
