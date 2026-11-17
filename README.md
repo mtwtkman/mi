@@ -5,7 +5,9 @@ Mi manages personal development environment configuration and distribution-speci
 ## Installation
 
 ```sh
-curl https://raw.githubusercontent.com/mtwtkman/mi/main/setup | bash -s
+git clone git@github.com:mtwtkman/mi /tmp/mi-setup
+cd /tmp/mi-setup
+bash setup
 ```
 
 ## Usage
