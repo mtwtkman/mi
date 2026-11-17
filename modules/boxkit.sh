@@ -34,7 +34,7 @@ mi_boxkit_install() {
     return 1
   else
     mkdir -p -- "$(dirname -- "$BOXKIT_CHECKOUT")"
-    git clone --depth 1 https://github.com/mtwtkman/boxkit.git "$BOXKIT_CHECKOUT" || return 1
+    git clone --depth 1 git@github.com:mtwtkman/boxkit.git "$BOXKIT_CHECKOUT" || return 1
   fi
   mi_boxkit_link
 }
