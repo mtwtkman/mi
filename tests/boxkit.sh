@@ -17,7 +17,7 @@ printf '%s\n' "$*" >> "$MI_BOXKIT_GIT_LOG"
 case "${1:-}" in
   clone)
     [[ "${2:-}" == --depth && "${3:-}" == 1 ]]
-    [[ "${4:-}" == https://github.com/mtwtkman/boxkit.git ]]
+    [[ "${4:-}" == git@github.com:mtwtkman/boxkit.git ]]
     dir="$5"
     mkdir -p "$dir/.git"
     printf '#!/usr/bin/env bash\n' > "$dir/boxkit"
