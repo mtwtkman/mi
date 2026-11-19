@@ -1,0 +1,288 @@
+#!/bin/bash
+show_help() {
+  cat <<'HELP'
+Usage: mi [command] [--help]
+       mi --help
+
+Commands:
+  deploy     Deploy managed configuration files.
+  install    Install system packages and deploy configuration (host only).
+  update     Update system packages and managed tools (host only).
+  purge      Remove unneeded system packages (host only).
+  sweep      Review and delete Mi backups (all packages by default).
+             Use -f or --force to skip interactive confirmation.
+  --help     Show this help message.
+
+Run 'mi <command> --help' for command-specific usage.
+
+Environment:
+  MI_PROFILE        host (default) or container.
+                    container permits deploy only and defaults to copying
+                    git, opencode and neovim configuration.
+  MI_PACKAGES       Space-separated Mi configuration package names.
+                    Overrides the default selection for deploy and restricts
+                    sweep to the specified packages.
+                    During deploy, a nonempty selection forces copy mode,
+                    resets XDG_CONFIG_HOME to $HOME/.config, and skips host
+                    user-service activation. Host deployment refuses to
+                    copy into the account's normal HOME.
+  HOME              Deployment destination root, interpreted by each
+                    package's location script. With MI_PACKAGES set on
+                    deploy, relative HOME is resolved from the current
+                    directory before any package changes directory.
+  MI_DEPLOY_MODE    link (default host) or copy (default container).
+                    A selected deploy (MI_PACKAGES set) always uses copy,
+                    regardless of this variable.
+  XDG_CONFIG_HOME   Optional XDG configuration destination for packages
+                    that use it; ignored on selected deploys, where it is
+                    set to $HOME/.config.
+  DISTRO            Override distribution detection (e.g. arch, ubuntu,
+                    debian, macos). Primarily useful for testing.
+
+Examples:
+  mi deploy
+  MI_PROFILE=container mi deploy
+  MI_PACKAGES="neovim git" HOME=./.boxkit/home mi deploy
+  mi sweep -f
+  MI_PACKAGES="neovim git" mi sweep
+  MI_PACKAGES="neovim git" HOME=./.boxkit/home mi sweep
+
+Notes:
+  - Package names in MI_PACKAGES are separated by spaces, not commas.
+  - Deploy backups use .mi.bk.<UTC timestamp>; sweep also finds
+    legacy backups and all timestamped generations.
+  - Run 'box-midep neovim,git' or 'box-misweep neovim,git' inside a
+    Boxkit project for automatic HOME discovery (comma-separated names).
+HELP
+}
+
+show_command_help() {
+  case "$1" in
+    deploy)
+      cat <<'HELP'
+Usage: mi deploy
+
+Deploy managed configuration files.
+
+Environment:
+  MI_PROFILE        host (default) or container; container copies git,
+                    opencode and neovim configuration by default.
+  MI_PACKAGES       Space-separated package names. Restricts deployment,
+                    forces copy mode, and skips host service activation.
+  HOME              Target HOME; selected deployments accept relative paths.
+  MI_DEPLOY_MODE    link (default host) or copy (default container).
+                    MI_PACKAGES overrides this and forces copy mode.
+  XDG_CONFIG_HOME   Optional config root; selected deployments use
+                    $HOME/.config regardless of this value.
+
+Examples:
+  mi deploy
+  MI_PROFILE=container mi deploy
+  MI_PACKAGES="neovim git" HOME=./.boxkit/home mi deploy
+HELP
+      ;;
+    install)
+      cat <<'HELP'
+Usage: mi install
+
+Install configured system packages and deploy configuration.
+Host profile only; package operations depend on the detected distribution.
+
+Environment:
+  DISTRO            Override detected distribution.
+  MI_PROFILE        Must be host (default).
+
+Example:
+  mi install
+HELP
+      ;;
+    update)
+      cat <<'HELP'
+Usage: mi update
+
+Update installed system packages and Mi-managed tools.
+Host profile only; update operations depend on the distribution.
+
+Environment:
+  DISTRO            Override detected distribution.
+  MI_PROFILE        Must be host (default).
+
+Example:
+  mi update
+HELP
+      ;;
+    purge)
+      cat <<'HELP'
+Usage: mi purge
+
+Remove unneeded system packages using the distribution package manager.
+Host profile only.
+
+Environment:
+  DISTRO            Override detected distribution.
+  MI_PROFILE        Must be host (default).
+
+Example:
+  mi purge
+HELP
+      ;;
+    sweep)
+      cat <<'HELP'
+Usage: mi sweep [-f|--force]
+
+Find and delete Mi backup generations (.mi.bk and .mi.bk.*) at
+managed package destinations. All packages are selected by default.
+Unrelated files and deployed configuration are not deleted.
+
+Options:
+  -f, --force       Delete without interactive confirmation.
+                    Otherwise explicit confirmation is required.
+
+Environment:
+  MI_PACKAGES       Space-separated package names to restrict cleanup.
+  HOME              Target HOME; relative paths are supported.
+  XDG_CONFIG_HOME   Config root; with MI_PACKAGES set, uses $HOME/.config.
+
+Examples:
+  mi sweep
+  mi sweep -f
+  MI_PACKAGES="neovim git" HOME=./.boxkit/home mi sweep --force
+HELP
+      ;;
+  esac
+}
+
+# Display help before OS detection or any filesystem modification.
+if [[ $# -eq 0 || ( $# -eq 1 && ( "$1" == --help || "$1" == -h || "$1" == help ) ) ]]; then
+  show_help
+  exit 0
+fi
+if [[ $# -eq 2 && ( "$2" == --help || "$2" == -h ) ]]; then
+  case "$1" in
+    deploy|install|update|purge|sweep)
+      show_command_help "$1"
+      exit 0
+      ;;
+  esac
+fi
+
+
+# Detect OS without relying on GNU-only uname -o.
+case "$(uname -s)" in
+  Linux) ostype=linux ;;
+  Darwin) ostype=darwin ;;
+  *) echo "Unsupported OS" >&2; exit 1 ;;
+esac
+case "${ostype}" in
+  android|linux)
+    export MI_ABSPATH_GETTER="readlink -m"
+    export MI_ECHO_ASCII_CHARA="echo -e"
+    ;;
+  darwin)
+    export MI_ABSPATH_GETTER="readlink -f"
+    export MI_ECHO_ASCII_CHARA="echo"
+    ;;
+  *)
+    echo "Cannot detect os type"
+    exit 1
+esac
+
+here="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+source "${here}/modules/message.sh"
+
+if [ "${1:-}" = sweep ]; then
+  shift
+  exec bash "${here}/modules/sweep.sh" "$@"
+fi
+
+# Selected packages are copied to the requested HOME, not linked to this checkout.
+# Avoid an inherited XDG_CONFIG_HOME pointing back to the invoking host.
+if [[ "${1:-}" == deploy && -n "${MI_PACKAGES:-}" ]]; then
+  # Resolve HOME before package location scripts change their working directory.
+  # In particular, HOME=./path is relative to the invoking directory.
+  if [[ "$ostype" == linux ]]; then
+    HOME="$(readlink -m -- "$HOME")" || exit 1
+  else
+    HOME="$(realpath "$HOME")" || {
+      red "Cannot resolve target HOME: $HOME"
+      exit 1
+    }
+  fi
+  export HOME
+  if [[ "${MI_PROFILE:-host}" != container ]]; then
+    # The host account's actual HOME must never be changed from links to copies.
+    account_home=""
+    if command -v getent >/dev/null 2>&1; then
+      account_entry="$(getent passwd "$(id -u)")" || {
+        red "Cannot determine account HOME; refusing targeted host deployment."
+        exit 1
+      }
+      account_home="$(cut -d: -f6 <<< "$account_entry")"
+    elif [[ "$ostype" == darwin ]] && command -v dscl >/dev/null 2>&1; then
+      account_home="$(dscl . -read "/Users/$(id -un)" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+    fi
+    if [[ -z "$account_home" ]]; then
+      red "Cannot determine account HOME; refusing targeted host deployment."
+      exit 1
+    fi
+    if [[ "$ostype" == linux ]]; then
+      actual_home="$(readlink -m -- "$account_home")" || exit 1
+    else
+      actual_home="$(realpath "$account_home")" || exit 1
+    fi
+    if [[ "$HOME" == "$actual_home" ]]; then
+      red "MI_PACKAGES would copy settings into the host HOME. Set HOME to a separate destination."
+      exit 1
+    fi
+  fi
+  export MI_DEPLOY_MODE=copy
+  export XDG_CONFIG_HOME="$HOME/.config"
+fi
+
+bash "${here}/modules/prepare.sh" || exit 1
+
+if [ "${MI_PROFILE:-host}" = container ]; then
+  export MI_DEPLOY_MODE="${MI_DEPLOY_MODE:-copy}"
+  if [ "${1:-}" != deploy ]; then
+    red "Container profile supports deploy only; package management is disabled."
+    exit 1
+  fi
+fi
+
+distro="${DISTRO:-autodetect}"
+
+if [ "$distro" = autodetect ]; then
+  if [ "$ostype" = darwin ]; then
+    distro=macos
+  elif [ -r /etc/os-release ]; then
+    # ID and ID_LIKE are machine-readable; NAME is a display label.
+    distro="$(. /etc/os-release; printf '%s %s' "${ID:-}" "${ID_LIKE:-}")"
+  else
+    red "Cannot detect OS distribution."
+    exit 1
+  fi
+fi
+
+cmd=""
+
+case "${distro}" in
+  *arch*) cmd="${here}/distro/arch.sh";;
+  *macos*) cmd="${here}/distro/macos.sh";;
+  *debian*|*ubuntu*) cmd="${here}/distro/debian.sh";;
+  *)
+    red "No definition for ${distro}."
+    exit 1
+    ;;
+esac
+
+if [ -z "${cmd}" ]; then
+  red "Unknown distro ${distro}"
+  exit 1
+fi
+
+bash "${cmd}" "$@"
+status=$?
+unset MI_ABSPATH_GETTER
+unset MI_ECHO_ASCII_CHARA
+exit "$status"

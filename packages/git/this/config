@@ -1,0 +1,55 @@
+[column]
+  ui = auto
+
+[branch]
+  sort = -committerdate
+
+[tag]
+  sort = version:refname
+
+[core]
+	editor = "nvim"
+
+[diff]
+  algorithm = histogram
+  colorMoved = plain
+  memonicPrefix = true
+  renames = true
+
+[init]
+	defaultBranch = "main"
+
+[merge]
+  conflictstyle = zdiff3
+
+[user]
+	email = "924277+mtwtkman@users.noreply.github.com"
+	name = "mtwtkman"
+
+[fetch]
+  prune = true
+  prunTags = true
+  all = true
+
+[push]
+  default = simple
+  autoSetupRemote = true
+  followTags = true
+
+[rerere]
+  enabled = true
+  autoupdate = true
+
+[help]
+  autocorrect = prompt
+
+[commit]
+  verbose = true
+
+[rebase]
+  autoSquash = true
+  autoStash = true
+  updateRefs = true
+
+[alias]
+  adog = log --all --decorate --oneline --graph

@@ -1,0 +1,31 @@
+# Mi
+
+Mi manages personal development environment configuration and distribution-specific packages.
+
+## Installation
+
+```sh
+git clone git@github.com:mtwtkman/mi /tmp/mi-setup
+cd /tmp/mi-setup
+bash setup
+```
+
+## Usage
+
+```sh
+./mi --help # Show commands and environment variables
+./mi deploy   # Deploy managed configuration
+MI_PACKAGES="neovim git" HOME=/path/to/container/home ./mi deploy  # Copy selected configs
+./mi install  # Install configured packages and deploy
+./mi update   # Update installed packages and managed tools
+./mi sweep    # Review and remove Mi backup files (confirmation required)
+```
+
+For container configuration, use `MI_PROFILE=container ./mi deploy`.
+
+## Documentation
+
+- [Backup cleanup](docs/backup-cleanup.md)
+- [SSH agent](docs/ssh-agent.md)
+- [Boxkit integration](docs/boxkit.md)
+- [Arch Linux package management](docs/arch-linux.md)

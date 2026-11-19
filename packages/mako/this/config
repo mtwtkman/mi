@@ -1,0 +1,25 @@
+default-timeout=5000
+
+# Codex: attention is required from the user.
+[category=codex.action-required]
+background-color=#7f3f00
+border-color=#ffb454
+default-timeout=2000
+
+# Codex: the turn finished and no response is required.
+[category=codex.completed]
+background-color=#1f5f3b
+border-color=#65d18a
+default-timeout=2000
+
+# OpenCode: questions and permission requests need attention.
+[category=opencode.action-required]
+background-color=#7f3f00
+border-color=#ffb454
+default-timeout=2000
+
+# OpenCode: only the main task's completed execution, not internal steps.
+[category=opencode.completed]
+background-color=#1f5f3b
+border-color=#65d18a
+default-timeout=2000

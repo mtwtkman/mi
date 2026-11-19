@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+if ! command -v "git" &> /dev/null; then
+  echo "Mi requires `git`. Please install it."
+  exit 1
+fi
+
+local_dir="${HOME}/.local"
+
+if [ ! -d "${local_dir}" ]; then
+  mkdir "${local_dir}"
+fi
+
+force="${FORCE:-}"
+dest="${local_dir}/mi"
+
+if [ -d "${dest}" ]; then
+  if [ -z "${force}" ]; then
+    if [ "${MI_PROFILE:-host}" = container ]; then
+      bash "${dest}/mi" deploy
+      exit $?
+    fi
+    pushd "${dest}"
+    echo "Here is your setting collection at ${dest}. bye."
+    exit 0
+  fi
+  rm -rf "${dest}"
+fi
+
+pushd "${local_dir}" &> /dev/null
+git clone https://github.com/mtwtkman/mi.git
+popd &> /dev/null
+
+pushd "${dest}" &> /dev/null
+if [ "${MI_PROFILE:-host}" = container ]; then
+  ./mi deploy || exit $?
+else
+  ./mi install || exit $?
+fi
+popd &> /dev/null
+echo "Restart your shell or source ~/.bash_profile to load updated settings."

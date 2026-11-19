@@ -1,0 +1,88 @@
+{
+    "layer": "top",
+    "font_family": "HackNerdFont,Noto Sans CJK,sans-serif",
+    "font_size": 12,
+    "position": "top",
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["sway/window"],
+    "modules-right": ["cpu", "memory", "temperature", "network", "pulseaudio", "battery", "clock"],
+    "cpu": {
+      "interval": 1,
+      "format": "{icon} {usage}%",
+      "format-icons": [
+        "<span></span>",
+        "<span></span>",
+        "<span></span>",
+        "<span></span>",
+        "<span color='#c39f44'></span>",
+        "<span color='#c39f44'></span>",
+        "<span color='#c34444'></span>",
+        "<span color='#c34444'></span>"
+      ]
+    },
+    "memory": {
+      "interval": 30,
+      "format": "{icon} {percentage}%",
+      "max-length": 10,
+      "tooltip": true,
+      "tooltip-format": "Memory: {used:0.1f}GB / {total:0.1f}GB",
+      "format-icons": [
+        "<span></span>",
+        "<span></span>",
+        "<span></span>",
+        "<span></span>",
+        "<span color='#c39f44'></span>",
+        "<span color='#c39f44'></span>",
+        "<span color='#c34444'></span>",
+        "<span color='#c34444'></span>",
+      ]
+    },
+    "temperature": {
+      "interval": 10,
+      "format": "{icon}{temperatureC}°C",
+      "format-icons": [
+        "<span></span>",
+        "<span></span>",
+        "<span></span>",
+        "<span foreground='#c39f44'></span>",
+        "<span foreground='#c34444'></span>"
+      ]
+    },
+    "clock": {
+        "interval": 1,
+        "format": "{:%Y-%m-%d %H:%M:%S(%a)}",
+        "tooltip": false
+    },
+    "battery": {
+        "format": "{icon}{capacity}%",
+        "format-charging": "<span foreground='#afffb0'>󰂄</span>{capacity}%",
+        "format-plugged": "<span foreground='#a9e2ed'></span>{capacity}%",
+        "format-icons": [
+            "<span foreground='#c34444'>󰁺</span>",
+            "<span foreground='#c39f44'>󰁼</span>",
+            "<span foreground='#44c377'>󰁾</span>",
+            "<span foreground='#44c377'>󰂁</span>",
+            "<span foreground='#448CC3'>󰁹</span>"
+        ],
+        "status": {
+            "warning": 30,
+            "critical": 10
+        },
+        "interval": 3
+    },
+    "network": {
+        "format-wifi": "{icon} {essid}",
+        "format-ethernet": "󰈁",
+        "format-disconnected": "󰲛",
+        "format-icons": ["󰤟", "󰤢", "󰤥", "󰤨"],
+        "tooltip": false
+    },
+    "pulseaudio": {
+        "format": "{icon} {volume}%" ,
+        "format-bluetooth": "󰥰 {volume}%",
+        "format-muted": " {volume}%",
+        "format-icons": {
+            "default": ["", "", "", "", "", "", "", "", "", ""]
+        }
+    }
+}

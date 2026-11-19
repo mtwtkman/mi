@@ -1,0 +1,394 @@
+#!/usr/bin/env bash
+set -euo pipefail
+trap 'printf "Test failed at line %s: %s\\n" "$LINENO" "$BASH_COMMAND" >&2' ERR
+
+repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+tmp="$(mktemp -d)"
+trap 'rm -rf -- "$tmp"' EXIT
+
+export HOME="$tmp/home"
+export XDG_CONFIG_HOME="$HOME/.config"
+mkdir -p -- "$HOME"
+
+link="$repo/modules/make_link.sh"
+source_file="$tmp/source"
+destination="$HOME/.config/example"
+printf 'source\n' > "$source_file"
+
+bash "$link" "$source_file" "$destination"
+test -L "$destination"
+test "$(readlink "$destination")" = "$source_file"
+
+# Re-running with an unchanged target must not create a backup.
+bash "$link" "$source_file" "$destination"
+test ! -e "$destination.mi.bk"
+
+# Existing user files are preserved in timestamped backups.
+rm -- "$destination"
+printf 'original\n' > "$destination"
+bash "$link" "$source_file" "$destination"
+shopt -s nullglob
+backups=("$destination".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 1
+grep -qx original "${backups[0]}"
+
+# An existing legacy backup never blocks a new deployment.
+rm -- "$destination"
+printf 'new user file\n' > "$destination"
+printf 'legacy\n' > "$destination.mi.bk"
+bash "$link" "$source_file" "$destination"
+backups=("$destination".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 2
+grep -qx legacy "$destination.mi.bk"
+test -L "$destination"
+test "$(readlink "$destination")" = "$source_file"
+
+# Missing source is an error.
+if bash "$link" "$tmp/missing" "$tmp/absent"; then
+  echo 'FAIL: missing source was accepted' >&2
+  exit 1
+fi
+
+# Both 'this' and 'files' packages must deploy into the temporary HOME.
+bash "$repo/modules/deploy.sh" neovim
+test -L "$HOME/.config/nvim"
+test "$(readlink "$HOME/.config/nvim")" = "$repo/packages/neovim/this"
+
+bash "$repo/modules/deploy.sh" opencode
+test -L "$HOME/.config/opencode"
+test "$(readlink "$HOME/.config/opencode")" = "$repo/packages/opencode/this"
+
+# XDG override must be honored for opencode.
+export XDG_CONFIG_HOME="$HOME/xdg-config"
+bash "$repo/modules/deploy.sh" opencode
+test -L "$XDG_CONFIG_HOME/opencode"
+
+# Full deploy should be confined to the temporary HOME and repeatable.
+export XDG_CONFIG_HOME="$HOME/.config"
+export DISTRO=ubuntu
+bash "$repo/mi" deploy
+bash "$repo/mi" deploy
+
+test -L "$HOME/.config/nvim"
+test -L "$HOME/.config/opencode"
+test -L "$HOME/.config/git"
+test -L "$HOME/.bashrc"
+grep -Fq 'export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.sock"' "$HOME/.bashrc"
+! grep -Eq 'eval.*ssh-agent' "$HOME/.bashrc"
+test -f "$HOME/.config/systemd/user/ssh-agent.service"
+grep -Fq "ExecStart=/usr/bin/ssh-agent -D -a %t/ssh-agent.sock" "$HOME/.config/systemd/user/ssh-agent.service"
+test ! -e "$HOME/.config/nvim.mi.bk"
+test ! -e "$HOME/.config/opencode.mi.bk"
+
+# A selected host deployment must refuse the real account HOME without changing links.
+# Override account lookup to simulate a conventional HOME in this isolated test.
+mkdir -p "$tmp/fake-account-bin"
+cat > "$tmp/fake-account-bin/getent" <<'MOCK'
+#!/usr/bin/env bash
+if [[ "${1:-}" == passwd ]]; then
+  printf 'testuser:x:%s:%s::%s:/bin/bash\n' "$(id -u)" "$(id -g)" "$MI_TEST_ACCOUNT_HOME"
+else
+  /usr/bin/getent "$@"
+fi
+MOCK
+chmod +x "$tmp/fake-account-bin/getent"
+export MI_TEST_ACCOUNT_HOME="$tmp/home"
+if MI_PACKAGES='neovim' PATH="$tmp/fake-account-bin:$PATH" bash "$repo/mi" deploy; then
+  echo 'FAIL: selected copy into account HOME was accepted' >&2
+  exit 1
+fi
+test -L "$HOME/.config/nvim"
+test ! -e "$HOME/.config/nvim.mi.bk"
+unset MI_TEST_ACCOUNT_HOME
+
+# Targeted deployment must copy only selected packages into an alternate HOME.
+unset MI_PROFILE MI_PACKAGES MI_DEPLOY_MODE
+export HOME="$tmp/source-home"
+export XDG_CONFIG_HOME="$HOME/.config"
+mkdir -p "$HOME"
+target_home="$tmp/target-home"
+MI_PACKAGES='neovim' HOME="$target_home" bash "$repo/mi" deploy
+test -d "$target_home/.config/nvim"
+test ! -L "$target_home/.config/nvim"
+test ! -e "$target_home/.config/git"
+test ! -e "$target_home/.config/systemd/user/ssh-agent.service"
+test ! -e "$HOME/.config/nvim"
+MI_PACKAGES='neovim' HOME="$target_home" bash "$repo/mi" deploy
+test ! -e "$target_home/.config/nvim.mi.bk"
+
+# A relative HOME is resolved against the caller's CWD, not package directories.
+mkdir -p "$tmp/relative-root"
+(
+  cd "$tmp/relative-root"
+  MI_PACKAGES='opencode' HOME=./nested/home bash "$repo/mi" deploy
+)
+test -d "$tmp/relative-root/nested/home/.config/opencode"
+test ! -L "$tmp/relative-root/nested/home/.config/opencode"
+test ! -e "$repo/packages/opencode/nested/home/.config/opencode"
+
+# A relative spelling of the host account HOME must still be rejected.
+(
+  cd "$tmp"
+  if MI_PACKAGES='neovim' HOME=./home MI_TEST_ACCOUNT_HOME="$tmp/home" \
+    PATH="$tmp/fake-account-bin:$PATH" bash "$repo/mi" deploy; then
+    echo 'FAIL: relative alias of account HOME was accepted' >&2
+    exit 1
+  fi
+)
+test -L "$tmp/home/.config/nvim"
+
+# A selected deploy must not honor link mode or leak inherited XDG_CONFIG_HOME.
+MI_PACKAGES='git' MI_DEPLOY_MODE=link HOME="$target_home" bash "$repo/mi" deploy
+test -d "$target_home/.config/git"
+test ! -L "$target_home/.config/git"
+test ! -e "$HOME/.config/git"
+
+if MI_PACKAGES='does-not-exist' HOME="$target_home" bash "$repo/mi" deploy; then
+  echo 'FAIL: accepted unknown selected package' >&2
+  exit 1
+fi
+
+# A broken symlink is an existing destination and must be backed up.
+broken="$HOME/broken"
+ln -s "$tmp/nonexistent-target" "$broken"
+bash "$link" "$source_file" "$broken"
+broken_backups=("$broken".mi.bk.????????T??????Z*)
+test "${#broken_backups[@]}" -eq 1
+test -L "${broken_backups[0]}"
+test "$(readlink "${broken_backups[0]}")" = "$tmp/nonexistent-target"
+test "$(readlink "$broken")" = "$source_file"
+
+# Container profile: deploy independent copies, not symlinks.
+container_home="$tmp/container-home"
+mkdir -p "$container_home"
+export HOME="$container_home"
+export XDG_CONFIG_HOME="$HOME/.config"
+export MI_PROFILE=container
+unset MI_PACKAGES MI_DEPLOY_MODE
+bash "$repo/mi" deploy
+test -d "$HOME/.config/git"
+test ! -L "$HOME/.config/git"
+test -d "$HOME/.config/opencode"
+test ! -L "$HOME/.config/opencode"
+test ! -e "$HOME/.config/foot"
+test ! -e "$HOME/.bashrc"
+test ! -e "$HOME/.config/systemd/user/ssh-agent.service"
+bash "$repo/mi" deploy
+test ! -e "$HOME/.config/opencode.mi.bk"
+
+# Opt-in package selection for an additional 'this' package.
+export MI_PACKAGES="neovim"
+bash "$repo/mi" deploy
+test -d "$HOME/.config/nvim"
+test ! -L "$HOME/.config/nvim"
+
+# Modified copy deployments generate timestamped backups without conflicts.
+unset MI_PACKAGES
+printf 'modified\n' > "$HOME/.config/opencode/mi-regression-test"
+bash "$repo/mi" deploy
+backups=("$HOME/.config/opencode".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 1
+test -f "${backups[0]}/mi-regression-test"
+printf 'modified again\n' > "$HOME/.config/opencode/mi-regression-test"
+bash "$repo/mi" deploy
+backups=("$HOME/.config/opencode".mi.bk.????????T??????Z*)
+test "${#backups[@]}" -eq 2
+test ! -e "$HOME/.config/opencode/mi-regression-test"
+
+# Invalid package selections must fail through the top-level CLI.
+export MI_PACKAGES="does-not-exist"
+if bash "$repo/mi" deploy; then
+  echo 'FAIL: unknown package unexpectedly succeeded' >&2
+  exit 1
+fi
+unset MI_PACKAGES
+
+# Shared package selection must agree across deploy and sweep.
+source "$repo/modules/select_packages.sh"
+export MI_PROFILE=container
+unset MI_PACKAGES
+mi_select_packages "$repo"
+test "${packages[*]}" = 'git opencode neovim'
+export MI_PACKAGES='neovim git'
+mi_select_packages "$repo"
+test "${packages[*]}" = 'neovim git'
+export MI_PACKAGES='does-not-exist'
+if mi_select_packages "$repo"; then
+  echo 'FAIL: invalid package selection accepted' >&2
+  exit 1
+fi
+unset MI_PACKAGES
+
+# Invalid package selection must also be rejected by sweep.
+MI_PACKAGES='does-not-exist' bash "$repo/mi" sweep >/dev/null 2>&1 && {
+  echo 'FAIL: sweep accepted an invalid package' >&2
+  exit 1
+}
+
+# Container profile must never invoke package managers.
+if bash "$repo/mi" install; then
+  echo 'FAIL: container install unexpectedly succeeded' >&2
+  exit 1
+fi
+
+# Exercise auto-activation using a fake systemctl, never the CI host manager.
+unset MI_PROFILE MI_PACKAGES
+mkdir -p "$tmp/fake-bin" "$tmp/runtime"
+cat > "$tmp/fake-bin/systemctl" <<'MOCK'
+#!/bin/bash
+printf '%s\n' "$*" >> "$MI_SYSTEMCTL_LOG"
+case "$*" in
+  '--user is-enabled --quiet ssh-agent.service'|'--user is-active --quiet ssh-agent.service') exit 1 ;;
+esac
+MOCK
+chmod +x "$tmp/fake-bin/systemctl"
+export MI_SYSTEMCTL_LOG="$tmp/systemctl.log"
+export XDG_RUNTIME_DIR="$tmp/runtime"
+export PATH="$tmp/fake-bin:$PATH"
+export HOME="$tmp/activation-home"
+export XDG_CONFIG_HOME="$HOME/.config"
+bash "$repo/modules/linux_user.sh"
+grep -qx -- '--user daemon-reload' "$MI_SYSTEMCTL_LOG"
+grep -qx -- '--user enable ssh-agent.service' "$MI_SYSTEMCTL_LOG"
+grep -qx -- '--user start ssh-agent.service' "$MI_SYSTEMCTL_LOG"
+# Repeated activation must not reload or re-enable an already active unit.
+cat > "$tmp/fake-bin/systemctl" <<'MOCK'
+#!/bin/bash
+printf '%s\n' "$*" >> "$MI_SYSTEMCTL_LOG"
+case "$*" in
+  '--user is-enabled --quiet ssh-agent.service'|'--user is-active --quiet ssh-agent.service') exit 0 ;;
+esac
+MOCK
+chmod +x "$tmp/fake-bin/systemctl"
+: > "$MI_SYSTEMCTL_LOG"
+bash "$repo/modules/linux_user.sh"
+! grep -Eq 'daemon-reload| enable | start ' "$MI_SYSTEMCTL_LOG"
+
+# Sweep uses Mi package locations and removes all backup generations.
+sweep_stamp="$tmp/sweep-timestamp-home"
+mkdir -p "$sweep_stamp/.config"
+printf 'legacy\n' > "$sweep_stamp/.config/nvim.mi.bk"
+printf 'history\n' > "$sweep_stamp/.config/nvim.mi.bk.1"
+printf 'timestamp\n' > "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
+printf 'collision\n' > "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1"
+printf 'unrelated\n' > "$sweep_stamp/.config/nvim.mi.bk.invalid"
+printf 'other-package\n' > "$sweep_stamp/.config/git.mi.bk.20261114T053000Z"
+mkdir -p "$sweep_stamp/.unrelated"
+printf 'outside\n' > "$sweep_stamp/.unrelated/random.mi.bk.20261114T053000Z"
+
+# Caller-relative HOME is resolved before packages/neovim/location runs.
+(
+  cd "$tmp"
+  if MI_PACKAGES=neovim HOME=./sweep-timestamp-home \
+      XDG_CONFIG_HOME="$tmp/host-xdg" bash "$repo/mi" sweep \
+      </dev/null >"$tmp/sweep-preview.log" 2>&1; then
+    echo 'FAIL: sweep without confirmation succeeded' >&2
+    exit 1
+  fi
+)
+grep -Fq 'Mi backups to delete (5)' "$tmp/sweep-preview.log"
+grep -Fq "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1" "$tmp/sweep-preview.log"
+! grep -Fq "$sweep_stamp/.config/git.mi.bk." "$tmp/sweep-preview.log"
+! grep -Fq "$sweep_stamp/.unrelated/random.mi.bk." "$tmp/sweep-preview.log"
+
+# --full and other unsupported arguments must be rejected.
+for opt in --full --unknown; do
+  if MI_PACKAGES=neovim HOME="$sweep_stamp" bash "$repo/mi" sweep "$opt" >/dev/null 2>&1; then
+    echo "FAIL: unsupported sweep option succeeded: $opt" >&2
+    exit 1
+  fi
+done
+if command -v script >/dev/null 2>&1; then
+  printf 'y\n' | script -q -e -c "env MI_PACKAGES=neovim HOME='$sweep_stamp' bash '$repo/mi' sweep" /dev/null >"$tmp/sweep-tty.log"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.1"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.20261114T053000Z.1"
+  test ! -e "$sweep_stamp/.config/nvim.mi.bk.invalid"
+  test -e "$sweep_stamp/.config/git.mi.bk.20261114T053000Z"
+  test -e "$sweep_stamp/.unrelated/random.mi.bk.20261114T053000Z"
+fi
+
+# Sweep must list only Mi-managed backups and require interactive confirmation.
+export HOME="$tmp/sweep-home"
+export XDG_CONFIG_HOME="$HOME/.config"
+mkdir -p "$HOME/.config" "$HOME/.unrelated"
+printf 'original\n' > "$HOME/.bashrc.mi.bk"
+printf 'untouched\n' > "$HOME/.unrelated/custom.mi.bk"
+if bash "$repo/mi" sweep </dev/null; then
+  echo 'FAIL: noninteractive sweep succeeded without confirmation' >&2
+  exit 1
+fi
+test -f "$HOME/.bashrc.mi.bk"
+test -f "$HOME/.unrelated/custom.mi.bk"
+# Simulate a terminal to verify both rejection and explicit acceptance.
+if command -v script >/dev/null 2>&1; then
+  printf 'n\n' | script -q -e -c "env MI_PACKAGES=bash bash '$repo/mi' sweep" /dev/null >/dev/null
+  test -f "$HOME/.bashrc.mi.bk"
+  printf 'y\n' | script -q -e -c "env MI_PACKAGES=bash bash '$repo/mi' sweep" /dev/null >/dev/null
+  test ! -e "$HOME/.bashrc.mi.bk"
+  test -f "$HOME/.unrelated/custom.mi.bk"
+fi
+
+# Sweep defaults to all packages even when the container profile is selected.
+# Force mode must work noninteractively while staying confined to Mi locations.
+force_home="$tmp/sweep-force-home"
+mkdir -p "$force_home/.config" "$force_home/.unrelated"
+printf 'nvim backup\n' > "$force_home/.config/nvim.mi.bk.20261115T000000Z"
+printf 'git backup\n' > "$force_home/.config/git.mi.bk.20261115T000000Z"
+printf 'unmanaged\n' > "$force_home/.unrelated/unknown.mi.bk.20261115T000000Z"
+MI_PROFILE=container HOME="$force_home" XDG_CONFIG_HOME="$force_home/.config" \
+  bash "$repo/mi" sweep --force </dev/null >"$tmp/sweep-force.log"
+grep -Fq "$force_home/.config/nvim.mi.bk.20261115T000000Z" "$tmp/sweep-force.log"
+grep -Fq "$force_home/.config/git.mi.bk.20261115T000000Z" "$tmp/sweep-force.log"
+test ! -e "$force_home/.config/nvim.mi.bk.20261115T000000Z"
+test ! -e "$force_home/.config/git.mi.bk.20261115T000000Z"
+test -f "$force_home/.unrelated/unknown.mi.bk.20261115T000000Z"
+
+# An explicit package selection must still be respected by -f.
+printf 'nvim backup\n' > "$force_home/.config/nvim.mi.bk.20261115T000000Z"
+printf 'git backup\n' > "$force_home/.config/git.mi.bk.20261115T000000Z"
+MI_PACKAGES=neovim HOME="$force_home" XDG_CONFIG_HOME="$tmp/host-xdg" \
+  bash "$repo/mi" sweep -f </dev/null >/dev/null
+test ! -e "$force_home/.config/nvim.mi.bk.20261115T000000Z"
+test -f "$force_home/.config/git.mi.bk.20261115T000000Z"
+
+# A custom user unit must never be replaced.
+unset MI_PROFILE MI_PACKAGES
+export HOME="$tmp/custom-home"
+export XDG_CONFIG_HOME="$HOME/.config"
+mkdir -p "$XDG_CONFIG_HOME/systemd/user"
+printf 'custom unit\n' > "$XDG_CONFIG_HOME/systemd/user/ssh-agent.service"
+if bash "$repo/modules/linux_user.sh"; then
+  echo 'FAIL: custom SSH agent unit was overwritten or accepted' >&2
+  exit 1
+fi
+grep -qx 'custom unit' "$XDG_CONFIG_HOME/systemd/user/ssh-agent.service"
+# The bootstrap script must deploy (not install) in container mode.
+# Mock git clone to avoid network access and observe the invoked command.
+mkdir -p "$tmp/setup-bin"
+cat > "$tmp/setup-bin/git" <<'MOCK'
+#!/usr/bin/env bash
+if [[ "${1:-}" == clone ]]; then
+  mkdir -p "$HOME/.local/mi"
+  cat > "$HOME/.local/mi/mi" <<'MI'
+#!/usr/bin/env bash
+printf '%s\n' "$*" > "$HOME/setup-command"
+MI
+  chmod +x "$HOME/.local/mi/mi"
+else
+  exit 1
+fi
+MOCK
+chmod +x "$tmp/setup-bin/git"
+export PATH="$tmp/setup-bin:$PATH"
+export HOME="$tmp/setup-container-home"
+mkdir -p "$HOME"
+MI_PROFILE=container bash "$repo/setup"
+grep -qx deploy "$HOME/setup-command"
+export HOME="$tmp/setup-host-home"
+mkdir -p "$HOME"
+bash "$repo/setup"
+grep -qx install "$HOME/setup-command"
+
+echo 'All Mi deployment regression tests passed.'

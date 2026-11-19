@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Logout
+Comment=Logout from current session
+Exec=swaymsg exit
+Terminal=false
+Type=Application
