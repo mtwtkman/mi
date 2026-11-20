@@ -13,8 +13,8 @@ profile thinkpad_X13_Gen1 {
 }
 
 profile thinkpad_T490 {
-  output $PANASONIC_TV enable mode 3840x2160@30.000
-  output "LG Display 0x05FA Unknown" enable position 0,2160
+  output $PANASONIC_TV enable mode 1920x1080@60.000
+  output "LG Display 0x05FA Unknown" enable position 0,1080
 }
 
 profile thinkpad_X9 {
