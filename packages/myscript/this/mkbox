@@ -1,20 +1,81 @@
 #!/bin/bash
-[ $# != 1 ] && echo "Usage: mkbox <envname>" && exit 1
-envname="${1}"
-d=$(mktemp -d boxkit-envset-${envname}-XXXXX)
-echo "Fetch boxkit envset"
-git clone git@codeberg.org:mtwtkman/boxkit-envset.git --depth 1 ${d} > /dev/null 2>&1
 
-if [ ! -e "${d}/${envname}" ]; then
-  echo "${envname} is unknown environment. Available environments are:"
-  find ${d} -mindepth 1 -maxdepth 1 -type d ! -name '.*' -printf '\t%f\n'
+name=$(basename $0)
+
+usage()
+{
+  echo "[BOXKIT_ENVSET_PATH] Usage: ${name} [install|load] [ARG]"
+  echo 'Usage: '
+  echo -e " ${name} install <envname>\tPut boxkit.ini and box_setup.sh on current directory."
+  echo -e '\t\t\t\t<envname> have to be defined at boxkit-envset.'
+  echo -e " ${name} load <includes>\t\tExtend box_setup.sh by using template."
+  echo -e '\t\t\t\t<includes> should be passed as comma-separated which values have to be defined at boxkit-envset/include.'
   echo ''
-  echo 'Abort'
+  echo 'ENVVAR:'
+  echo -e ' BOXKIT_ENVSET_PATH\t\tThis variable is used to use local boxkit-envset'
+}
+
+[ $# != 2 ] && usage && exit 1
+
+envname="${1}"
+if [[ -d ${BOXKIT_ENVSET_PATH} ]]; then
+  fetch_repo=0
 else
-  for f in boxkit.ini box_setup.sh; do
-    echo "Put ${f} in current directory"
-    mv -i ${d}/${envname}/${f} ./${f}
-  done
+  echo "Since ${BOXKIT_ENVSET_PATH} does'nt exist, use remote repository."
+  fetch_repo=1
 fi
 
-rm -rf ${d}
+if [[ ${fetch_repo} == 1 ]]; then
+  d=$(mktemp -d boxkit-envset-${envname}-XXXXX)
+  echo "Fetch boxkit-envset"
+  git clone git@codeberg.org:mtwtkman/boxkit-envset.git --depth 1 ${d} > /dev/null 2>&1
+else
+  d=${BOXKIT_ENVSET_PATH}
+fi
+
+failure=0
+
+__mkbox_run_install()
+{
+  envname=${1}
+  src="${d}/${envname}"
+  if [ ! -e "${src}" ]; then
+    echo "Abort: ${envname} is unknown environment. Available environments are:"
+    find ${d} -mindepth 1 -maxdepth 1 -type d ! -name '.*' -printf '\t%f\n'
+    failure=1
+  else
+    for f in boxkit.ini box_setup.sh; do
+      echo "Put ${f} in current directory"
+      mv -i ${src}/${f} ./${f}
+    done
+  fi
+}
+
+__mkbox_run_load()
+{
+  includes=${1}
+  root=${d}/include
+  [[ ! -f "./box_setup.sh" ]] && echo "Abort: box_setup.sh not found in this current location" && exit 1
+  for i in ${includes//,/ }; do
+    src=${root}/${i}
+    if [[ ! -f "${src}" ]]; then
+      echo "Abort: ${src} not found. Available templates are:"
+      find ${root} -mindepth 1 -maxdepth 1 -type f ! -name '.*' -printf '\t%f\n'
+      failure=1
+    else
+      echo "Add ${i} to current box_setup.sh"
+      cat ${src} >> ./box_setup.sh
+    fi
+  done
+}
+
+cmd=${1}
+arg=${2}
+case $cmd in
+  install) __mkbox_run_install ${arg};;
+  load) __mkbox_run_load ${arg};;
+  *) usage;;
+esac
+
+[[ ${fetch_repo} == 1 ]] && rm -rf -i ${d}
+[[ ${failure} == 1 ]] && exit 1
